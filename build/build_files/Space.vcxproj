@@ -265,6 +265,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\behavior.h" />
     <ClInclude Include="..\..\include\draw_object.h" />
     <ClInclude Include="..\..\include\enemy.h" />
     <ClInclude Include="..\..\include\common.h" />
@@ -292,6 +293,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\behavior.c" />
     <ClCompile Include="..\..\src\draw_object.c" />
     <ClCompile Include="..\..\src\enemy.c" />
     <ClCompile Include="..\..\src\enter_name.c" />

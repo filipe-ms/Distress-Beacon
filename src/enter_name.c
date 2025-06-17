@@ -1,11 +1,13 @@
+// enter_name.c
 #include "enter_name.h"
 #include "ranking.h"
 #include "raylib.h"
-#include <string.h>
 #include "game.h"
 #include "scene_manager.h"
 #include "select_ship.h"
 #include "winner.h"
+
+#include <string.h>
 
 #define MAX_NAME_LENGTH 20
 

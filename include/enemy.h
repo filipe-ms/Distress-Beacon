@@ -1,48 +1,37 @@
+// Enemy.h
+
 #pragma once
 
-
-#include "player.h"
 #include "ship.h"
-
 #include "raylib.h"
 
 typedef enum {
-    LEIGO,
+    BASIC,
     ZIGZAG,
     BOOSTER,
-    PAREDAO,
+    WALLER,
     BOSS
 } EnemyName;
 
-typedef struct Behavior {
-	Vector2 position[10];
-	Vector2 speed[10];
-    int cycle;
-	bool active;
-	Color color;
-} Behavior;
-
 typedef struct Enemy {
-    int id;
+    int type;
     bool active;
-    Rectangle source;
     Rectangle position;
-    Vector2 offset;
     Vector2 speed;
+    float move_time;
+    bool action_flag;
+    Rectangle source;
     Color color;
     float hp;
     float exp;
-    Behavior behavior;
-    float move_time;
-    bool action_flag;
 } Enemy;
 
 void InitEnemies(Enemy* enemy);
 void UpdateEnemies(Enemy* enemy, Ship* ship);
 void DrawEnemies(Enemy* enemy);
 
-void SpawnEnemies(Enemy* enemy, int amount, int id, int hp);
+void SpawnEnemies(Enemy* enemy, int amount, int type, int hp);
 void SpawnRandomEnemies(Enemy* enemy, int amount, int hp);
 
-void LoadEnemyTextures();
-void UnloadEnemyTextures();
+void LoadEnemyTextures(void);
+void UnloadEnemyTextures(void);

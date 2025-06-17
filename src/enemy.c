@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "common.h"
 #include "ship.h"
+#include "behavior.h"
 
 #include <math.h>
 
@@ -15,11 +16,10 @@ Rectangle enemy_rectangles[5] = {
 Texture enemy_texture;
 Vector2 enemy_vect = { 0, 0 };
 
-void InitEnemies(Enemy *enemy) {
+void InitEnemies(Enemy* enemy) {
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++)
     {
-		enemy[i].id = GetRandomValue(0, 4);
-
+        enemy[i].type = GetRandomValue(0, 4);
         enemy[i].position.width = 48;
         enemy[i].position.height = 48;
         enemy[i].position.x = (float)GetRandomValue(SCREEN_WIDTH, SCREEN_WIDTH + 1000);
@@ -29,197 +29,94 @@ void InitEnemies(Enemy *enemy) {
         enemy[i].active = false;
         enemy[i].color = WHITE;
         enemy[i].hp = 3.0f;
-		enemy[i].exp = 10.0f;
+        enemy[i].exp = 10.0f;
         enemy[i].move_time = 0;
-		enemy[i].action_flag = false;
+        enemy[i].action_flag = false;
     }
 }
 
-void SpawnEnemies(Enemy *enemy, int amount, int id, int hp) {
-	for (int i = 0; i < amount; i++)
-	{
-		for (int j = 0; j < MAX_ENEMY_NUMBER; j++){
-			if (enemy[j].active) continue;
+void ResetEnemyForSpawning(Enemy* enemy, int type, int hp) {
+    enemy->active = true;
+    enemy->type = type;
+    enemy->hp = (float)hp;
+    enemy->color = WHITE;
+    enemy->exp = 10.0f;
 
-            enemy[j].active = true;
-            enemy[j].position.x = (float)GetRandomValue(0, (int)(SCREEN_WIDTH - enemy[j].position.width));
-            enemy[j].position.y = (float)GetRandomValue(-200, 0);
-            enemy[j].id = id;
-            enemy[j].hp = (float)hp;
+    enemy->position.x = (float)GetRandomValue(0, (int)(SCREEN_WIDTH - enemy->position.width));
+    enemy->position.y = (float)GetRandomValue(-200, -50);
+    enemy->action_flag = false;
+    enemy->move_time = 0.0f;
+    enemy->speed.x = 0;
+    enemy->speed.y = 120;
+}
+
+void SpawnEnemies(Enemy* enemy, int amount, int type, int hp) {
+    for (int i = 0; i < amount; i++) {
+        for (int j = 0; j < MAX_ENEMY_NUMBER; j++) {
+            if (enemy[j].active) continue;
+            ResetEnemyForSpawning(&enemy[j], type, hp);
+            if (type == ZIGZAG) enemy[j].exp = 20.0f;
+            else if (type == BOOSTER) enemy[j].exp = 25.0f;
+            else if (type == WALLER) enemy[j].exp = 15.0f;
             break;
-		}
-	}
+        }
+    }
 }
 
 void SpawnRandomEnemies(Enemy* enemy, int amount, int hp) {
-    for (int i = 0; i < amount; i++)
-    {
+    for (int i = 0; i < amount; i++) {
         for (int j = 0; j < MAX_ENEMY_NUMBER; j++) {
             if (enemy[j].active) continue;
-            enemy[j].active = true;
-            enemy[j].position.x = (float)GetRandomValue(0, (int)(SCREEN_WIDTH - enemy[j].position.width));
-            enemy[j].position.y = (float)GetRandomValue(-200, 0);
-            enemy[j].id = GetRandomValue(0, 3);
-            enemy[j].hp = (float)hp;
+            int random_type = GetRandomValue(0, 3);
+            ResetEnemyForSpawning(&enemy[j], random_type, hp);
+            if (random_type == ZIGZAG) enemy[j].exp = 20.0f;
+            else if (random_type == BOOSTER) enemy[j].exp = 25.0f;
+            else if (random_type == WALLER) enemy[j].exp = 15.0f;
             break;
         }
     }
 }
 
-//--------------------------------------------------------------
-//
-//                         INIMIGOS
-// 
-//--------------------------------------------------------------
 
-void EnemyParedao(Enemy* enemy) {
-
-    if(enemy->action_flag == false) {
-        enemy->exp = 15.0f;
-        enemy->position.x = (float)(GetRandomValue(0, 1) ? SCREEN_WIDTH : 0);
-        enemy->position.y = (float)(GetRandomValue(300, SCREEN_HEIGHT+300));
-		enemy->action_flag = true;
-    }
-
-    static float f = 0;
-    
-    float amplitude = 3;
-    float velocidade = 5;
-
-    if (enemy->speed.x == 0) enemy->speed.x = velocidade;
-
-    if (enemy->active) {
-        enemy->position.x += amplitude * (float)(sin(f)) * enemy->speed.x * GetFrameTime();
-    }
-
-    f += GetFrameTime();
-
-    if (enemy->position.y > SCREEN_HEIGHT)
-    {
-        enemy->position.x = (float)GetRandomValue(0, SCREEN_WIDTH - (int)(enemy->position.width));
-        enemy->position.y = (float)(GetRandomValue(-200, -400));
-		enemy->action_flag = false;
-    }
-}
-
-void EnemyLeigo(Enemy* enemy) {
-    
-    if (!enemy->active) return;
-	enemy->position.y += enemy->speed.y * GetFrameTime();
-
-    if (enemy->position.y > SCREEN_HEIGHT)
-    {
-        enemy->position.x = (float)GetRandomValue(0, SCREEN_WIDTH - (int)(enemy->position.width));
-        enemy->position.y = (float)(GetRandomValue(-200, -400));
-    }
-}
-
-void EnemyZigZag(Enemy* enemy) {
-    if (!enemy->action_flag) {
-        enemy->exp = 20.0f;
-        enemy->action_flag = true;
-    }
-
-    if (!enemy->active) return;
-
-    if (enemy->move_time <= 0) {
-        enemy->move_time = (float)GetRandomValue(1, 2);
-		int random_speed = GetRandomValue(0, 1);
-		if (random_speed == 0) enemy->speed.x = 100;
-		else enemy->speed.x = -100;
-    }
-    
-    float boost = (float)(GetRandomValue(1, 5));
-
-    enemy->position.y += enemy->speed.y * GetFrameTime();
-    enemy->position.x += enemy->speed.x * boost * GetFrameTime();
-
-    enemy->move_time -= GetFrameTime();
-
-    if (enemy->position.y > SCREEN_HEIGHT)
-    {
-        enemy->position.x = (float)GetRandomValue(0, SCREEN_WIDTH - (int)(enemy->position.width));
-        enemy->position.y = (float)(GetRandomValue(-200, -400));
-    }
-}
-
-void EnemyBooster(Enemy* enemy, Ship* ship) {
-    if (!enemy->active) return;
-
-    if (enemy->position.y < 100) {
-        enemy->exp = 25.0f;
-        enemy->position.y += 100 * GetFrameTime();
-    }
-    else {
-        if (!enemy->action_flag) {
-            enemy->move_time = 2.0f;
-            enemy->action_flag = true;
-        }
-
-        if (enemy->move_time > 0) {
-            enemy->move_time -= GetFrameTime();
-
-            if (enemy->position.x < ship->position.x) {
-                enemy->position.x += 100 * GetFrameTime();
-                if (enemy->position.x > ship->position.x) {
-                    enemy->position.x = ship->position.x;
-                }
-            }
-            else if (enemy->position.x > ship->position.x) {
-                enemy->position.x -= 100 * GetFrameTime();
-                if (enemy->position.x < ship->position.x) {
-                    enemy->position.x = ship->position.x;
-                }
-            }
-        }
-        else {
-            enemy->position.y += 1000 * GetFrameTime();
-        }
-        if (enemy->position.y > SCREEN_HEIGHT) {
-            enemy->action_flag = false;
-            enemy->position.x = (float)GetRandomValue(0, SCREEN_WIDTH - (int)(enemy->position.width));
-            enemy->position.y = (float)(GetRandomValue(-200, -400));
-        }
-    }
-}
-
-
-void UpdateEnemies(Enemy *enemy, Ship* ship) {
+void UpdateEnemies(Enemy* enemy, Ship* ship) {
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++)
     {
         if (!enemy[i].active) continue;
 
-        switch (enemy[i].id) {
-        case 0:
-            EnemyLeigo(&enemy[i]);
+        switch (enemy[i].type) {
+        case BASIC:
+            BehaviorBasic(&enemy[i].position, 120.0f);
             break;
-        case 1:
-            EnemyZigZag(&enemy[i]);
-			break;
-
-        case 2:
-			EnemyBooster(&enemy[i], ship);
+        case ZIGZAG:
+            BehaviorZigZag(&enemy[i].position, 120.0f, &enemy[i].speed.x, &enemy[i].move_time, &enemy[i].action_flag);
             break;
-        case 3:
-            EnemyParedao(&enemy[i]);
+        case BOOSTER:
+            BehaviorBooster(&enemy[i].position, ship, &enemy[i].move_time, &enemy[i].action_flag);
+            break;
+        case WALLER:
+            BehaviorWaller(&enemy[i].position, enemy[i].speed.x);
             break;
         }
 
-        if(enemy[i].position.x < 0 + enemy[i].position.width) {
-			enemy[i].position.x = 0 + enemy[i].position.width;
-            enemy[i].speed.x *= -1;
-		} else if (enemy[i].position.x > SCREEN_WIDTH - enemy[i].position.width/2) {
-			enemy[i].position.x = SCREEN_WIDTH - enemy[i].position.width/2;
-            enemy[i].speed.x *= -1;
+        if (enemy[i].position.x <= 0) {
+            enemy[i].position.x = 0;
+            if (enemy[i].type == ZIGZAG) enemy[i].speed.x *= -1;
+        }
+        else if (enemy[i].position.x >= SCREEN_WIDTH - enemy[i].position.width) {
+            enemy[i].position.x = SCREEN_WIDTH - enemy[i].position.width;
+            if (enemy[i].type == ZIGZAG) enemy[i].speed.x *= -1;
+        }
+
+        if (enemy[i].position.y > SCREEN_HEIGHT + 20) {
+            enemy[i].active = false;
         }
     }
 }
 
-void DrawEnemies(Enemy *enemy) {
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++)
-    {
+void DrawEnemies(Enemy* enemy) {
+    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
         if (enemy[i].active) {
-            DrawTexturePro(enemy_texture, enemy_rectangles[enemy[i].id], enemy[i].position, enemy_vect, 0, enemy[i].color);
+            DrawTexturePro(enemy_texture, enemy_rectangles[enemy[i].type], enemy[i].position, enemy_vect, 0, enemy[i].color);
         }
     }
 }
