@@ -79,7 +79,6 @@ void LoadGame() {
     LoadGameTextures();
     LoadTutorialTextures();
     LoadWeaponTextures();
-    LoadPowerUpTextures();
     LoadShipTextures();
 }
 

@@ -41,7 +41,6 @@ void InitShip(Ship* ship, int id) {
 	ship->alpha = 1.0f;
 	ship->speed = GetInitShipSpeed(id);
 }
-
 void UpdateShip(Ship* ship) {
 	float movement_x = ship->speed.x * GetFrameTime();
 	float movement_y = ship->speed.y * GetFrameTime();
@@ -117,7 +116,6 @@ void DrawShip(Ship* ship) {
 		break;
 	}
 }
-
 void LoadShipTextures(void) {
     ships = LoadTexture("ships.png");
     thrusters = LoadTexture("playerassets.png");

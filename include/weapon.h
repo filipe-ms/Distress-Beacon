@@ -2,14 +2,16 @@
 
 #pragma once
 
-#include "raylib.h"  // Importando para utilizar os rectangles.
+#include "raylib.h"
 #include "ship.h"
 #include "enemy.h"
 
-#define PULSE 0 // Aurea starting weapon
-#define PHOTON 1 // Orion starting weapon
-#define SHOTGUN 2 // Nebula starting weapon
-
+typedef enum WeaponType {
+	PULSE,
+	PHOTON,
+	SHOTGUN,
+	WEAPON_COUNT
+} WeaponType;
 
 //--------------------------------------------------------------
 //
@@ -116,6 +118,7 @@ void UpdateWeapon(Ship* ship);
 void DrawWeapon();
 void LoadWeaponTextures(void);
 void UnloadWeaponTextures(void);
+bool IsWeaponActive(int reference);
 
 // Power Modifiers
 void IncrementCooldownModifier(float value);

@@ -18,7 +18,7 @@
 //--------------------------------------------------------------
 
 
-#define SCREEN_WIDTH 640   // Largura
+#define SCREEN_WIDTH 700   // Largura
 #define SCREEN_HEIGHT 960  // Altura
 
 

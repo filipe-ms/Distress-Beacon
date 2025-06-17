@@ -27,7 +27,7 @@
 // Aurea
 typedef struct Aurea {
     Rectangle destination;  // O local em que vai ser desenhado
-    int direction;        // Para que lado está andando
+    int direction;          // Para que lado está andando
     int thruster_cycle;     // Em que ciclo o thruster está
     Color color;            // Cor
     float alpha;            // Transparência
@@ -38,7 +38,7 @@ void DrawAurea(Aurea* aurea);
 // Orion
 typedef struct Orion {
     Rectangle destination;  // O local em que vai ser desenhado
-    int direction;        // Para que lado está andando
+    int direction;          // Para que lado está andando
     int thruster_cycle;     // Em que ciclo o thruster está
     Color color;            // Cor
     float alpha;            // Transparência
@@ -49,7 +49,7 @@ void DrawOrion(Orion *orion);
 // Nebula
 typedef struct Nebula {
     Rectangle destination;  // O local em que vai ser desenhado
-    int direction;        // Para que lado está andando
+    int direction;          // Para que lado está andando
     int thruster_cycle;     // Em que ciclo o thruster está
     Color color;            // Cor
     float alpha;            // Transparência

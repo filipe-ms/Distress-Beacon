@@ -31,6 +31,9 @@ int List_AddLast(List* list, void* data);
 // Remove um nó específico.
 int List_Remove(List* list, void* data);
 
+// Remove um nó em determinada posição.
+int List_RemoveAt(List* list, int index);
+
 // Remove o primeiro nó da lista.
 int List_RemoveFirst(List* list);
 

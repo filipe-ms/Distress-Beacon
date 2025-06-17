@@ -84,6 +84,7 @@ void InitGame(int ship_id) {
     InitEnemies(enemy);            // Initialize enemies
     InitExpBar();
     InitScore();
+    InitPowerUps();
 
     if (ship_id == 0) { // AUREA
         ActivatePulse();
@@ -359,6 +360,8 @@ void UpdateGame(void)
             UpdateEnemies(enemy, &ship);
             CheckBulletAndEnemyCollision(enemy); // Enemy, kills and score
             UpdateExpBar();
+            UpdateShip(&ship);
+            UpdateWeapon(&ship);
         }
     }
 	for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
@@ -368,8 +371,8 @@ void UpdateGame(void)
 			}
 		}
 	}
-    UpdateShip(&ship);
-	UpdateWeapon(&ship);
+    
+	
 }
 
 
@@ -388,12 +391,17 @@ void DrawGame(void)
 {
     BeginDrawing();
 
+    
     ClearBackground(BLACK);
 	
     DrawBackground();
     DrawEnemies(enemy);
-    DrawExpBar();
+    DrawWeapon(&ship);
+    DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
+
+    DrawExpBar();
+    
 
     if (active_wave == FIRST_WAVE) DrawText("FIRST WAVE", SCREEN_WIDTH / 2 - MeasureText("FIRST WAVE", 40) / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, wave_message_alpha));
     else if (active_wave == SECOND_WAVE) DrawText("SECOND WAVE", SCREEN_WIDTH / 2 - MeasureText("SECOND WAVE", 40) / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, wave_message_alpha));
@@ -403,8 +411,9 @@ void DrawGame(void)
     
     if (victory) DrawText("YOU WIN", SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
-    DrawShip(&ship);
-	DrawWeapon(&ship);
+    
+	
+    
     EndDrawing();
 
 }

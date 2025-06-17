@@ -416,6 +416,16 @@ void IncrementSizeModifier(float value) {
 // 
 //--------------------------------------------------------------
 
+bool IsWeaponActive(int reference) {
+	switch (reference) {
+	case PULSE:   return IsPulseActive();
+	case PHOTON:  return IsPhotonActive();
+	case SHOTGUN: return IsShotgunActive();
+	default:     return false;
+	}
+}
+
+
 static void InitAllWeapons(void) {
     InitPulse();
     InitPhoton();

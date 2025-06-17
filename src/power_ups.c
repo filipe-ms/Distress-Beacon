@@ -3,368 +3,273 @@
 #include "power_ups.h"
 #include "common.h"
 #include "weapon.h"
+#include "list.h"
+#include "raymath.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
-PowerUp values[3];
+Texture2D shoot_damage;
+Texture2D shoot_cooldown;
+Texture2D shoot_size;
+
+Texture2D weapon_pulse;
+Texture2D weapon_photon;
+Texture2D weapon_shotgun;
+
+PowerUpCard active_cards[3];
+PowerUpCard power_up_type[POWERUP_COUNT];
+
 int current_option = 0;
 float power_up_alpha = 0.0f;
 
-//--------------------------------------------------------------
-//
-//                      List for Random
-// 
-//--------------------------------------------------------------
 
-typedef struct Node {
-	int val;
-	struct Node* next;
-} Node;
+void InitPowerUps(void) {
+   
+    shoot_damage = LoadTexture("powerups/damage.png");
+    shoot_cooldown = LoadTexture("powerups/speed.png");
+    shoot_size = LoadTexture("powerups/size.png");
+    weapon_pulse = LoadTexture("powerups/pulse.png");
+    weapon_photon = LoadTexture("powerups/photon.png");
+    weapon_shotgun = LoadTexture("powerups/shotgun.png");
 
-typedef struct List {
-	int count;
-	Node* head;
-} List;
+    power_up_type[SHOOT_COOLDOWN] = (PowerUpCard){
+        .type = SHOOT_COOLDOWN, 
+        .name = "Rapid Fire",
+        .type_string = "ATRIBUTO",
+        .description = "Reduz o tempo\nentre tiros\n+%d%%",
+		.texture = &shoot_cooldown
+    };
 
-static void AddToList(List* list, int val) {
-	Node *new_node = (Node*)malloc(sizeof(Node));
-	if (new_node == NULL) return;
-	new_node->val = val;
-	new_node->next = list->head;
-	list->head = new_node;
-	list->count++;
+    power_up_type[SHOOT_DAMAGE] = (PowerUpCard){
+        .type = SHOOT_DAMAGE, 
+        .name = "Potency",
+		.type_string = "ATRIBUTO",
+        .description = "Aumenta o dano\nde suas armas\n+%d%%",
+		.texture = &shoot_damage
+    };
+
+    power_up_type[SHOOT_SIZE] = (PowerUpCard){
+        .type = SHOOT_SIZE,
+		.type_string = "ATRIBUTO",
+        .name = "Bulky Rounds",
+        .description = "Aumenta o tamanho\nde seus projéteis\n+%d%%",
+		.texture = &shoot_size
+    };
+
+    power_up_type[WEAPON_PULSE] = (PowerUpCard){
+        .type = WEAPON_PULSE, 
+        .name = "Pulse",
+		.type_string = "ARMA",
+        .description = "Pulsos difusos\nde energia",
+        .value = PULSE,
+		.texture = &weapon_pulse
+    };
+
+    power_up_type[WEAPON_PHOTON] = (PowerUpCard){
+        .type = WEAPON_PHOTON,
+        .name = "Photon",
+		.type_string = "ARMA",
+        .description = "Dispara photons\nde alto dano",
+        .value = PHOTON,
+		.texture = &weapon_photon
+    };
+
+    power_up_type[WEAPON_SHOTGUN] = (PowerUpCard){
+        .type = WEAPON_SHOTGUN, 
+        .name = "Shotgun",
+		.type_string = "ARMA",
+        .description = "Vários projéteis\nde curto alcance",
+        .value = SHOTGUN,
+		.texture = &weapon_shotgun
+    };
 }
 
-static int CheckValueInIndex(List* list, int index) {
-	Node* current = list->head;
-	int i = 0;
-	while (current != NULL) {
-		if (i == index) return current->val;
-		i++;
-		current = current->next;
-	}
-	return -1;
-}
-
-static void FreeElementInIndex(List* list, int index) {
-	if (list->head == NULL) return;
-
-	Node* current = list->head;
-
-	if (index == 0) {
-		list->head = current->next;
-		free(current);
-		list->count--;
-		return;
-	}
-
-	for (int i = 0; current != NULL && i < index - 1; i++) {
-		current = current->next;
-	}
-
-	if (current == NULL || current->next == NULL) return;
-
-	Node* temp = current->next->next;
-	free(current->next);
-	list->count--;
-	current->next = temp;
-}
-
-static void FreeList(List* list) {
-	Node* current = list->head;
-	Node* next = NULL;
-	while (current != NULL) {
-		next = current->next;
-		free(current);
-		current = next;
-		list->count = 0;
-	}
-}
-
-
-//--------------------------------------------------------------
-//
-//                      Shoot Cooldown
-// 
-//--------------------------------------------------------------
-
-PowerUp shoot_cooldown;
-
-void InitShootCooldownPower() {
-    shoot_cooldown.effect = SHOOT_COOLDOWN;
-    int value_randomizer = GetRandomValue(4, 8);
-    shoot_cooldown.value = value_randomizer / 100.0f; 
-    sprintf(shoot_cooldown.description_line_1, "Regarga de");
-    sprintf(shoot_cooldown.description_line_2, "ataques");
-    sprintf(shoot_cooldown.description_line_3, "+%.2f", shoot_cooldown.value);
-    shoot_cooldown.color = WHITE; 
-}
-
-//--------------------------------------------------------------
-//
-//                      Shoot Damage
-// 
-//--------------------------------------------------------------
-
-PowerUp shoot_damage;
-
-void InitShootDamagePower() {
-    shoot_damage.effect = SHOOT_DAMAGE;
-    int value_randomizer = GetRandomValue(10, 25);
-    shoot_damage.value = value_randomizer / 100.0f;
-    sprintf(shoot_damage.description_line_1, "Dano de");
-    sprintf(shoot_damage.description_line_2, "ataque");
-	sprintf(shoot_damage.description_line_3, "+%.2f", (shoot_damage.value));
-    shoot_damage.color = WHITE;
-}
-
-//--------------------------------------------------------------
-//
-//                      Shoot Size
-// 
-//--------------------------------------------------------------
-
-PowerUp shoot_size;
-
-void InitShootSizePower() {
-    shoot_size.effect = SHOOT_SIZE;
-	int value_randomizer = GetRandomValue(10, 20);
-    shoot_size.value = value_randomizer / 100.0f;
-    sprintf(shoot_size.description_line_1, "Tamanho de");
-    sprintf(shoot_size.description_line_2, "ataques");
-    sprintf(shoot_size.description_line_3, "+%d%%", (int)(shoot_size.value*100));
-    shoot_size.color = WHITE;
-}
-
-//--------------------------------------------------------------
-//
-//                        New Weapon
-// 
-//--------------------------------------------------------------
-
-PowerUp new_weapon_pulse;
-PowerUp new_weapon_photon;
-PowerUp new_weapon_shotgun;
-
-void InitNewWeaponPower() {
-	new_weapon_pulse.effect = WEAPON_PULSE;
-	new_weapon_photon.effect = WEAPON_PHOTON;
-	new_weapon_shotgun.effect = WEAPON_SHOTGUN;
-
-    new_weapon_pulse.value = PULSE;
-	new_weapon_photon.value = PHOTON;
-	new_weapon_shotgun.value = SHOTGUN;
-
-	sprintf(new_weapon_pulse.description_line_1, "Phaser");
-	sprintf(new_weapon_pulse.description_line_2, "Velocidade:");
-	sprintf(new_weapon_pulse.description_line_3, "Alta");
-    new_weapon_pulse.color = WHITE;
-
-	sprintf(new_weapon_photon.description_line_1, "Photon");
-	sprintf(new_weapon_photon.description_line_2, "Velocidade:");
-	sprintf(new_weapon_photon.description_line_3, "Regular");
-	new_weapon_photon.color = WHITE;
-
-	sprintf(new_weapon_shotgun.description_line_1, "Shotgun");
-	sprintf(new_weapon_shotgun.description_line_2, "Velocidade:");
-	sprintf(new_weapon_shotgun.description_line_3, "Baixa");
-	new_weapon_shotgun.color = WHITE;
-}
-
-
-
-//--------------------------------------------------------------
-//
-//                          Update
-// 
-//--------------------------------------------------------------
-
-PowerUp GetPowerUpReference(int effect) {
-	switch (effect) {
-		case SHOOT_COOLDOWN:
-			return shoot_cooldown;
-		case SHOOT_DAMAGE:
-			return shoot_damage;
-		case SHOOT_SIZE:
-			return shoot_size;
-		case WEAPON_PULSE:
-			return new_weapon_pulse;
-		case WEAPON_PHOTON:
-			return new_weapon_photon;
-		case WEAPON_SHOTGUN:
-			return new_weapon_shotgun;
-		default:
-			return (PowerUp) { NONE, 0.0f, { 0 }, { 0 }, { 0 }, { 0 }, WHITE };
-		}
-}
-
-
-void GetRandomPowers() {
-	List power_ref_list;
-	power_ref_list.count = 0;
-	power_ref_list.head = NULL;
-	
-    AddToList(&power_ref_list, SHOOT_COOLDOWN);
-    AddToList(&power_ref_list, SHOOT_DAMAGE);
-    AddToList(&power_ref_list, SHOOT_SIZE);
-
-	if(!IsPulseActive()) AddToList(&power_ref_list, WEAPON_PULSE);
-    if(!IsPhotonActive()) AddToList(&power_ref_list, WEAPON_PHOTON);
-	if(!IsShotgunActive()) AddToList(&power_ref_list, WEAPON_SHOTGUN);
-
-	for (int i = 0; i < 3; i++) {
-        int index = GetRandomValue(0, (power_ref_list.count)-1);
-		int index_val = CheckValueInIndex(&power_ref_list, index);
-		values[i] = GetPowerUpReference(index_val);
-		FreeElementInIndex(&power_ref_list, index);
-    }
-
-	FreeList(&power_ref_list);
+void UnloadPowerUpTextures(void) {
+	UnloadTexture(shoot_damage);
+	UnloadTexture(shoot_cooldown);
+	UnloadTexture(shoot_size);
+	UnloadTexture(weapon_pulse);
+	UnloadTexture(weapon_photon);
+	UnloadTexture(weapon_shotgun);
 }
 
 void PowerRandomizer(void) {
 
-	InitShootCooldownPower();
-	InitShootDamagePower();
-	InitShootSizePower();
-	InitNewWeaponPower();
-
-    GetRandomPowers();
-}
-
-void PickPowerUp() {
-	PowerUp power = values[current_option];
-	switch (power.effect) {
-	    case SHOOT_COOLDOWN:
-            IncrementCooldownModifier(power.value); 
-            break;
-        case SHOOT_DAMAGE: 
-            IncrementDamageModifier(power.value);
-            break;
-	    case SHOOT_SIZE: 
-            IncrementSizeModifier(power.value);
-            break;
-        case WEAPON_PULSE:
-            ActivatePulse();
-            break;
-        case WEAPON_PHOTON:
-            ActivatePhoton();
-            break;
-        case WEAPON_SHOTGUN:
-            ActivateShotgun();
-            break;
-	}
-
-	for (int i = 0; i < 3; i++) {
-		values[i].effect = NONE;
-	}
-
-}
-
-PowerUp UpdateLevelUpSelectMenu(bool *flag) {
-	if (*flag) {
-
-		if (power_up_alpha < 1.0f) power_up_alpha += 0.5f * GetFrameTime();
-
-		if (IsKeyPressed(KEY_RIGHT)) {
-			current_option++;
-			if (current_option > 2) current_option = 0;
-		}
-
-		else if (IsKeyPressed(KEY_LEFT)) {
-			current_option--;
-			if (current_option < 0) current_option = 2;
-		}
-
-		else if (IsKeyPressed(KEY_ENTER)) {
-			*flag = false;
-            PickPowerUp();
-		}
+    for (int i = 0; i < 3; i++) {
+        active_cards[i] = (PowerUpCard){ 0 };
     }
-    else {
-		power_up_alpha = 0.0f;
-    }
-    return (PowerUp) { NONE, 0.0f, { 0 }, { 0 }, { 0 }, { 0 }, WHITE };
 
+    List* available_powerups = List_Create(sizeof(PowerUpType));
+    
+    for (int i = 0; i < POWERUP_COUNT; i++) {
+        PowerUpType current_type = (PowerUpType)i;
+        bool is_weapon = (current_type >= WEAPON_PULSE && current_type <= WEAPON_SHOTGUN);
+
+        if (is_weapon) {
+            if (!IsWeaponActive(power_up_type[current_type].value)) {
+                List_Add(available_powerups, &current_type);
+            }
+        } else {
+            List_Add(available_powerups, &current_type);
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        if (available_powerups->size == 0) break;
+
+        int random_index = GetRandomValue(0, available_powerups->size - 1);
+        PowerUpType powerup_type = *(PowerUpType*)List_GetByIndex(available_powerups, random_index); // precisa de cast pq o retorno é void pointer
+
+        active_cards[i] = power_up_type[powerup_type];
+
+        switch (powerup_type) {
+        case SHOOT_COOLDOWN: {
+            int percentage = GetRandomValue(5, 10);
+            active_cards[i].value = percentage / 100.0f;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, percentage);
+            break;
+        }
+        case SHOOT_DAMAGE: {
+            int percentage = GetRandomValue(10, 25);
+            active_cards[i].value = percentage / 100.0f;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, percentage);
+            break;
+        }
+        case SHOOT_SIZE: {
+            int percentage = GetRandomValue(15, 30);
+            active_cards[i].value = percentage / 100.0f;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, percentage);
+            break;
+        }
+        default:
+            sprintf(active_cards[i].description_buffer, "%s", active_cards[i].description);
+            break;
+        }
+
+        List_RemoveAt(available_powerups, random_index);
+    }
+
+    List_Destroy(available_powerups);
 }
 
-//--------------------------------------------------------------
-//
-//                          Draw
-// 
-//--------------------------------------------------------------
+static void PickPowerUp(void) {
+    PowerUpCard chosen_powerup = active_cards[current_option];
 
+    switch (chosen_powerup.type) {
+    case SHOOT_COOLDOWN: IncrementCooldownModifier(chosen_powerup.value); break;
+    case SHOOT_DAMAGE:   IncrementDamageModifier(chosen_powerup.value);   break;
+    case SHOOT_SIZE:     IncrementSizeModifier(chosen_powerup.value);     break;
 
-void DrawMultilineText(const char* line1, const char* line2, const char* line3, float x, float y, int fontSize, Color color, float alpha) {
-    DrawText(line1, (int)((x + 32) - MeasureText(line1, fontSize) / 2.0f), (int)y, fontSize, Fade(color, alpha));
-    DrawText(line2, (int)((x + 32) - MeasureText(line2, fontSize) / 2.0f), (int)y+30, fontSize, Fade(color, alpha));
-    DrawText(line3, (int)((x + 32) - MeasureText(line3, fontSize) / 2.0f), (int)y+60, fontSize, Fade(color, alpha));
+    case WEAPON_PULSE:   ActivatePulse();   break;
+    case WEAPON_PHOTON:  ActivatePhoton();  break;
+    case WEAPON_SHOTGUN: ActivateShotgun(); break;
+    default: break;
+    }
+}
+
+void UpdateLevelUpSelectMenu(bool* flag) {
+    if (!(*flag)) {
+        power_up_alpha = 0.0f;
+        return;
+    }
+
+    if (power_up_alpha < 1.0f) {
+        power_up_alpha += 0.5f * GetFrameTime();
+    }
+
+    if (IsKeyPressed(KEY_RIGHT)) {
+        current_option = (current_option + 1) % 3;
+    }
+    else if (IsKeyPressed(KEY_LEFT)) {
+        current_option = (current_option - 1 + 3) % 3;
+    }
+    else if (IsKeyPressed(KEY_ENTER)) {
+        *flag = false;
+        PickPowerUp();
+    }
+}
+
+static void DrawMultilineText(const char* text, float centerX, float y, int fontSize, Color color, float alpha) {
+    const char* str = text;
+    float lineHeight = (float)fontSize + 4.0f;
+
+    while (*str) {
+        int len = 0;
+        while (str[len] != '\n' && str[len] != '\0') {
+            len++;
+        }
+
+        if (len > 0) {
+            const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
+            float lineWidth = (float)MeasureText(line, fontSize);
+            float x = centerX - (lineWidth / 2.0f);
+            //DrawText(line, (int)x-2, (int)y-2, fontSize, Fade(RAYWHITE, alpha - 0.5f));
+            DrawText(line, (int)x, (int)y, fontSize, Fade(color, alpha));
+        }
+
+        str += len;
+        if (*str == '\n') {
+            str++;
+            y += lineHeight;
+        }
+    }
+}
+
+static void DrawPowerUpCard(PowerUpCard* card, Rectangle card_rec, bool is_selected, float alpha) {
+    float card_center_x = card_rec.x + card_rec.width / 2.0f;
+
+    DrawRectangleRounded(card_rec, 0.1f, 10, Fade(BLACK, 0.75f * alpha));
+    Color border_color = is_selected ? Fade(RED, alpha) : Fade(GRAY, alpha);
+    DrawRectangleRoundedLinesEx(card_rec, 0.1f, 10, 4.0f, border_color);
+
+    float name_size = 26.0f;
+
+    float name_y = card_rec.y + 20.0f;
+    float name_width = (float)MeasureText(card->name, name_size);
+    //DrawText(card->name, (int)(card_center_x - name_width / 2.0f) - 2, (int)name_y - 2, name_size, Fade(RAYWHITE, alpha-0.5f));
+    DrawText(card->name, (int)(card_center_x - name_width / 2.0f), (int)name_y, name_size, Fade(GREEN, alpha));
+
+    Texture2D* texture = card->texture;
+    float scale = 2.5f;
+    float texture_width = (float)texture->width * scale;
+    Vector2 texture_pos = { card_center_x - (texture_width / 2.0f), name_y + 40.0f };
+    DrawTextureEx(*texture, texture_pos, 0, scale, Fade(WHITE, alpha));
+
+    const char* type_text = card->type_string;
+    int typeFontSize = 20;
+    float type_y = texture_pos.y + (texture->height * scale) + 15.0f;
+    Color type_color;
+    if (strcmp(type_text, "ARMA") == 0) type_color = RED;
+    else type_color = BLUE;
+    float type_width = (float)MeasureText(type_text, typeFontSize);
+    Color shadow_color = (Color){ type_color.r, type_color.g, type_color.b, alpha };
+    DrawText(type_text, (int)(card_center_x - type_width / 2.0f) - 2, (int)type_y - 2, typeFontSize, Fade(shadow_color, alpha-0.5f));
+    DrawText(type_text, (int)(card_center_x - type_width / 2.0f), (int)type_y, typeFontSize, Fade(type_color, alpha));
+
+    float description_y = type_y + 35.0f;
+    DrawMultilineText(card->description_buffer, card_center_x, description_y, 20, WHITE, alpha);
 }
 
 void DrawLevelUpSelectMenu(bool flag) {
-    if (flag) {
-        DrawText("Selecione um poder", (int)(SCREEN_WIDTH / 2 - MeasureText("Selecione um poder", 40) / 2), (int)(SCREEN_HEIGHT / 2 - 350), 40, Fade(WHITE, power_up_alpha));
+    if (!flag) return;
 
-        int card_width = values[0].texture.width;
-		int card_height = values[0].texture.height;
+    const char* title = "Selecione um upgrade";
+    int titleFontSize = 40;
+    float titleWidth = (float)MeasureText(title, titleFontSize);
+    DrawText(title, (int)((SCREEN_WIDTH - titleWidth) / 2.0f) - 2, (int)(SCREEN_HEIGHT / 2.0f - 280.0f) - 2, titleFontSize, Fade(RAYWHITE, power_up_alpha - 0.5f));
+    DrawText(title, (int)((SCREEN_WIDTH - titleWidth) / 2.0f), (int)(SCREEN_HEIGHT / 2.0f - 280.0f), titleFontSize, Fade(WHITE, power_up_alpha));
 
-        float texture_1_x_pos = (float)(SCREEN_WIDTH * 0.25 - (card_width * 2.5 / 2)-32);
-        float texture_2_x_pos = (float)(SCREEN_WIDTH * 0.5 - (card_width * 2.5 / 2));
-        float texture_3_x_pos = (float)(SCREEN_WIDTH * 0.75 - (card_width * 2.5 / 2)+32);
+    float card_width = 210.0f;
+    float card_height = 320.0f;
+    float spacing = 20.0f;
+    float total_width = (card_width * 3) + (spacing * 2);
+    float start_x = (SCREEN_WIDTH - total_width) / 2.0f;
+    float y_pos = (SCREEN_HEIGHT - card_height) / 2.0f;
 
-        float y_pos = (float)(SCREEN_HEIGHT / 2) - 250;
-        float text_y_offset = (float)(SCREEN_HEIGHT / 2) - 50;
-
-        Color card_1 = (current_option == 0) ? Fade(RED, power_up_alpha) : Fade(GRAY, power_up_alpha);
-        Color card_2 = (current_option == 1) ? Fade(RED, power_up_alpha) : Fade(GRAY, power_up_alpha);
-        Color card_3 = (current_option == 2) ? Fade(RED, power_up_alpha) : Fade(GRAY, power_up_alpha);
-
-        Rectangle border_1 = { texture_1_x_pos - 4, y_pos - 4, card_width * 2.5f + 8, (float)(card_height * 2.5 + 8) };
-        Rectangle border_2 = { texture_2_x_pos - 4, y_pos - 4, card_width * 2.5f + 8, (float)(card_height * 2.5 + 8) };
-        Rectangle border_3 = { texture_3_x_pos - 4, y_pos - 4, card_width * 2.5f + 8, (float)(card_height * 2.5 + 8) };
-        
-        DrawRectangleLinesEx(border_1, 16, card_1);
-        DrawRectangleLinesEx(border_2, 16, card_2);
-        DrawRectangleLinesEx(border_3, 16, card_3);
-
-        Rectangle rec_1 = { texture_1_x_pos - 24, y_pos + 145, 180, (float)(card_height + 40) };
-        Rectangle rec_2 = { texture_2_x_pos - 24, y_pos + 145, 180, (float)(card_height + 40) };
-        Rectangle rec_3 = { texture_3_x_pos - 24, y_pos + 145, 180, (float)(card_height + 40) };
-
-        DrawRectangleRec(rec_1, Fade(BLACK, power_up_alpha));
-        DrawRectangleRec(rec_2, Fade(BLACK, power_up_alpha));
-        DrawRectangleRec(rec_3, Fade(BLACK, power_up_alpha));
-
-        DrawTextureEx(values[0].texture, (Vector2) { texture_1_x_pos, y_pos }, 0, 2.5, Fade(WHITE, power_up_alpha));
-        DrawTextureEx(values[1].texture, (Vector2) { texture_2_x_pos, y_pos }, 0, 2.5, Fade(WHITE, power_up_alpha));
-        DrawTextureEx(values[2].texture, (Vector2) { texture_3_x_pos, y_pos }, 0, 2.5, Fade(WHITE, power_up_alpha));
-
-        DrawMultilineText(values[0].description_line_1, values[0].description_line_2, values[0].description_line_3, texture_1_x_pos + 32, text_y_offset - 56, 30, WHITE, power_up_alpha);
-        DrawMultilineText(values[1].description_line_1, values[1].description_line_2, values[1].description_line_3, texture_2_x_pos + 32, text_y_offset - 56, 30, WHITE, power_up_alpha);
-        DrawMultilineText(values[2].description_line_1, values[2].description_line_2, values[2].description_line_3, texture_3_x_pos + 32, text_y_offset - 56, 30, WHITE, power_up_alpha);
+    for (int i = 0; i < 3; i++) {
+        Rectangle card_rec = { start_x + i * (card_width + spacing), y_pos, card_width, card_height };
+        bool is_selected = (current_option == i);
+        DrawPowerUpCard(&active_cards[i], card_rec, is_selected, power_up_alpha);
     }
-}
-
-//--------------------------------------------------------------
-void LoadPowerUpTextures(void) {
-
-	shoot_cooldown.texture = LoadTexture("powerups/speed.png");
-	shoot_damage.texture = LoadTexture("powerups/damage.png");
-	shoot_size.texture = LoadTexture("powerups/size.png");
-
-    new_weapon_pulse.texture = LoadTexture("powerups/pulse.png");
-    new_weapon_photon.texture = LoadTexture("powerups/photon.png");
-    new_weapon_shotgun.texture = LoadTexture("powerups/shotgun.png");
-}
-
-void UnloadPowerUpTextures(void) {
-	UnloadTexture(shoot_cooldown.texture);
-	UnloadTexture(shoot_damage.texture);
-	UnloadTexture(shoot_size.texture);
-
-	UnloadTexture(new_weapon_pulse.texture);
-	UnloadTexture(new_weapon_photon.texture);
-	UnloadTexture(new_weapon_shotgun.texture);
 }

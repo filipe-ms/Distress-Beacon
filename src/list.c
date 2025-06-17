@@ -122,6 +122,31 @@ int List_Remove(List* list, void* data) {
     return 0;
 }
 
+
+int List_RemoveAt(List* list, int index) {
+    if (!list || index < 0 || index >= list->size) return 0;
+
+    Node* current = list->head;
+    Node* previous = NULL;
+
+    for (int i = 0; i < index; i++) {
+        previous = current;
+        current = current->next;
+    }
+
+    if (previous) previous->next = current->next;
+    else list->head = current->next;
+
+    if (current == list->tail) list->tail = previous;
+
+    free(current->data);
+    free(current);
+    list->size--;
+
+    return 1;
+}
+
+
 // Remove o primeiro elemento da lista.
 int List_RemoveFirst(List* list) {
     if (!list || !list->head) return 0;

@@ -3,37 +3,38 @@
 #pragma once
 
 #include "raylib.h"
-#include "weapon.h"
-#include "player.h"
 
-typedef enum {
-    // PowerUp effects
+typedef enum PowerUpType {
+    // Efeitos de Power-up
     SHOOT_COOLDOWN,
     SHOOT_DAMAGE,
     SHOOT_SIZE,
 
-    // New weapons
+    // Novas Armas
     WEAPON_PULSE,
     WEAPON_PHOTON,
     WEAPON_SHOTGUN,
 
-    // None
-    NONE = 99
+    // Esse aqui sempre vai ser o número total de power ups
+    POWERUP_COUNT
 } PowerUpType;
 
-typedef struct PowerUp {
-    int effect;
+typedef struct PowerUpCard {
+    PowerUpType type;
     float value;
 
-    Texture texture;
-    char description_line_1[20];
-    char description_line_2[20];
-    char description_line_3[20];
-    Color color;
-} PowerUp;
+    char* name;
+    char* type_string;
+    char* description;
 
-void PowerRandomizer(void);
-PowerUp UpdateLevelUpSelectMenu(bool* flag);
-void DrawLevelUpSelectMenu(bool flag);
-void LoadPowerUpTextures(void);
+    Texture2D* texture;
+
+    char description_buffer[128];
+
+} PowerUpCard;
+
+void InitPowerUps(void);
 void UnloadPowerUpTextures(void);
+void PowerRandomizer(void);
+void UpdateLevelUpSelectMenu(bool* flag);
+void DrawLevelUpSelectMenu(bool flag);
