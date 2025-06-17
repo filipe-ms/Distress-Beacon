@@ -11,9 +11,6 @@
 
 #pragma once
 
-#ifndef DRAW_OBJECT_H
-#define DRAW_OBJECT_H
-
 #define CENTER 0
 #define LEFT 1
 #define RIGHT 2
@@ -23,9 +20,7 @@
 #define NEBULA 2
 
 #include "raylib.h"
-
-
-
+#include "ship.h"
 
 // Específicos
 
@@ -62,23 +57,7 @@ typedef struct Nebula {
 
 void DrawNebula(Nebula* nebula);
 
-// Genéricos
 
-typedef struct ObjectPro {
-    Texture texture;        // A textura
-    Rectangle position;     // A posição na sheet
-    Rectangle destination;  // O local em que vai ser desenhado
-    Vector2 offset;         // Se houver offset
-    float rotation;         // Rotação
-    Color color;            // Cor
-    float alpha;            // Transparência
-} ObjectPro;
-
-void DrawObjectPro(ObjectPro *object);
 
 void LoadObjectTextures(void);
 void UnloadObjectTextures(void);
-
-
-
-#endif // DRAW_OBJECT_H

@@ -4,6 +4,8 @@
 #include "draw_object.h"
 #include "common.h"
 #include "scene_manager.h"
+#include "background.h"
+
 #include <math.h>
 
 // Background

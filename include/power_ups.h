@@ -2,9 +2,6 @@
 
 #pragma once
 
-#ifndef POWER_UPS_H
-#define POWER_UPS_H
-
 #include "raylib.h"
 #include "weapon.h"
 #include "player.h"
@@ -40,5 +37,3 @@ PowerUp UpdateLevelUpSelectMenu(bool* flag);
 void DrawLevelUpSelectMenu(bool flag);
 void LoadPowerUpTextures(void);
 void UnloadPowerUpTextures(void);
-
-#endif // POWER_UPS_H

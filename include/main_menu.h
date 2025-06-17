@@ -2,9 +2,6 @@
 
 #pragma once
 
-#ifndef MAIN_MENU_H
-#define MAIN_MENU_H
-
 #include "raylib.h"
 
 typedef enum {
@@ -20,5 +17,3 @@ void UpdateMenu();
 void DrawMenu();
 void LoadMenuBackgroundTexture(void);
 void UnloadMenuBackgroundTexture(void);
-
-#endif // MAIN_MENU_H

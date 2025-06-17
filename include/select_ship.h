@@ -2,9 +2,6 @@
 
 #pragma once
 
-#ifndef SELECT_SHIP_H
-#define SELECT_SHIP_H
-
 #include "raylib.h"
 
 typedef enum {
@@ -30,5 +27,3 @@ void UnloadSelectMenuTextures(void);
 
 
 void DrawSelectMenuBackground(void);
-
-#endif // SELECT_SHIP_H

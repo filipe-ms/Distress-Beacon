@@ -23,7 +23,6 @@
 
 // Nossos próprios includes
 #include "common.h"
-#include "draw_object.h"
 
 #include "scene_manager.h"
 
@@ -38,7 +37,9 @@
 #include "tutorial.h"
 #include "game.h"
 
-static Scene starting_scene = START;
+#include "ship.h"
+
+static Scene starting_scene = SELECT_SHIP;
 
 void LoadGame(void);
 void UnloadGame(void);
@@ -74,23 +75,23 @@ void LoadGame() {
 
     LoadMenuBackgroundTexture();
     LoadSelectMenuTextures();
-    LoadObjectTextures();
     LoadEnemyTextures();
     LoadGameTextures();
     LoadTutorialTextures();
     LoadWeaponTextures();
     LoadPowerUpTextures();
+    LoadShipTextures();
 }
 
 
 // Unload game variables
 void UnloadGame(void)
 {
-    UnloadObjectTextures();
     UnloadEnemyTextures();
     UnloadSelectMenuTextures();
     UnloadMenuBackgroundTexture();
     UnloadTutorialTextures();
     UnloadWeaponTextures();
     UnloadPowerUpTextures();
+	UnloadShipTextures();
 }

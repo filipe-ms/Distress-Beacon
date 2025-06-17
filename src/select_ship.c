@@ -5,7 +5,8 @@
 #include "player.h"
 #include "scene_manager.h"
 #include "draw_object.h"
-#include <math.h>
+#include "background.h"
+#include "raymath.h"
 
 Background select_ship_menu_background;
 SelectMenuOption select_ship_menu_option;
@@ -160,7 +161,7 @@ void UpdateShipSelectMenu() {
     else if (IsKeyPressed(KEY_ENTER)) {
 		selected_ship = select_ship_menu_option;
         select_ship_menu_is_transitioning = true;
-        scene = TUTORIAL;
+        scene = GAME;// TROCAR P TUTORIAL DPS
     }
 }
 

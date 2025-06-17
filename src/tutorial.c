@@ -5,6 +5,7 @@
 #include "common.h"
 #include "select_ship.h"
 #include "math.h"
+#include "background.h"
 #include "raymath.h"
 
 #define FADE Fade(tutorial.color, tutorial.alpha * tutorial_transition_alpha * tutorial_start_alpha)

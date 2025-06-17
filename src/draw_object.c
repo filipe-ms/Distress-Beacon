@@ -177,10 +177,6 @@ void DrawNebula(Nebula *nebula) {
 // 
 //--------------------------------------------------------------
 
-void DrawObjectPro(ObjectPro* object) {
-    DrawTexturePro(object->texture, object->position, object->destination, object->offset, object->rotation, Fade(object->color, object->alpha));
-}
-
 void LoadObjectTextures(void) {
     ships = LoadTexture("ships.png");
     thrusters = LoadTexture("playerassets.png");

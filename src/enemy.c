@@ -1,5 +1,6 @@
 #include "enemy.h"
 #include "common.h"
+#include "ship.h"
 
 #include <math.h>
 
@@ -142,7 +143,7 @@ void EnemyZigZag(Enemy* enemy) {
     }
 }
 
-void EnemyBooster(Enemy* enemy, Player* player) {
+void EnemyBooster(Enemy* enemy, Ship* ship) {
     if (!enemy->active) return;
 
     if (enemy->position.y < 100) {
@@ -158,16 +159,16 @@ void EnemyBooster(Enemy* enemy, Player* player) {
         if (enemy->move_time > 0) {
             enemy->move_time -= GetFrameTime();
 
-            if (enemy->position.x < player->position.x) {
+            if (enemy->position.x < ship->position.x) {
                 enemy->position.x += 100 * GetFrameTime();
-                if (enemy->position.x > player->position.x) {
-                    enemy->position.x = player->position.x;
+                if (enemy->position.x > ship->position.x) {
+                    enemy->position.x = ship->position.x;
                 }
             }
-            else if (enemy->position.x > player->position.x) {
+            else if (enemy->position.x > ship->position.x) {
                 enemy->position.x -= 100 * GetFrameTime();
-                if (enemy->position.x < player->position.x) {
-                    enemy->position.x = player->position.x;
+                if (enemy->position.x < ship->position.x) {
+                    enemy->position.x = ship->position.x;
                 }
             }
         }
@@ -183,7 +184,7 @@ void EnemyBooster(Enemy* enemy, Player* player) {
 }
 
 
-void UpdateEnemies(Enemy *enemy, Player *player) {
+void UpdateEnemies(Enemy *enemy, Ship* ship) {
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++)
     {
         if (!enemy[i].active) continue;
@@ -197,14 +198,12 @@ void UpdateEnemies(Enemy *enemy, Player *player) {
 			break;
 
         case 2:
-			EnemyBooster(&enemy[i], player);
+			EnemyBooster(&enemy[i], ship);
             break;
         case 3:
             EnemyParedao(&enemy[i]);
             break;
         }
-
-
 
         if(enemy[i].position.x < 0 + enemy[i].position.width) {
 			enemy[i].position.x = 0 + enemy[i].position.width;
@@ -223,16 +222,6 @@ void DrawEnemies(Enemy *enemy) {
             DrawTexturePro(enemy_texture, enemy_rectangles[enemy[i].id], enemy[i].position, enemy_vect, 0, enemy[i].color);
         }
     }
-}
-
-bool CheckEnemyCollisionWithPlayer(Player player, Enemy *enemy) {
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-		if (!enemy[i].active) continue;
-        if (CheckCollisionRecs(player.position, enemy[i].position)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 void LoadEnemyTextures() {

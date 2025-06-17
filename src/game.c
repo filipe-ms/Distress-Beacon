@@ -6,6 +6,11 @@
 #include "power_ups.h"
 #include "scene_manager.h"
 #include "winner.h"
+#include "game_behavior.h"
+#include "ship.h"
+#include "background.h"
+#include "list.h"
+
 
 #include <math.h>
 
@@ -21,8 +26,10 @@ static bool pause_flag = false;
 static bool victory = false;
 static bool wave_completed = true;
 
-static Player player = { 0 };
-static Enemy enemy[MAX_ENEMY_NUMBER] = { 0 };
+Player player;
+Ship ship;
+Enemy enemy[MAX_ENEMY_NUMBER] = { 0 };
+
 
 // BACKGROUND
 static Background background;
@@ -38,15 +45,12 @@ float wave_enemy_cooldown_s = 5.0f;
 float wave_enemy_charge_s = 0.0f;
 
 // COUNTS
-int player_score = 0;
-int enemies_killed;
 int enemy_hp;
 
 // BUFFS AND POWERS
 bool level_up_flag = false;
 
 void InitGame(int ship_id) {
-
     static bool pause = false;
     static bool pause_flag = false;
     static bool victory = false;
@@ -68,18 +72,31 @@ void InitGame(int ship_id) {
     wave_message_alpha_flag = false;
 
     // Enemies
-    enemies_killed = 0;
     enemy_hp = 3;
 
     // Buffs
     level_up_flag = false;
 
     // Other inits
-    InitPlayer(&player, ship_id);
+    InitShip(&ship, ship_id);
+    InitWeapon();
+    InitPlayer(&player);
     InitEnemies(enemy);            // Initialize enemies
-    InitWeapon(&player);           // Initialize weapons
     InitExpBar();
     InitScore();
+
+    if (ship_id == 0) { // AUREA
+        ActivatePulse();
+    }
+    else if (ship_id == 1) { // ORION
+        ActivatePhoton();
+    }
+    else if (ship_id == 2) { // NEBULA
+        ActivateShotgun();
+    }
+    else { // Default
+        ActivatePulse();
+    }
 
 	// Background
     background.position_y = -1200;
@@ -272,7 +289,7 @@ void CheckCollision(Shoot* shoot, Enemy* enemy) {
 		shoot->active = false;
 		if (enemy->hp <= 0) {
 			enemy->active = false;
-			enemies_killed++;
+            player.enemies_killed++;
 			level_up_flag = AddToExp(enemy->exp);
             if (level_up_flag) PowerRandomizer();
             AddToScore(10);
@@ -339,16 +356,20 @@ void UpdateGame(void)
         } else {
             UpdateWave();
             UpdateBackground(&background);
-
-            UpdatePlayer(&player);
-            UpdateWeapon(&player);
-            UpdateEnemies(enemy, &player);
+            UpdateEnemies(enemy, &ship);
             CheckBulletAndEnemyCollision(enemy); // Enemy, kills and score
             UpdateExpBar();
-
-            if (CheckEnemyCollisionWithPlayer(player, enemy)) ChangeScene(GAME_OVER);
         }
     }
+	for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
+		if (enemy[i].active) {
+			if (CheckEnemyCollisionWithPlayer(&ship, &enemy[i])) {
+                ChangeScene(GAME_OVER);
+			}
+		}
+	}
+    UpdateShip(&ship);
+	UpdateWeapon(&ship);
 }
 
 
@@ -368,10 +389,8 @@ void DrawGame(void)
     BeginDrawing();
 
     ClearBackground(BLACK);
-
+	
     DrawBackground();
-	DrawWeapon(&player);
-    DrawPlayer(player);
     DrawEnemies(enemy);
     DrawExpBar();
     DrawLevelUpSelectMenu(level_up_flag);
@@ -384,8 +403,10 @@ void DrawGame(void)
     
     if (victory) DrawText("YOU WIN", SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
-
+    DrawShip(&ship);
+	DrawWeapon(&ship);
     EndDrawing();
+
 }
 
 //--------------------------------------------------------------

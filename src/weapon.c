@@ -9,7 +9,7 @@
 #include "draw_object.h"
 #include "raymath.h"
 #include "player.h"
-#include <math.h>
+#include "ship.h"
 
 
 
@@ -62,7 +62,7 @@ static void InitPulse(void) {
     }
 }
 
-static void InitPulseShoot(Player *player) {
+static void InitPulseShoot(Ship* ship) {
 
     for (int i = 0; i < 50; i++) {
         if (pulse.pulse_shoot[i].shoot.active) continue;
@@ -79,8 +79,8 @@ static void InitPulseShoot(Player *player) {
         
         Vector2 rotation_offset = Vector2Rotate(pulse.weapon.offset, (float)(degToRad(pulse.weapon_cycle * pulse.rotation)));
             
-        pulse.pulse_shoot[i].shoot.position.x = rotation_offset.x + player->center.x - pulse.pulse_shoot[i].shoot.position.width / 2.0f;
-        pulse.pulse_shoot[i].shoot.position.y = rotation_offset.y + player->center.y - pulse.pulse_shoot[i].shoot.position.height / 2.0f;
+        pulse.pulse_shoot[i].shoot.position.x = rotation_offset.x + ship->position.x - pulse.pulse_shoot[i].shoot.position.width / 2.0f;
+        pulse.pulse_shoot[i].shoot.position.y = rotation_offset.y + ship->position.y - pulse.pulse_shoot[i].shoot.position.height / 2.0f;
         
         pulse.pulse_shoot[i].shoot.speed = Vector2Rotate(pulse.weapon.speed, (float)(degToRad(pulse.weapon_cycle * pulse.rotation)));
         
@@ -112,13 +112,13 @@ static void UpdatePulseShoot() {
     }
 }
 
-static void UpdatePulse(Player *player) {
+static void UpdatePulse(Ship* ship) {
 	if (!pulse.weapon.active) return;
 
     pulse.weapon.cooldown_charge_s += (pulse.weapon.charge_time_modifier + cooldown_modifier) * GetFrameTime();
 
     if (pulse.weapon.cooldown_charge_s >= pulse.weapon.cooldown_time_s) {
-		InitPulseShoot(player);
+		InitPulseShoot(ship);
         pulse.weapon.cooldown_charge_s -= pulse.weapon.cooldown_time_s;
     }
     
@@ -182,13 +182,13 @@ static void InitPhoton(void) {
     }
 }
 
-static void InitPhotonShoot(Player *player) {
+static void InitPhotonShoot(Ship* ship) {
     for (int i = 0; i < photon.weapon.max_active_shoots; i++) {
 		if (photon.shoot[i].active) continue;
 
         photon.shoot[i].active = true;
-        photon.shoot[i].position.x = (player->center.x)-18;
-        photon.shoot[i].position.y = (player->center.y)-18;
+        photon.shoot[i].position.x = (ship->position.x)-18;
+        photon.shoot[i].position.y = (ship->position.y)-18;
 		photon.shoot[i].position.width = 36 * size_modifier;
 		photon.shoot[i].position.height = 36 * size_modifier;
 
@@ -231,8 +231,8 @@ static void DrawPhotonShoot() {
     }
 }
 
-static void UpdatePhoton(Player* player) {
-    UpdatePhotonCooldownAndShoot(player);
+static void UpdatePhoton(Ship* ship) {
+    UpdatePhotonCooldownAndShoot(ship);
     UpdatePhotonShootPosition();
 }
 
@@ -286,7 +286,7 @@ static void InitShotgun(void) {
     }
 }
 
-static void InitShotgunShoot(Player* player) {
+static void InitShotgunShoot(Ship* ship) {
     float lifespan[6] = { 0 };
     int shells = GetRandomValue(0, 3);
     for (int i = 0; i < 3 + shells; i++) {
@@ -312,8 +312,8 @@ static void InitShotgunShoot(Player* player) {
 			shotgun.shotgun_shoot[i].orientation = draw_angle;
             Vector2 rotation_offset = Vector2Rotate(shotgun.weapon.offset, orientation);
 
-            shotgun.shotgun_shoot[i].shoot.position.x = rotation_offset.x + player->center.x - shotgun.shotgun_shoot[i].shoot.position.width / 2.0f;
-            shotgun.shotgun_shoot[i].shoot.position.y = rotation_offset.y + player->center.y - shotgun.shotgun_shoot[i].shoot.position.height / 2.0f;
+            shotgun.shotgun_shoot[i].shoot.position.x = rotation_offset.x + ship->position.x - shotgun.shotgun_shoot[i].shoot.position.width / 2.0f;
+            shotgun.shotgun_shoot[i].shoot.position.y = rotation_offset.y + ship->position.y - shotgun.shotgun_shoot[i].shoot.position.height / 2.0f;
 
 
             Vector2 speed = { 0, shotgun.weapon.speed.y + GetRandomValue(0, -500) };
@@ -359,13 +359,13 @@ static void UpdateShotgunShoot() {
 }
 
 
-static void UpdateShotgun(Player* player) {
+static void UpdateShotgun(Ship* ship) {
     if (!shotgun.weapon.active) return;
 
     shotgun.weapon.cooldown_charge_s += (shotgun.weapon.charge_time_modifier + cooldown_modifier) * GetFrameTime();
 
     if (shotgun.weapon.cooldown_charge_s >= shotgun.weapon.cooldown_time_s) {
-        InitShotgunShoot(player);
+        InitShotgunShoot(ship);
         shotgun.weapon.cooldown_charge_s -= shotgun.weapon.cooldown_time_s;
     }
 
@@ -422,22 +422,18 @@ static void InitAllWeapons(void) {
     InitShotgun();
 }
 
-void InitWeapon(Player* player) {
+void InitWeapon(void) {
     cooldown_modifier = 0.0f;
     damage_modifier = 0.0f;
     size_modifier = 1.0f;
 
     InitAllWeapons();
-
-    if (player->ship_id == AUREA) pulse.weapon.active = true;
-    if (player->ship_id == ORION) photon.weapon.active = true;
-    if (player->ship_id == NEBULA) shotgun.weapon.active = true;
 }
 
-void UpdateWeapon(Player* player) {
-    UpdatePhoton(player);
-    UpdatePulse(player);
-    UpdateShotgun(player);
+void UpdateWeapon(Ship* ship) {
+    UpdatePhoton(ship);
+    UpdatePulse(ship);
+    UpdateShotgun(ship);
 }
 
 void DrawWeapon() {

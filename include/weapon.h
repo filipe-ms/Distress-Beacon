@@ -2,11 +2,8 @@
 
 #pragma once
 
-#ifndef WEAPON_H
-#define WEAPON_H
-
 #include "raylib.h"  // Importando para utilizar os rectangles.
-#include "player.h"  // Para definir a posição inicial do tiro
+#include "ship.h"
 #include "enemy.h"
 
 #define PULSE 0 // Aurea starting weapon
@@ -114,8 +111,8 @@ bool IsShotgunActive(void);
 void ActivateShotgun(void);
 
 // General
-void InitWeapon(Player* player);
-void UpdateWeapon(Player* player);
+void InitWeapon(void);
+void UpdateWeapon(Ship* ship);
 void DrawWeapon();
 void LoadWeaponTextures(void);
 void UnloadWeaponTextures(void);
@@ -124,5 +121,3 @@ void UnloadWeaponTextures(void);
 void IncrementCooldownModifier(float value);
 void IncrementDamageModifier(float value);
 void IncrementSizeModifier(float value);
-
-#endif // WEAPON_H

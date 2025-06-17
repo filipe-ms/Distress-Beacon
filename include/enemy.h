@@ -1,8 +1,10 @@
-#ifndef ENEMY_H
-#define ENEMY_H
+#pragma once
+
+
+#include "player.h"
+#include "ship.h"
 
 #include "raylib.h"
-#include "player.h"
 
 typedef enum {
     LEIGO,
@@ -36,15 +38,11 @@ typedef struct Enemy {
 } Enemy;
 
 void InitEnemies(Enemy* enemy);
-void UpdateEnemies(Enemy* enemy, Player *player);
+void UpdateEnemies(Enemy* enemy, Ship* ship);
 void DrawEnemies(Enemy* enemy);
-bool CheckEnemyCollisionWithPlayer(Player player, Enemy* enemy);
 
 void SpawnEnemies(Enemy* enemy, int amount, int id, int hp);
 void SpawnRandomEnemies(Enemy* enemy, int amount, int hp);
 
 void LoadEnemyTextures();
 void UnloadEnemyTextures();
-
-
-#endif
