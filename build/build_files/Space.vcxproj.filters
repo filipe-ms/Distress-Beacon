@@ -7,6 +7,18 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{E9C7FDCE-D52A-8D73-7EB0-C5296AF258F6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\scenes">
+      <UniqueIdentifier>{d9ab19be-4d9c-4e21-bebd-03f34aaa5394}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\scenes">
+      <UniqueIdentifier>{c99d6b7a-9d37-4230-9cb6-907489f9c0a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{3b286c1d-e937-448d-bf5e-2a4f13da2c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{82560051-9493-43ff-8373-d21b7d14948e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\resource_dir.h">
@@ -24,22 +36,10 @@
     <ClInclude Include="..\..\include\enemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\main_menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\select_ship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\tutorial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\draw_object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\scene_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\game.h">
@@ -48,70 +48,94 @@
     <ClInclude Include="..\..\include\xp_bar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\ranking.h">
+    <ClInclude Include="..\..\include\ship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\enter_name.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\include\scene_manager.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\tutorial.h">
+      <Filter>Header Files\scenes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\winner.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ranking.h">
+      <Filter>Header Files\scenes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\game_over.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\main_menu.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\enter_name.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\common.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\game_behavior.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\list.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\draw_object.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\enemy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\common.c">
+    <ClCompile Include="..\..\src\player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\draw_object.c">
+    <ClCompile Include="..\..\src\power_ups.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\enemy.c">
+    <ClCompile Include="..\..\src\select_ship.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\enter_name.c">
+    <ClCompile Include="..\..\src\ship.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\game.c">
+    <ClCompile Include="..\..\src\weapon.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\main_menu.c">
+    <ClCompile Include="..\..\src\xp_bar.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\player.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\winner.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\power_ups.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\tutorial.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\ranking.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\scene_manager.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\scene_manager.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\main_menu.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\select_ship.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\game_over.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\tutorial.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\enter_name.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\weapon.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\ranking.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\winner.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\xp_bar.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\game_over.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\list.c">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
