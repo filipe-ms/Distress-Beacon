@@ -404,5 +404,6 @@ build/external/raylib-master/projects
 build/external/raylib-master/.github
 build/external/raylib-master/*.md
 
-
 !*/build/external
+/bin/Debug
+/build/build_files/obj
