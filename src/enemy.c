@@ -100,16 +100,24 @@ void DrawEnemies(void) {
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
         if (enemies[i].active) {
             if (DEBUG_FLAG) {
-                DrawRectangleLinesEx(enemies[i].position, 1.0f, LIME);
+				Vector2 center = { enemies[i].position.x, enemies[i].position.y };
+                DrawCircleV(center, 20.0f, Fade(GREEN, 0.5f));
             }
 
-            DrawTexturePro(texture, source_rects[enemies[i].type], enemies[i].position, origin, 0, enemies[i].color);
+            Rectangle destination = {
+                enemies[i].position.x - enemies[i].position.width / 2,
+                enemies[i].position.y - enemies[i].position.height / 2,
+                enemies[i].position.width,
+                enemies[i].position.height
+            };
+
+            DrawTexturePro(texture, source_rects[enemies[i].type], destination, origin, 0, enemies[i].color);
         }
     }
 }
 
 void LoadEnemyTextures(void) {
-    texture = LoadTexture("assets/ships.png");
+    texture = LoadTexture("ships.png");
     if (texture.id <= 0) {
         TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) não encontrada.");
         return;
