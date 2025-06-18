@@ -265,11 +265,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\background.h" />
     <ClInclude Include="..\..\include\behavior.h" />
     <ClInclude Include="..\..\include\draw_object.h" />
     <ClInclude Include="..\..\include\enemy.h" />
     <ClInclude Include="..\..\include\common.h" />
+    <ClInclude Include="..\..\include\enemy_wave.h" />
     <ClInclude Include="..\..\include\enter_name.h" />
+    <ClInclude Include="..\..\include\game_background.h" />
     <ClInclude Include="..\..\include\game_behavior.h" />
     <ClInclude Include="..\..\include\game_over.h" />
     <ClInclude Include="..\..\include\list.h" />
@@ -280,12 +283,12 @@
     <ClInclude Include="..\..\include\game.h" />
     <ClInclude Include="..\..\include\ship.h" />
     <ClInclude Include="..\..\include\tutorial.h" />
+    <ClInclude Include="..\..\include\user_interface.h" />
     <ClInclude Include="..\..\include\weapon.h" />
     <ClInclude Include="..\..\include\player.h" />
     <ClInclude Include="..\..\include\power_ups.h" />
     <ClInclude Include="..\..\include\resource_dir.h" />
     <ClInclude Include="..\..\include\winner.h" />
-    <ClInclude Include="..\..\include\xp_bar.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="raylib.vcxproj">
@@ -293,11 +296,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\include\user_interface.c" />
+    <ClCompile Include="..\..\src\background.c" />
     <ClCompile Include="..\..\src\behavior.c" />
     <ClCompile Include="..\..\src\draw_object.c" />
     <ClCompile Include="..\..\src\enemy.c" />
+    <ClCompile Include="..\..\src\enemy_wave.c" />
     <ClCompile Include="..\..\src\enter_name.c" />
     <ClCompile Include="..\..\src\game.c" />
+    <ClCompile Include="..\..\src\game_background.c" />
+    <ClCompile Include="..\..\src\game_behavior.c" />
     <ClCompile Include="..\..\src\game_over.c" />
     <ClCompile Include="..\..\src\list.c" />
     <ClCompile Include="..\..\src\main.c" />
@@ -311,7 +319,6 @@
     <ClCompile Include="..\..\src\tutorial.c" />
     <ClCompile Include="..\..\src\weapon.c" />
     <ClCompile Include="..\..\src\winner.c" />
-    <ClCompile Include="..\..\src\xp_bar.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

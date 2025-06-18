@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include "common.h"
 #include "weapon.h"
+#include "game_behavior.h"
 
 #define AUREA 0
 #define ORION 1
@@ -17,8 +18,8 @@
 
 #define MAX_THRUSTER_CYCLE 4
 
-Texture2D ships;
-Texture2D thrusters;
+Texture ships;
+Texture thrusters;
 
 static Vector2 GetInitShipSpeed(int id) {
 	switch (id) {
@@ -63,6 +64,8 @@ void UpdateShip(Ship* ship) {
 		ship->animation_cycle -= 0.25f;
 		ship->thruster_cycle = (ship->thruster_cycle + 1) % MAX_THRUSTER_CYCLE;
 	}
+
+	WallBehavior(&ship->position);
 }
 static void DrawAurea(Ship* ship, Rectangle draw_pos) {
 	Rectangle ship_sprite = { 8, 8, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima

@@ -9,13 +9,13 @@
 #include <stdio.h>
 #include <string.h>
 
-Texture2D shoot_damage;
-Texture2D shoot_cooldown;
-Texture2D shoot_size;
+Texture shoot_damage;
+Texture shoot_cooldown;
+Texture shoot_size;
 
-Texture2D weapon_pulse;
-Texture2D weapon_photon;
-Texture2D weapon_shotgun;
+Texture weapon_pulse;
+Texture weapon_photon;
+Texture weapon_shotgun;
 
 PowerUpCard active_cards[3];
 PowerUpCard power_up_type[POWERUP_COUNT];
@@ -230,7 +230,7 @@ static void DrawPowerUpCard(PowerUpCard* card, Rectangle card_rec, bool is_selec
     //DrawText(card->name, (int)(card_center_x - name_width / 2.0f) - 2, (int)name_y - 2, name_size, Fade(RAYWHITE, alpha-0.5f));
     DrawText(card->name, (int)(card_center_x - name_width / 2.0f), (int)name_y, name_size, Fade(GREEN, alpha));
 
-    Texture2D* texture = card->texture;
+    Texture* texture = card->texture;
     float scale = 2.5f;
     float texture_width = (float)texture->width * scale;
     Vector2 texture_pos = { card_center_x - (texture_width / 2.0f), name_y + 40.0f };
