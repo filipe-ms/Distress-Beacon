@@ -3,43 +3,18 @@
 #include "behavior.h"
 #include "raylib.h"
 
-// --- Definições Internas do Módulo ---
+static const float BASE_SPEED_Y = 120.0f;
+static const int SPAWN_Y_MIN = -200;
+static const int SPAWN_Y_MAX = -50;
+static const float ENEMY_BASE_WIDTH = 48.0f;
+static const float ENEMY_BASE_HEIGHT = 48.0f;
 
-// Tipos de inimigos, usados internamente.
-typedef enum {
-    BASIC,
-    ZIGZAG,
-    BOOSTER,
-    WALLER,
-    BOSS
-} EnemyType;
+static Texture2D texture;
+static Rectangle source_rects[ENEMY_TYPE_COUNT];
 
-// Estrutura que define um único inimigo.
-typedef struct {
-    bool active;
-    Rectangle position;
-    Vector2 speed;
-    int type;
-    float hp;
-    float exp;
-    float move_time;
-    bool action_flag;
-    Color color;
-} Enemy;
+Enemy enemies[MAX_ENEMY_NUMBER];
 
-// Estrutura que encapsula TODO o estado do módulo de inimigos (Singleton).
-static struct {
-    Enemy enemies[MAX_ENEMY_NUMBER];
-    Texture2D texture;
-    Rectangle source_rects[5]; // Retângulos de origem na spritesheet para cada tipo.
-} state;
-
-
-// --- Funções Auxiliares (Internas) ---
-
-// Configura e ativa um inimigo a partir do pool.
-// Esta função corrige a lógica de spawn que estava com problemas.
-static void ActivateEnemy(Enemy* enemy, int type, int hp) {
+static void ActivateEnemy(Enemy* enemy, EnemyType type, int hp) {
     enemy->active = true;
     enemy->type = type;
     enemy->hp = (float)hp;
@@ -47,118 +22,106 @@ static void ActivateEnemy(Enemy* enemy, int type, int hp) {
     enemy->move_time = 0.0f;
     enemy->action_flag = false;
 
-    // Posição de spawn aleatória fora do topo da tela.
-    enemy->position.x = (float)GetRandomValue(0, (int)(GetScreenWidth() - enemy->position.width));
-    enemy->position.y = (float)GetRandomValue(-200, -50);
+    enemy->position.width = ENEMY_BASE_WIDTH;
+    enemy->position.height = ENEMY_BASE_HEIGHT;
 
-    // Reseta a velocidade
-    enemy->speed = (Vector2){ 0, 120.0f };
+    enemy->position.x = (float)GetRandomValue(0, (int)(GAME_SCREEN_WIDTH - enemy->position.width));
+    enemy->position.y = (float)GetRandomValue(SPAWN_Y_MIN, SPAWN_Y_MAX);
 
-    // Define a experiência baseada no tipo.
+    enemy->speed = (Vector2){ 0, BASE_SPEED_Y };
+
     switch (type) {
-    case ZIGZAG:  enemy->exp = 20.0f; break;
-    case BOOSTER: enemy->exp = 25.0f; break;
-    case WALLER:  enemy->exp = 15.0f; break;
-    default:      enemy->exp = 10.0f; break;
+    case ENEMY_ZIGZAG:  enemy->exp = 20.0f; break;
+    case ENEMY_BOOSTER: enemy->exp = 25.0f; break;
+    case ENEMY_WALLER:  enemy->exp = 15.0f; break;
+    case ENEMY_BASIC:
+    default:            enemy->exp = 10.0f; break;
     }
 }
-
-
-// --- Funções Públicas ---
 
 void InitEnemies(void) {
-    // Inicializa o pool de inimigos como inativos.
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        state.enemies[i].active = false;
-        state.enemies[i].position.width = 48;
-        state.enemies[i].position.height = 48;
+        enemies[i].active = false;
+        enemies[i].position.width = DRAW_WH;
+        enemies[i].position.height = DRAW_WH;
     }
 }
 
-void SpawnEnemies(int amount, int type, int hp) {
+static void Spawn(int amount, int hp, EnemyType type, bool random) {
     int spawned_count = 0;
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (spawned_count >= amount) break; // Sai se já spawnou a quantidade pedida.
-
-        if (!state.enemies[i].active) {
-            ActivateEnemy(&state.enemies[i], type, hp);
+    for (int i = 0; i < MAX_ENEMY_NUMBER && spawned_count < amount; i++) {
+        if (!enemies[i].active) {
+            EnemyType final_type = random ? (EnemyType)GetRandomValue(ENEMY_BASIC, ENEMY_WALLER) : type;
+            ActivateEnemy(&enemies[i], final_type, hp);
             spawned_count++;
         }
     }
+}
+
+void SpawnEnemies(int amount, EnemyType type, int hp) {
+    Spawn(amount, hp, type, false);
 }
 
 void SpawnRandomEnemies(int amount, int hp) {
-    int spawned_count = 0;
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (spawned_count >= amount) break;
-
-        if (!state.enemies[i].active) {
-            int random_type = GetRandomValue(BASIC, WALLER); // Spawna um dos 4 tipos básicos.
-            ActivateEnemy(&state.enemies[i], random_type, hp);
-            spawned_count++;
-        }
-    }
+    Spawn(amount, hp, ENEMY_BASIC, true);
 }
 
 void UpdateEnemies(Ship* ship) {
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (!state.enemies[i].active) continue;
+        if (!enemies[i].active) continue;
 
-        Enemy* e = &state.enemies[i]; // Ponteiro para o inimigo atual para facilitar a leitura.
+        Enemy* e = &enemies[i];
 
-        // Aplica o comportamento correspondente ao tipo.
         switch (e->type) {
-        case BASIC:   BehaviorBasic(&e->position, 120.0f); break;
-        case ZIGZAG:  BehaviorZigZag(&e->position, 120.0f, &e->speed.x, &e->move_time, &e->action_flag); break;
-        case BOOSTER: BehaviorBooster(&e->position, ship, &e->move_time, &e->action_flag); break;
-        case WALLER:  BehaviorWaller(&e->position, e->speed.x); break;
-        default:      BehaviorBasic(&e->position, 120.0f); break;
+        case ENEMY_BASIC:   BehaviorBasic(&e->position, BASE_SPEED_Y); break;
+        case ENEMY_ZIGZAG:  BehaviorZigZag(&e->position, BASE_SPEED_Y, &e->speed.x, &e->move_time, &e->action_flag); break;
+        case ENEMY_BOOSTER: BehaviorBooster(&e->position, ship, &e->move_time, &e->action_flag); break;
+        case ENEMY_WALLER:  BehaviorWaller(&e->position, e->speed.x); break;
+        default:            BehaviorBasic(&e->position, BASE_SPEED_Y); break;
         }
 
-        // Mantém o inimigo dentro das bordas laterais da tela.
         if (e->position.x <= 0) {
             e->position.x = 0;
-            if (e->type == ZIGZAG) e->speed.x *= -1;
+            if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
         }
-        else if (e->position.x >= GetScreenWidth() - e->position.width) {
-            e->position.x = GetScreenWidth() - e->position.width;
-            if (e->type == ZIGZAG) e->speed.x *= -1;
+        else if (e->position.x >= GAME_SCREEN_WIDTH - e->position.width) {
+            e->position.x = GAME_SCREEN_WIDTH - e->position.width;
+            if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
         }
 
-        // Desativa o inimigo se ele sair pela parte inferior da tela.
-        if (e->position.y > GetScreenHeight() + 20) {
+        if (e->position.y > SCREEN_HEIGHT + 20) {
             e->active = false;
         }
     }
 }
 
 void DrawEnemies(void) {
-    Vector2 origin = { 0, 0 }; // Origem para a função DrawTexturePro.
+    Vector2 origin = { 0, 0 };
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (state.enemies[i].active) {
-            DrawTexturePro(
-                state.texture,
-                state.source_rects[state.enemies[i].type],
-                state.enemies[i].position,
-                origin,
-                0,
-                state.enemies[i].color
-            );
+        if (enemies[i].active) {
+            if (DEBUG_FLAG) {
+                DrawRectangleLinesEx(enemies[i].position, 1.0f, LIME);
+            }
+
+            DrawTexturePro(texture, source_rects[enemies[i].type], enemies[i].position, origin, 0, enemies[i].color);
         }
     }
 }
 
 void LoadEnemyTextures(void) {
-    state.texture = LoadTexture("ships.png");
+    texture = LoadTexture("assets/ships.png");
+    if (texture.id <= 0) {
+        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) não encontrada.");
+        return;
+    }
 
-    // Define os retângulos de origem para cada tipo de inimigo.
-    state.source_rects[BASIC] = (Rectangle){ 32, 0, 8, 8 };
-    state.source_rects[ZIGZAG] = (Rectangle){ 32, 24, 8, 8 };
-    state.source_rects[BOOSTER] = (Rectangle){ 48, 24, 8, 8 };
-    state.source_rects[WALLER] = (Rectangle){ 32, 8, 8, 8 };
-    state.source_rects[BOSS] = (Rectangle){ 16, 8, 8, 8 };
+    source_rects[ENEMY_BASIC] = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_ZIGZAG] = (Rectangle){ 32, 24, 8, 8 };
+    source_rects[ENEMY_BOOSTER] = (Rectangle){ 48, 24, 8, 8 };
+    source_rects[ENEMY_WALLER] = (Rectangle){ 32, 8, 8, 8 };
+    source_rects[ENEMY_BOSS] = (Rectangle){ 16, 8, 8, 8 };
 }
 
 void UnloadEnemyTextures(void) {
-    UnloadTexture(state.texture);
+    UnloadTexture(texture);
 }

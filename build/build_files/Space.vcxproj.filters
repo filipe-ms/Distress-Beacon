@@ -161,12 +161,6 @@
     <ClCompile Include="..\..\src\game_behavior.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\user_interface.c">
-      <Filter>Source Files\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\background.c">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\game.c">
       <Filter>Source Files\game</Filter>
     </ClCompile>
@@ -175,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\enemy_wave.c">
       <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\user_interface.c">
+      <Filter>Source Files\ui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

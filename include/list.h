@@ -2,6 +2,7 @@
 #pragma once
 
 typedef void (*Function)(void* arg);
+typedef void (*TwoArgFunction)(void* arg1, void* arg2);
 typedef int (*MatchFunction)(void* context, void* item);
 typedef int (*ComparisonFunc)(void* item1, void* item2);
 
@@ -53,6 +54,9 @@ void* List_GetByIndex(List* list, int index);
 
 // Aplica uma função a cada elemento da lista.
 void List_ForEach(List* list, Function arg);
+
+// Aplica uma função a cada elemento da lista. Aceita 2 argumentos.
+void List_ForEachCtx(List* list, void* context, TwoArgFunction fn);
 
 // Encontra um elemento na lista usando um predicado (função de correspondência).
 void* List_FindWithFn(List* list, void* context, MatchFunction matchfn);

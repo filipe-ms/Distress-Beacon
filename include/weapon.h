@@ -4,7 +4,7 @@
 
 #include "raylib.h"
 #include "ship.h"
-#include "enemy.h"
+#include "list.h"
 
 typedef enum WeaponType {
 	PULSE,
@@ -20,29 +20,24 @@ typedef enum WeaponType {
 //--------------------------------------------------------------
 
 typedef struct Shoot {
-    bool active;
     float damage;
-	Vector2 speed;
-    Rectangle position;
-    Rectangle draw_position;
+    Vector2 position;
+    Vector2 size;
 } Shoot;
 
 typedef struct Weapon {
     int id;
-    bool active;
+    bool is_active;
+    
     Rectangle source;
     Vector2 offset;
-    Vector2 pivot;
-    Vector2 speed;
     Color color;
-    
-    float damage;
 
-    float cooldown_time_s;
-    float cooldown_charge_s;
-    float charge_time_modifier;
+    float damage;
+    Vector2 shoot_speed;
     
-    int max_active_shoots;
+    float cooldown_time;
+    float cooldown_charge;
 } Weapon;
 
 //--------------------------------------------------------------
@@ -52,24 +47,20 @@ typedef struct Weapon {
 //--------------------------------------------------------------
 
 typedef struct PulseShoot {
-    Shoot shoot;
-    int shoot_cycle;
+	Shoot shoot;
+    float rotation;
+	int shoot_cycle;
 } PulseShoot;
+
 
 typedef struct Pulse {
     Weapon weapon;
-    int weapon_cycle;
-
-    Vector2 speed;
-
-    float rotation;
-    
-    PulseShoot pulse_shoot[50];
+    int shoot_cycle;
+	List* pulse_shoots;
 } Pulse;
 
+extern Pulse pulse;
 
-// Specific
-Shoot* GetPulseShoot(int index);
 bool IsPulseActive(void);
 void ActivatePulse(void);
 
@@ -79,12 +70,18 @@ void ActivatePulse(void);
 // 
 //--------------------------------------------------------------
 
+// Deixei como struct para facilitar no futuro se formos adicionar algum comportamento
+typedef struct PhotonShoot {
+    Shoot shoot;
+} PhotonShoot;
+
 typedef struct Photon {
-	Weapon weapon;
-    Shoot shoot[50];
+    Weapon weapon;
+    List* photon_shoots;
 } Photon;
 
-Shoot* GetPhotonShoot(int index);
+extern Photon photon;
+
 bool IsPhotonActive(void);
 void ActivatePhoton(void);
 
@@ -95,7 +92,8 @@ void ActivatePhoton(void);
 //--------------------------------------------------------------
 
 typedef struct ShotgunShoot {
-	Shoot shoot;
+    Shoot shoot;
+    Vector2 speed;
     Rectangle source;
     float lifespan;
     float orientation;
@@ -103,24 +101,32 @@ typedef struct ShotgunShoot {
 } ShotgunShoot;
 
 typedef struct Shotgun {
-	Weapon weapon;
+    Weapon weapon;
     float arc;
-	ShotgunShoot shotgun_shoot[50];
+    List* shotgun_shoots;
 } Shotgun;
 
-Shoot* GetShotgunShoot(int index);
+extern Shotgun shotgun;
+
 bool IsShotgunActive(void);
 void ActivateShotgun(void);
 
 // General
 void InitWeapon(void);
 void UpdateWeapon(Ship* ship);
-void DrawWeapon();
+void DrawWeapon(void);
 void LoadWeaponTextures(void);
 void UnloadWeaponTextures(void);
 bool IsWeaponActive(int reference);
+const char* GetActiveWeaponsString(void);
 
 // Power Modifiers
+float GetCooldownModifier(void);
+float GetDamageModifier(void);
+float GetSizeModifier(void);
+float GetSpeedModifier(void);
+
 void IncrementCooldownModifier(float value);
 void IncrementDamageModifier(float value);
 void IncrementSizeModifier(float value);
+void IncrementSpeedModifier(float value);

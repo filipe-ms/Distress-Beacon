@@ -19,7 +19,6 @@ void UpdateGameBackground(void) {
 }
 
 void DrawGameBackground(void) {
-	TraceLog(LOG_INFO, "BG Alpha: %f", background.alpha);
     DrawTexture(background.texture, (int)background.position_x, (int)background.position_y, Fade(background.color, background.alpha));
     DrawTexture(background.texture, (int)background.position_x, (int)background.position_y - 2400, Fade(background.color, background.alpha));
 }

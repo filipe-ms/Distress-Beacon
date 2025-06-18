@@ -57,20 +57,6 @@ void InitGame(int ship_id) {
     }
 }
 
-//--------------------------------------------------------------
-//
-//                      ENEMY KILLS
-// 
-//--------------------------------------------------------------
-
-void CheckCollision(Shoot* shoot) {
-}
-
-// Function to check and handle bullet and enemy collisions
-void CheckBulletAndEnemyCollision() {
-
-}
-
 
 //--------------------------------------------------------------
 //
@@ -98,13 +84,16 @@ void UpdateGame(void)
             UpdateGameBackground();
             UpdateWaves();
             UpdateEnemies(&ship);
-            CheckBulletAndEnemyCollision();
             UpdateShip(&ship);
             UpdateWeapon(&ship);
+			int player_level = GetPlayerLevel();
+            if (CheckForAllCollisions(&ship)) ChangeScene(GAME_OVER);
+            if (GetPlayerLevel() > player_level) {
+                PowerRandomizer();
+                level_up_flag = true;
+            }
         }
     }
-    
-    
 }
 
 
@@ -121,16 +110,16 @@ void DrawGame(void)
     ClearBackground(BLACK);
 	DrawGameBackground();
 	
-	DrawUserInterface();
     DrawEnemies();
-    DrawWeapon(&ship);
+    DrawWeapon();
     DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
     DrawWaves();
     
-    if (victory) DrawText("YOU WIN", SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
-    if (pause) DrawText("GAME PAUSED", SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
+    if (victory) DrawText("YOU WIN", GAME_SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
+    if (pause) DrawText("GAME PAUSED", GAME_SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
     
+    DrawUserInterface(); // Desenha por último, está agora em outro plano
     EndDrawing();
 }
 
@@ -139,9 +128,6 @@ void DrawGame(void)
 //                     LOAD | UNLOAD
 // 
 //--------------------------------------------------------------
-
-void LoadGameResources(void) {
-}
 
 void UnloadGameResources(void) {
 	UnloadGameBackground();
