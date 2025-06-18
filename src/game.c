@@ -7,7 +7,6 @@
 #include "scene_manager.h"
 #include "ship.h"
 #include "game_background.h"
-#include "list.h"
 #include "game_behavior.h"
 #include "player.h"
 #include "enemy_wave.h"
@@ -27,7 +26,7 @@ bool level_up_flag;
 
 Ship ship;
 
-void InitGame(int ship_id) {
+void InitGame(void) {
     // Flags
     pause = false;
     pause_flag = false;
@@ -35,7 +34,7 @@ void InitGame(int ship_id) {
     level_up_flag = false;
     
     // Other inits
-    InitShip(&ship, ship_id);
+    InitShip(&ship, GetPlayerShip());
     InitWeapon();
     InitPlayer();
     InitEnemies();
@@ -43,18 +42,9 @@ void InitGame(int ship_id) {
 	InitGameBackground();
     InitWaves();
 
-    if (ship_id == 0) { // AUREA
-        ActivatePulse();
-    }
-    else if (ship_id == 1) { // ORION
-        ActivatePhoton();
-    }
-    else if (ship_id == 2) { // NEBULA
-        ActivateShotgun();
-    }
-    else { // Default
-        ActivatePulse();
-    }
+    if (GetPlayerShip() == 0) ActivatePulse();
+    else if (GetPlayerShip() == 1) ActivatePhoton();
+    else if (GetPlayerShip() == 2) ActivateShotgun();
 }
 
 

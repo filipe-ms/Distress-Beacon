@@ -4,6 +4,7 @@
 #include "common.h"
 
 typedef struct Player {
+	int ship_id;
 	int score;
 	int enemies_killed;
 	int level;
@@ -34,27 +35,12 @@ bool AddExperience(int exp) {
 
 	return false;
 }
-
-void AddScore(int score) {
-	player.score += score;
-}
-
-void AddEnemyKill(void) {
-	player.enemies_killed++;
-}
-
-int GetPlayerScore(void) {
-	return player.score;
-}
-int GetPlayerEnemiesKilled(void) {
-	return player.enemies_killed;
-}
-int GetPlayerLevel(void) {
-	return player.level;
-}
-int GetPlayerExperience(void) {
-	return player.experience;
-}
-int GetPlayerExpToLevel(void) {
-	return player.exp_to_level;
-}
+void SetPlayerShip(int ship_id) { player.ship_id = ship_id; }
+void AddScore(int score) { player.score += score; }
+void AddEnemyKill(void) { player.enemies_killed++; }
+int GetPlayerShip(void) { return player.ship_id; }
+int GetPlayerScore(void) { return player.score; }
+int GetPlayerEnemiesKilled(void) { return player.enemies_killed; }
+int GetPlayerLevel(void) { return player.level; }
+int GetPlayerExperience(void) { return player.experience; }
+int GetPlayerExpToLevel(void) { return player.exp_to_level; }

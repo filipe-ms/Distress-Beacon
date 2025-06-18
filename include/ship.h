@@ -12,7 +12,7 @@ typedef struct Ship {
     Vector2 position;       // O local em que vai ser desenhado
 	Vector2 draw_size;      // Tamanho do desenho da nave
     int direction;          // Para que lado está andando
-    int thruster_cycle;     // Em que ciclo o thruster está
+    int thruster_cycle;     // Em que sprite o thruster está
 	float animation_cycle;  // Ciclo de animação da nave
     Color color;            // Cor
     float alpha;            // Transparência

@@ -16,7 +16,7 @@
 
 #include "raylib.h"
 
-void InitGame(int ship_id);  // Initialize game
+void InitGame(void);  // Initialize game
 void UpdateGame(void);       // Update game (one frame)
 void DrawGame(void);         // Draw game (one frame)
 void UnloadGameResources(void);      // Unload game resources

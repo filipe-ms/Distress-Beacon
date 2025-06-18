@@ -42,7 +42,7 @@ void ChangeSceneArgs(Scene scene, int id) {
         break;
 
     case GAME:
-        InitGame(id);
+        InitGame();
         break;
 
     case ENTER_NAME:

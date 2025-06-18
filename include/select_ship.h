@@ -4,13 +4,6 @@
 
 #include "raylib.h"
 
-typedef enum {
-    LEFT_SHIP,
-    MIDDLE_SHIP,
-    RIGHT_SHIP,
-    SELECT_MENU_OPTION_COUNT
-} SelectMenuOption;
-
 typedef struct SelectMenuShip {
     Texture texture;
     Rectangle sprite_location;

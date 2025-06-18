@@ -267,7 +267,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\background.h" />
     <ClInclude Include="..\..\include\behavior.h" />
-    <ClInclude Include="..\..\include\draw_object.h" />
+    <ClInclude Include="..\..\include\draw_utils.h" />
     <ClInclude Include="..\..\include\enemy.h" />
     <ClInclude Include="..\..\include\common.h" />
     <ClInclude Include="..\..\include\enemy_wave.h" />
@@ -297,7 +297,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\behavior.c" />
-    <ClCompile Include="..\..\src\draw_object.c" />
+    <ClCompile Include="..\..\src\draw_utils.c" />
     <ClCompile Include="..\..\src\enemy.c" />
     <ClCompile Include="..\..\src\enemy_wave.c" />
     <ClCompile Include="..\..\src\enter_name.c" />

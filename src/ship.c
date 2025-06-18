@@ -6,14 +6,6 @@
 #include "weapon.h"
 #include "game_behavior.h"
 
-#define AUREA 0
-#define ORION 1
-#define NEBULA 2
-
-#define CENTER 0
-#define LEFT 1
-#define RIGHT 2
-
 #define SOURCE_WH 8
 
 #define MAX_THRUSTER_CYCLE 4
@@ -34,7 +26,7 @@ void InitShip(Ship* ship, int id) {
 	ship->id = id;
 	ship->position.x = GAME_SCREEN_WIDTH/2;
 	ship->position.y = SCREEN_HEIGHT - 100;
-	ship->draw_size = (Vector2){ DRAW_WH };
+	ship->draw_size = (Vector2){ DRAW_WH, DRAW_WH };
 	ship->direction = CENTER;
 	ship->thruster_cycle = 0;
 	ship->animation_cycle = 0.0f;
@@ -67,20 +59,21 @@ void UpdateShip(Ship* ship) {
 
 	WallBehavior(&ship->position);
 }
+
 static void DrawAurea(Ship* ship, Rectangle draw_pos) {
-	Rectangle ship_sprite = { 8, 8, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
+	Rectangle aurea_sprite = { 8, 8, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
 	Rectangle left_thruster_sprite = { 40, 0, 8, 8 };		// Primeiro thruster da sheet
 	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Referência do segundo thruster
 	
-	Rectangle left_thruster_position = { draw_pos.x - 18, draw_pos.y + DRAW_WH, DRAW_WH, DRAW_WH };
-	Rectangle right_thruster_position = { draw_pos.x + 12, draw_pos.y + DRAW_WH, DRAW_WH, DRAW_WH };
+	Rectangle left_thruster_position = { draw_pos.x - 18, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
+	Rectangle right_thruster_position = { draw_pos.x + 12, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
 
 	if (ship->direction == LEFT) {
-		ship_sprite.x -= SOURCE_WH;
+		aurea_sprite.x -= SOURCE_WH;
 		left_thruster_position.x -= 6;
 		right_thruster_position.x -= 12;
 	} else if (ship->direction == RIGHT) {
-		ship_sprite.x += SOURCE_WH;
+		aurea_sprite.x += SOURCE_WH;
 		left_thruster_position.x += 12;
 		right_thruster_position.x += 6;
 	}
@@ -98,28 +91,97 @@ static void DrawAurea(Ship* ship, Rectangle draw_pos) {
 		right_thruster_sprite.x = 40;
 	}
 
-	if (DEBUG_FLAG) {
-		DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
+	Vector2 origin = { 0 };
+	float rotation = 0.0f;
+
+	DrawTexturePro(ships, aurea_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+
+	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
+}
+
+static void DrawOrion(Ship* ship, Rectangle draw_pos) {
+	Rectangle orion_sprite = { 8, 0, SOURCE_WH, SOURCE_WH };
+	Rectangle thruster_sprite = { 40, 8, SOURCE_WH, SOURCE_WH };
+
+	Rectangle thruster_position = draw_pos;
+	thruster_position.y += 42;
+
+	if (ship->direction == LEFT) {
+		orion_sprite.x -= SOURCE_WH;
+		thruster_position.x -= 6;
+	} else if (ship->direction == RIGHT) {
+		orion_sprite.x += SOURCE_WH;
+		thruster_position.x += 6;
 	}
 
-	DrawTexturePro(ships, ship_sprite, draw_pos, (Vector2) { 0 }, 0.0f, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, (Vector2) { 0 }, 0.0f, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, (Vector2) { 0 }, 0.0f, Fade(ship->color, ship->alpha));
+	thruster_sprite.x = 40 + ship->thruster_cycle * 8;
+
+	Vector2 origin = { 0 };
+	float rotation = 0.0f;
+
+	DrawTexturePro(ships, orion_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, thruster_sprite, thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+
+	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 }
+
+static void DrawNebula(Ship* ship, Rectangle draw_pos) {
+	Rectangle nebula_sprite = { 8, 24, 8, 8 };
+
+	Rectangle left_thruster_sprite = { 80, 0, 8, 8 };
+	Rectangle center_thruster_sprite = { 96, 8, 8, 8 };
+	Rectangle right_thruster_sprite = { 96, 0, 8, 8 };
+
+	Rectangle left_thruster_position = { draw_pos.x - 24, draw_pos.y + 36, ship->draw_size.x, ship->draw_size.y };
+	Rectangle center_thruster_position = { draw_pos.x, draw_pos.y + 48, ship->draw_size.x, ship->draw_size.y };
+	Rectangle right_thruster_position = { draw_pos.x + 18, draw_pos.y + 36, ship->draw_size.x, ship->draw_size.y };
+
+	if (ship->thruster_cycle == 1) {
+		left_thruster_sprite.x = 88;
+		right_thruster_sprite.x = 72;
+	}
+	else if (ship->thruster_cycle == 2) {
+		left_thruster_sprite.x = 96;
+		right_thruster_sprite.x = 88;
+	}
+	else if (ship->thruster_cycle == 3) {
+		left_thruster_sprite.x = 72;
+		right_thruster_sprite.x = 80;
+	}
+
+	center_thruster_sprite.x -= 8 * ship->thruster_cycle;
+
+	Vector2 origin = { 0 };
+	float rotation = 0.0f;
+
+	DrawTexturePro(ships, nebula_sprite, draw_pos, origin, 0.0f, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, center_thruster_sprite, center_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+
+	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
+
+}
+
 void DrawShip(Ship* ship) {
 	Rectangle destination = {
 		ship->position.x - DRAW_WH / 2,
 		ship->position.y - DRAW_WH / 2,
-		DRAW_WH,
-		DRAW_WH
+		ship->draw_size.x, 
+		ship->draw_size.y
 	};
 
 	switch (ship->id) {
 	case AUREA:
 		DrawAurea(ship, destination);
 		break;
+	case ORION:
+		DrawOrion(ship, destination);
+		break;
 	default:
-		DrawAurea(ship, destination); // Para outros tipos de naves, por enquanto, desenha como Aurea
+		DrawNebula(ship, destination);
 		break;
 	}
 }

@@ -1,133 +1,141 @@
 // main_menu.c
 
 #include "main_menu.h"
-#include "draw_object.h"
 #include "common.h"
 #include "scene_manager.h"
 #include "background.h"
+#include "draw_utils.h"
 
-#include <math.h>
+#include "raymath.h"
 
 // Background
 Background background;
-bool alpha_flag = true;
+float main_background_draw_scale = 2.0f;
+bool main_alpha_flag = true;
 
 // Option
-MenuOption current_menu_option;
-Scene menu_scene;
+MenuOption ship_select_menu_option;
 
 // Transition variables
-float transition_duration_s = 2.0f;
-float transition_acceleration = 200.0f;
-float transition_speed = 120.0f;
-float transition_count = 0.0f;
-float transition_alpha_text = 1.0f;
-float transition_alpha_increment = 0.6f;
-bool transition_complete = false;
-bool is_transitioning = false;
+float main_transition_duration_s = 1.5f;
+float select_transition_timer = 0.0f;
+bool is_in_transition = false;
+bool is_fading_in = false;
+bool main_transition_complete = false;
+
+float select_text_alpha = 0.0f;
+float transition_bg_alpha = 0.0f;
+
+Scene select_next_scene;
 
 void InitMenu() {
-    current_menu_option = MENU_OPTION_START;
+    ship_select_menu_option = MENU_OPTION_START;
+
     background.color = WHITE;
-    background.alpha = 0.6f;
+    background.position_x = 0;
     background.position_y = 0;
+    background.alpha = 0.0f;
 
-    transition_acceleration = 200.0f;
-    transition_speed = 120.0f;
-    transition_count = 0.0f;
-    transition_alpha_text = 1.0f;
-    transition_alpha_increment = 0.6f;
+    is_in_transition = true;
+    is_fading_in = true;
+    select_transition_timer = 0.0f;
+    main_transition_complete = false;
 
-    transition_complete = false;
-    is_transitioning = false;
+    select_text_alpha = 0.0f;
+    
 }
 
 void UpdateMenuTransition() {
-    transition_count += GetFrameTime();
-    transition_speed += transition_acceleration * GetFrameTime();
-    transition_acceleration += transition_acceleration * GetFrameTime();
-    background.position_y = (float)fmod(background.position_y + transition_speed * GetFrameTime(), 1200);
-    transition_alpha_text -= transition_alpha_increment * 2 * GetFrameTime();
-    background.alpha -= transition_alpha_increment * GetFrameTime();
+    select_transition_timer += GetFrameTime();
+    float progress = fmin(select_transition_timer / main_transition_duration_s, 1.0f);
 
-    if (transition_count >= transition_duration_s) transition_complete = true;
+    if (is_fading_in) {
+        select_text_alpha = progress;
+        background.alpha = progress * 0.8f;
+
+        if (progress >= 1.0f) {
+            is_in_transition = false;
+            select_text_alpha = 1.0f;
+            background.alpha = 0.8f;
+        }
+    }
+    else {
+        select_text_alpha = 1.0f - progress;
+        background.alpha = transition_bg_alpha * (1.0f - progress);
+
+        float scroll_speed = 100.0f + (progress * progress * 1500.0f);
+        background.position_y = fmod(background.position_y + scroll_speed * GetFrameTime(), 1200);
+
+        if (progress >= 1.0f) {
+            main_transition_complete = true;
+        }
+    }
 }
 
 void UpdateMainMenuBackground() {
-    if (alpha_flag) {
+    if (main_alpha_flag) {
         background.alpha += 0.2f * GetFrameTime();
-        if (background.alpha >= 0.8f) alpha_flag = false;
+        if (background.alpha >= 0.8f) main_alpha_flag = false;
     }
     else {
         background.alpha -= 0.2f * GetFrameTime();
-        if (background.alpha <= 0.4f) alpha_flag = true;
+        if (background.alpha <= 0.4f) main_alpha_flag = true;
     }
 }
 
 void UpdateMenu() {
-
-    if (transition_complete) {
-        ChangeScene(menu_scene);
+    if (main_transition_complete) {
+        ChangeScene(select_next_scene);
         return;
     }
 
-    if (is_transitioning) {
-        UpdateMenuTransition();
-        return;
-    }
-
+    if (is_in_transition) UpdateMenuTransition();
+    
     UpdateMainMenuBackground();
+    background.position_y = fmod(background.position_y + 100 * GetFrameTime(), background.texture.height * main_background_draw_scale);
 
-    background.position_y = (float)fmod(background.position_y + 100 * GetFrameTime(), 1200);
-
-    if (IsKeyPressed(KEY_UP)) {
-        current_menu_option = (current_menu_option - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
-    }
-
-    else if (IsKeyPressed(KEY_DOWN)) {
-        current_menu_option = (current_menu_option + 1) % MENU_OPTION_COUNT;
-    }
-
+    if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) ship_select_menu_option = (ship_select_menu_option - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
+    else if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) ship_select_menu_option = (ship_select_menu_option + 1) % MENU_OPTION_COUNT;
     else if (IsKeyPressed(KEY_ENTER)) {
-        if (current_menu_option == MENU_OPTION_START) {
-            menu_scene = SELECT_SHIP;
-            is_transitioning = true;
-        }
-        else if (current_menu_option == MENU_OPTION_RANKING) {
-            menu_scene = RANKING;
-            is_transitioning = true;
-        }
-        else if (current_menu_option == MENU_OPTION_EXIT) {
-            is_transitioning = true;
-            menu_scene = EXIT;
-        }
+        if (ship_select_menu_option == MENU_OPTION_START) select_next_scene = SELECT_SHIP;
+        else if (ship_select_menu_option == MENU_OPTION_RANKING) select_next_scene = RANKING;
+        else if (ship_select_menu_option == MENU_OPTION_EXIT) select_next_scene = EXIT;
+
+        is_in_transition = true;
+        is_fading_in = false;
+        select_transition_timer = 0.0f;
+        transition_bg_alpha = background.alpha;
     }
 }
 
 void DrawMenuBackground() {
-    DrawTexture(background.texture, 0, (int)background.position_y, Fade(WHITE, background.alpha));
-    DrawTexture(background.texture, 0, (int)(background.position_y-1200), Fade(WHITE, background.alpha));
+    float rotation = 0.0f;
+	Color color = Fade(WHITE, background.alpha);
+	Vector2 position1 = { 0, (int)background.position_y };
+	Vector2 position2 = { 0, (int)background.position_y - background.texture.height * main_background_draw_scale };
+    DrawTextureEx(background.texture, position1, rotation, main_background_draw_scale, color);
+    DrawTextureEx(background.texture, position2, rotation, main_background_draw_scale, color);
 }
 
 void DrawMenu() {
     BeginDrawing();
-
     ClearBackground(BLACK);
 
     DrawMenuBackground();
 
-    Color titleColor = Fade(RAYWHITE, transition_alpha_text);
-    DrawText("SPACE INVADERS", SCREEN_WIDTH / 2 - MeasureText("SPACE INVADERS", 50) / 2, 300, 50, titleColor);
+    Color title_color = Fade(RAYWHITE, select_text_alpha);
 
-    Color colorStart = (current_menu_option == MENU_OPTION_START) ? Fade(RED, transition_alpha_text) : Fade(GRAY, transition_alpha_text);
-    Color colorRanking = (current_menu_option == MENU_OPTION_RANKING) ? Fade(RED, transition_alpha_text) : Fade(GRAY, transition_alpha_text);
-    Color colorCredits = (current_menu_option == MENU_OPTION_CREDITS) ? Fade(RED, transition_alpha_text) : Fade(GRAY, transition_alpha_text);
-    Color colorExit = (current_menu_option == MENU_OPTION_EXIT) ? Fade(RED, transition_alpha_text) : Fade(GRAY, transition_alpha_text);
+	DrawOutlinedText("SPACE INVADERS", SCREEN_WIDTH / 2 - MeasureText("SPACE INVADERS", 50) / 2, 300, 50, title_color, Fade(RAYWHITE, select_text_alpha - 0.5f));
 
-    DrawText("Iniciar Jogo", SCREEN_WIDTH / 2 - MeasureText("Iniciar Jogo", 30) / 2, 400, 30, colorStart);
-    DrawText("Placar", SCREEN_WIDTH / 2 - MeasureText("Placar", 30) / 2, 450, 30, colorRanking);
-    DrawText("Agradecimentos", SCREEN_WIDTH / 2 - MeasureText("Agradecimentos", 30) / 2, 500, 30, colorCredits);
-    DrawText("Sair", SCREEN_WIDTH / 2 - MeasureText("Sair", 30) / 2, 550, 30, colorExit);
+    Color color_game_start = (ship_select_menu_option == MENU_OPTION_START) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
+    Color color_ranking = (ship_select_menu_option == MENU_OPTION_RANKING) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
+    Color color_credits = (ship_select_menu_option == MENU_OPTION_CREDITS) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
+    Color color_exit = (ship_select_menu_option == MENU_OPTION_EXIT) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
+
+	DrawText("Iniciar Jogo", SCREEN_WIDTH / 2 - MeasureText("Iniciar Jogo", 30) / 2, 400, 30, color_game_start);
+	DrawText("Placar", SCREEN_WIDTH / 2 - MeasureText("Placar", 30) / 2, 450, 30, color_ranking);
+	DrawText("Agradecimentos", SCREEN_WIDTH / 2 - MeasureText("Agradecimentos", 30) / 2, 500, 30, color_credits);
+	DrawText("Sair", SCREEN_WIDTH / 2 - MeasureText("Sair", 30) / 2, 550, 30, color_exit);
 
     EndDrawing();
 }
