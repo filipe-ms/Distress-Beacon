@@ -27,7 +27,7 @@ typedef struct PowerUpCard {
     char* type_string;
     char* description;
 
-    Texture2D* texture;
+    Texture* texture;
 
     char description_buffer[128];
 

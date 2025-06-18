@@ -76,7 +76,6 @@ void LoadGame() {
     LoadMenuBackgroundTexture();
     LoadSelectMenuTextures();
     LoadEnemyTextures();
-    LoadGameTextures();
     LoadTutorialTextures();
     LoadWeaponTextures();
     LoadShipTextures();
@@ -93,4 +92,5 @@ void UnloadGame(void)
     UnloadWeaponTextures();
     UnloadPowerUpTextures();
 	UnloadShipTextures();
+    UnloadGameResources();
 }

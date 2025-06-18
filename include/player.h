@@ -1,17 +1,15 @@
 // player.h
-
 #pragma once
 
 #include "raylib.h"
 
-typedef struct Player {
-    int score;
-    int enemies_killed;
-    int level;
-    int experience;
-} Player;
+int GetPlayerScore(void);
+int GetPlayerEnemiesKilled(void);
+int GetPlayerLevel(void);
+int GetPlayerExperience(void);
+int GetPlayerExpToLevel(void);
 
-void InitPlayer(Player* player);
-void AddExperience(Player* player, int exp);
-void AddScore(Player* player, int score);
-void AddEnemyKill(Player* player);
+void InitPlayer(void);
+bool AddExperience(int exp);
+void AddScore(int score);
+void AddEnemyKill(void);

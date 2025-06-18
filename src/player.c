@@ -1,32 +1,60 @@
 // player.c
 
 #include "player.h"
+#include "common.h"
 
-// Possible Ships
+typedef struct Player {
+	int score;
+	int enemies_killed;
+	int level;
+	int experience;
+	int exp_to_level;
+} Player;
 
-void InitPlayer(Player *player) {
-	player->score = 0;
-	player->enemies_killed = 0;
-	player->level = 0;
-	player->experience = 0;
+Player player;
+
+void InitPlayer(void) {
+	player.score = 0;
+	player.enemies_killed = 0;
+	player.level = 0;
+	player.experience = 0;
+	player.exp_to_level = BASE_EXP_TO_LEVEL;
 }
 
-void AddExperience(Player* player, int exp) {
+bool AddExperience(int exp) {
 
-	player->experience += exp;
+	player.experience += exp;
 
-	int level_up_exp = 10 + 10 * player->level;
-
-	if (player->experience >= level_up_exp) {
-		player->level++;
-		player->experience -= level_up_exp;
+	if (player.experience >= player.exp_to_level) {
+		player.level++;
+		player.experience -= player.exp_to_level;
+		player.exp_to_level += EXP_TO_LEVEL_INCREMENT;
+		return true;
 	}
+
+	return false;
 }
 
-void AddScore(Player* player, int score) {
-	player->score += score;
+void AddScore(int score) {
+	player.score += score;
 }
 
-void AddEnemyKill(Player* player) {
-	player->enemies_killed++;
+void AddEnemyKill(void) {
+	player.enemies_killed++;
+}
+
+int GetPlayerScore(void) {
+	return player.score;
+}
+int GetPlayerEnemiesKilled(void) {
+	return player.enemies_killed;
+}
+int GetPlayerLevel(void) {
+	return player.level;
+}
+int GetPlayerExperience(void) {
+	return player.experience;
+}
+int GetPlayerExpToLevel(void) {
+	return player.exp_to_level;
 }

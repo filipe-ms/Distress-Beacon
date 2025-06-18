@@ -8,11 +8,7 @@
 #include "weapon.h"
 #include "draw_object.h"
 #include "raymath.h"
-#include "player.h"
 #include "ship.h"
-
-
-
 
 // Power up textures
 Texture texture;
@@ -199,13 +195,13 @@ static void InitPhotonShoot(Ship* ship) {
     }
 }
 
-static void UpdatePhotonCooldownAndShoot(Player* player) {
+static void UpdatePhotonCooldownAndShoot(Ship* ship) {
 	if (!photon.weapon.active) return;
 
 	photon.weapon.cooldown_charge_s += (photon.weapon.charge_time_modifier + cooldown_modifier) * GetFrameTime();
 
 	if (photon.weapon.cooldown_charge_s >= photon.weapon.cooldown_time_s) {
-		InitPhotonShoot(player);
+		InitPhotonShoot(ship);
         photon.weapon.cooldown_charge_s -= photon.weapon.cooldown_time_s;
     }
 }

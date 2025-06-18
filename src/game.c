@@ -2,17 +2,16 @@
 #include "enemy.h"
 #include "common.h"
 #include "weapon.h"
-#include "xp_bar.h"
+#include "user_interface.h"
 #include "power_ups.h"
 #include "scene_manager.h"
-#include "winner.h"
-#include "game_behavior.h"
 #include "ship.h"
-#include "background.h"
+#include "game_background.h"
 #include "list.h"
-
-
-#include <math.h>
+#include "game_behavior.h"
+#include "player.h"
+#include "enemy_wave.h"
+#include "raymath.h"
 
 // Waves
 #define FIRST_WAVE 0
@@ -20,71 +19,29 @@
 #define THIRD_WAVE 2
 #define VICTORY 3
 
-// GAME STATE
-static bool pause = false;
-static bool pause_flag = false;
-static bool victory = false;
-static bool wave_completed = true;
+// FLAGS
+bool pause;
+bool pause_flag;
+bool victory;
+bool level_up_flag;
 
-Player player;
 Ship ship;
-Enemy enemy[MAX_ENEMY_NUMBER] = { 0 };
-
-
-// BACKGROUND
-static Background background;
-
-// WAVE
-int active_wave;
-float wave_message_alpha;
-bool wave_message_alpha_flag;
-
-// WAVE INFO
-float wave_duration_s = 60.0f;
-float wave_enemy_cooldown_s = 5.0f;
-float wave_enemy_charge_s = 0.0f;
-
-// COUNTS
-int enemy_hp;
-
-// BUFFS AND POWERS
-bool level_up_flag = false;
 
 void InitGame(int ship_id) {
-    static bool pause = false;
-    static bool pause_flag = false;
-    static bool victory = false;
-    wave_completed = true;
-
-    // Special Conditions
+    // Flags
     pause = false;
     pause_flag = false;
     victory = false;
-
-    // Wave durations
-    wave_duration_s = 60.0f;
-    wave_enemy_cooldown_s = 4.5f;
-    wave_enemy_charge_s = 0.0f;
-
-    // Wave
-    active_wave = FIRST_WAVE;
-    wave_message_alpha = 0.1f;
-    wave_message_alpha_flag = false;
-
-    // Enemies
-    enemy_hp = 3;
-
-    // Buffs
     level_up_flag = false;
-
+    
     // Other inits
     InitShip(&ship, ship_id);
     InitWeapon();
-    InitPlayer(&player);
-    InitEnemies(enemy);            // Initialize enemies
-    InitExpBar();
-    InitScore();
+    InitPlayer();
+    InitEnemies();
     InitPowerUps();
+	InitGameBackground();
+    InitWaves();
 
     if (ship_id == 0) { // AUREA
         ActivatePulse();
@@ -98,184 +55,6 @@ void InitGame(int ship_id) {
     else { // Default
         ActivatePulse();
     }
-
-	// Background
-    background.position_y = -1200;
-    background.color = (Color){ 255, 255, 255, 170 };
-    background.alpha = 0;
-}
-
-//--------------------------------------------------------------
-//
-//                         WAVES
-// 
-//--------------------------------------------------------------
-
-void UpdateWaveAlpha() {
-    if (wave_message_alpha >= 1.0f) {
-        wave_message_alpha_flag = true;
-    }
-    if (!wave_message_alpha_flag && wave_message_alpha >= 0.0f) {
-        wave_message_alpha += 0.5f * GetFrameTime();
-        if (wave_message_alpha > 1.0f) wave_message_alpha = 1.0f;
-    }
-    else if (wave_message_alpha_flag) {
-        wave_message_alpha -= 0.5f * GetFrameTime();
-        if (wave_message_alpha < 0.0f) {
-            wave_message_alpha = 0.0f;
-            wave_completed = false;
-        }
-    }
-}
-
-void StartNewWave() {
-    if (wave_duration_s <= 0) {
-        wave_duration_s = 60.0f;
-        wave_completed = true;
-        wave_message_alpha = 0.0f;
-        wave_message_alpha_flag = false;
-    }
-}
-
-
-void FirstWave() {
-    UpdateWaveAlpha();
-
-    if (wave_duration_s > 52) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 6, 0, 3);
-            wave_enemy_cooldown_s -= 0.02f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-	}
-
-	else if (wave_duration_s > 37) {
-		if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 5, 0, 3);
-            SpawnEnemies(enemy, 1, 1, 3);
-            wave_enemy_cooldown_s -= 0.02f;
-			wave_enemy_charge_s = -wave_enemy_cooldown_s;
-		}
-	}
-
-	else if (wave_duration_s > 20) {
-		if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 3, 0, 3);
-            SpawnEnemies(enemy, 2, 1, 3);
-			SpawnEnemies(enemy, 1, 2, 3);
-            wave_enemy_cooldown_s -= 0.02f;
-			wave_enemy_charge_s = -wave_enemy_cooldown_s;
-		}
-	}
-
-	else if (wave_duration_s > 10) {
-		if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 3, 0, 3);
-			SpawnEnemies(enemy, 2, 1, 3);
-            SpawnRandomEnemies(enemy, 3, 3);
-            wave_enemy_cooldown_s -= 0.02f;
-			wave_enemy_charge_s = -wave_enemy_cooldown_s;
-		}
-	}
-	wave_enemy_charge_s += GetFrameTime();
-	wave_duration_s -= GetFrameTime();
-
-    if (wave_duration_s <= 0) {
-        active_wave = SECOND_WAVE;
-        StartNewWave();
-    }
-}
-
-void SecondWave() {
-    UpdateWaveAlpha();
-
-    if (wave_duration_s > 52) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 2, 0, 4);
-            SpawnEnemies(enemy, 1, 1, 4);
-            SpawnRandomEnemies(enemy, 3, 4);
-            wave_enemy_cooldown_s -= 0.03f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-
-    else if (wave_duration_s > 37) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 1, 0, 4);
-            SpawnEnemies(enemy, 1, 1, 4);
-            SpawnRandomEnemies(enemy, 3, 4);
-            wave_enemy_cooldown_s -= 0.03f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-    else if (wave_duration_s > 32) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnEnemies(enemy, 3, 3, 4);
-            SpawnRandomEnemies(enemy, 3, 4);
-            wave_enemy_cooldown_s -= 0.03f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-
-    else if (wave_duration_s > 20) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnRandomEnemies(enemy, 5, 4);
-            wave_enemy_cooldown_s -= 0.03f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-
-    else if (wave_duration_s > 10) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnRandomEnemies(enemy, 6, 4);
-            wave_enemy_cooldown_s -= 0.03f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-
-    wave_enemy_charge_s += GetFrameTime();
-    wave_duration_s -= GetFrameTime();
-
-    if (wave_duration_s <= 0) {
-        active_wave = THIRD_WAVE;
-        StartNewWave();
-    }
-}
-
-
-void ThirdWave() {
-    UpdateWaveAlpha();
-
-    if (wave_duration_s > 30) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnRandomEnemies(enemy, 7, 5);
-            wave_enemy_cooldown_s -= 0.03f;
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-
-    else if (wave_duration_s > 0) {
-        if (wave_enemy_charge_s >= wave_enemy_cooldown_s) {
-            SpawnRandomEnemies(enemy, 10, 5);
-            wave_enemy_charge_s = -wave_enemy_cooldown_s;
-        }
-    }
-
-    wave_enemy_charge_s += GetFrameTime();
-    wave_duration_s -= GetFrameTime();
-
-    if (wave_duration_s<=0) {
-        victory = true;
-        active_wave = VICTORY;
-        AddToScore(1000);
-        ChangeScene(WINNER);
-    }
-}
-
-void UpdateWave() {
-	if (active_wave == FIRST_WAVE) FirstWave();
-	else if (active_wave == SECOND_WAVE) SecondWave();
-	else if (active_wave == THIRD_WAVE) ThirdWave();
 }
 
 //--------------------------------------------------------------
@@ -284,46 +63,12 @@ void UpdateWave() {
 // 
 //--------------------------------------------------------------
 
-void CheckCollision(Shoot* shoot, Enemy* enemy) {
-	if (CheckCollisionRecs(shoot->position, enemy->position)) {
-		enemy->hp -= shoot->damage;
-		shoot->active = false;
-		if (enemy->hp <= 0) {
-			enemy->active = false;
-            player.enemies_killed++;
-			level_up_flag = AddToExp(enemy->exp);
-            if (level_up_flag) PowerRandomizer();
-            AddToScore(10);
-		}
-	}
+void CheckCollision(Shoot* shoot) {
 }
 
 // Function to check and handle bullet and enemy collisions
-void CheckBulletAndEnemyCollision(Enemy* enemy) {
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (!enemy[i].active) continue;
+void CheckBulletAndEnemyCollision() {
 
-        for (int j = 0; j < 50; j++) {
- 
-            // PULSE
-            if (IsPulseActive()) {
-				Shoot* shoot = GetPulseShoot(j);
-				if (shoot->active) CheckCollision(shoot, &enemy[i]);
-            }
-            
-			// PHOTON
-            if (IsPhotonActive()) {
-				Shoot* shoot = GetPhotonShoot(j);
-				if (shoot->active) CheckCollision(shoot, &enemy[i]);
-            }
-
-            // SHOTGUN
-            if (IsShotgunActive()) {
-                Shoot* shoot = GetShotgunShoot(j);
-                if (shoot->active) CheckCollision(shoot, &enemy[i]);
-            }
-        }
-    }
 }
 
 
@@ -333,10 +78,7 @@ void CheckBulletAndEnemyCollision(Enemy* enemy) {
 // 
 //--------------------------------------------------------------
 
-void UpdateBackground(Background* background) {
-    if (background->alpha < 0.7) background->alpha += 0.2f * GetFrameTime();
-    background->position_y = (float)(fmod(background->position_y + 75 * GetFrameTime(), 2400));
-}
+
 
 void UpdateGame(void)
 {
@@ -350,29 +92,19 @@ void UpdateGame(void)
 
     if (!pause)
     {
-        UpdateWaveAlpha();
-
         if (level_up_flag) {
             UpdateLevelUpSelectMenu(&level_up_flag);
         } else {
-            UpdateWave();
-            UpdateBackground(&background);
-            UpdateEnemies(enemy, &ship);
-            CheckBulletAndEnemyCollision(enemy); // Enemy, kills and score
-            UpdateExpBar();
+            UpdateGameBackground();
+            UpdateWaves();
+            UpdateEnemies(&ship);
+            CheckBulletAndEnemyCollision();
             UpdateShip(&ship);
             UpdateWeapon(&ship);
         }
     }
-	for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-		if (enemy[i].active) {
-			if (CheckEnemyCollisionWithPlayer(&ship, &enemy[i])) {
-                ChangeScene(GAME_OVER);
-			}
-		}
-	}
     
-	
+    
 }
 
 
@@ -382,40 +114,24 @@ void UpdateGame(void)
 // 
 //--------------------------------------------------------------
 
-void DrawBackground() {
-    DrawTexture(background.texture, (int)background.position_x, (int)background.position_y, Fade(background.color, background.alpha));
-    DrawTexture(background.texture, (int)(background.position_x), (int)(background.position_y) - 2400, Fade(background.color, background.alpha));
-}
 
 void DrawGame(void)
 {
     BeginDrawing();
-
-    
     ClearBackground(BLACK);
+	DrawGameBackground();
 	
-    DrawBackground();
-    DrawEnemies(enemy);
+	DrawUserInterface();
+    DrawEnemies();
     DrawWeapon(&ship);
     DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
-
-    DrawExpBar();
-    
-
-    if (active_wave == FIRST_WAVE) DrawText("FIRST WAVE", SCREEN_WIDTH / 2 - MeasureText("FIRST WAVE", 40) / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, wave_message_alpha));
-    else if (active_wave == SECOND_WAVE) DrawText("SECOND WAVE", SCREEN_WIDTH / 2 - MeasureText("SECOND WAVE", 40) / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, wave_message_alpha));
-    else if (active_wave == THIRD_WAVE) DrawText("THIRD WAVE", SCREEN_WIDTH / 2 - MeasureText("THIRD WAVE", 40) / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, wave_message_alpha));
-
-    DrawText(TextFormat("%04i", GetScore()), 20, 20, 40, GRAY);
+    DrawWaves();
     
     if (victory) DrawText("YOU WIN", SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
     
-	
-    
     EndDrawing();
-
 }
 
 //--------------------------------------------------------------
@@ -424,10 +140,9 @@ void DrawGame(void)
 // 
 //--------------------------------------------------------------
 
-void LoadGameTextures(void) {
-    background.texture = LoadTexture("purplebg.png");
+void LoadGameResources(void) {
 }
 
-void UnloadGameTextures(void) {
-    UnloadTexture(background.texture);
+void UnloadGameResources(void) {
+	UnloadGameBackground();
 }
