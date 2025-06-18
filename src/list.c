@@ -98,29 +98,27 @@ int List_Remove(List* list, void* data) {
     Node* previous = NULL;
 
     while (current) {
-        if (memcmp(current->data, data, list->data_size) == 0) {
+        Node* next = current->next;
 
-            if (previous) {
-                previous->next = current->next;
-            }
-            else {
-                list->head = current->next;
-            }
+        if (current->data == data) {
+            if (previous) previous->next = next;
+            else list->head = next;
 
-            if (current == list->tail) {
-                list->tail = previous;
-            }
+            if (current == list->tail) list->tail = previous;
 
             free(current->data);
             free(current);
             list->size--;
             return 1;
         }
+
         previous = current;
-        current = current->next;
+        current = next;
     }
+
     return 0;
 }
+
 
 
 int List_RemoveAt(List* list, int index) {
@@ -241,6 +239,17 @@ void List_ForEach(List* list, Function fn) {
     }
 }
 
+void List_ForEachCtx(List* list, void* context, TwoArgFunction fn) {
+    if (!list || !fn) return;
+
+    Node* current = list->head;
+    while (current) {
+        Node* next = current->next;
+        fn(context, current->data);
+        current = next;
+    }
+}
+
 
 // Encontra um elemento na lista usando um predicado (match function).
 void* List_FindWithFn(List* list, void* context, MatchFunction matchfn) {
@@ -300,28 +309,34 @@ int List_AddWithFn(List* list, void* data, ComparisonFunc comparefn) {
     return 1;
 }
 
+// Remove todos os nós que a matchfunction pega
 int List_RemoveWithFn(List* list, void* context, MatchFunction matchfn) {
     if (!list || !matchfn || list->size == 0) return 0;
 
     Node* current = list->head;
     Node* previous = NULL;
+    int removed_count = 0;
 
     while (current) {
-        if (matchfn(context, current->data)) {
+        Node* next = current->next;
 
-            if (previous) previous->next = current->next;
-            else list->head = current->next;
+        if (matchfn(context, current->data)) {
+            if (previous) previous->next = next;
+            else list->head = next;
 
             if (current == list->tail) list->tail = previous;
 
             free(current->data);
             free(current);
             list->size--;
-            return 1;
+            removed_count++;
+        }
+        else {
+            previous = current;
         }
 
-        previous = current;
-        current = current->next;
+        current = next;
     }
-    return 0;
+
+    return removed_count;
 }

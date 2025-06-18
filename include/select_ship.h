@@ -25,5 +25,4 @@ void DrawSelectMenu(void);
 void LoadSelectMenuTextures(void);
 void UnloadSelectMenuTextures(void);
 
-
 void DrawSelectMenuBackground(void);

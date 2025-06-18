@@ -296,8 +296,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\include\user_interface.c" />
-    <ClCompile Include="..\..\src\background.c" />
     <ClCompile Include="..\..\src\behavior.c" />
     <ClCompile Include="..\..\src\draw_object.c" />
     <ClCompile Include="..\..\src\enemy.c" />
@@ -317,6 +315,7 @@
     <ClCompile Include="..\..\src\select_ship.c" />
     <ClCompile Include="..\..\src\ship.c" />
     <ClCompile Include="..\..\src\tutorial.c" />
+    <ClCompile Include="..\..\src\user_interface.c" />
     <ClCompile Include="..\..\src\weapon.c" />
     <ClCompile Include="..\..\src\winner.c" />
   </ItemGroup>

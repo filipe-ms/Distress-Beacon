@@ -32,8 +32,8 @@ static Vector2 GetInitShipSpeed(int id) {
 
 void InitShip(Ship* ship, int id) {
 	ship->id = id;
-	ship->position.x = STARTING_POS_X;
-	ship->position.y = STARTING_POS_Y;
+	ship->position.x = GAME_SCREEN_WIDTH/2;
+	ship->position.y = SCREEN_HEIGHT - 100;
 	ship->draw_size = (Vector2){ DRAW_WH };
 	ship->direction = CENTER;
 	ship->thruster_cycle = 0;
@@ -96,6 +96,10 @@ static void DrawAurea(Ship* ship, Rectangle draw_pos) {
 	else if (ship->thruster_cycle == 3) {
 		left_thruster_sprite.x = 64;
 		right_thruster_sprite.x = 40;
+	}
+
+	if (DEBUG_FLAG) {
+		DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 	}
 
 	DrawTexturePro(ships, ship_sprite, draw_pos, (Vector2) { 0 }, 0.0f, Fade(ship->color, ship->alpha));
