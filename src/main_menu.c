@@ -42,7 +42,6 @@ void InitMenu() {
     main_transition_complete = false;
 
     select_text_alpha = 0.0f;
-    
 }
 
 void UpdateMenuTransition() {
