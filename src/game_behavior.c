@@ -9,6 +9,7 @@
 #include "list.h"
 #include "player.h"
 #include "raymath.h"
+#include "hit_confirmation.h"
 
 void WallBehavior(Vector2* position) {
 	position->x = Clamp(position->x, DRAW_WH/2, SCREEN_WIDTH - UI_WIDTH - (DRAW_WH/2) );
@@ -35,6 +36,7 @@ static bool CheckForHits(void* context, void* data) {
 
     if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
+		ConfirmHit(SHOCKWAVE, enemy_pos);
 
         if (enemy->hp <= 0) {
             AddExperience(enemy->exp);

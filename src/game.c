@@ -11,6 +11,8 @@
 #include "player.h"
 #include "enemy_wave.h"
 #include "raymath.h"
+#include "hit_confirmation.h"
+
 
 // Waves
 #define FIRST_WAVE 0
@@ -41,6 +43,7 @@ void InitGame(void) {
     InitPowerUps();
 	InitGameBackground();
     InitWaves();
+	InitHitConfirmation();
 
     if (GetPlayerShip() == 0) ActivatePulse();
     else if (GetPlayerShip() == 1) ActivatePhoton();
@@ -72,6 +75,7 @@ void UpdateGame(void)
             UpdateLevelUpSelectMenu(&level_up_flag);
         } else {
             UpdateGameBackground();
+            UpdateHitConfirmation();
             UpdateWaves();
             UpdateEnemies(&ship);
             UpdateShip(&ship);
@@ -82,6 +86,7 @@ void UpdateGame(void)
                 PowerRandomizer();
                 level_up_flag = true;
             }
+            
         }
     }
 }
@@ -102,6 +107,7 @@ void DrawGame(void)
 	
     DrawEnemies();
     DrawWeapon();
+    DrawHitConfirmation();
     DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
     DrawWaves();

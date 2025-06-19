@@ -105,6 +105,9 @@
     <ClInclude Include="..\..\include\select_ship.h">
       <Filter>Header Files\scenes</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\hit_confirmation.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.c">
@@ -172,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\select_ship.c">
       <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hit_confirmation.c">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

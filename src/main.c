@@ -39,6 +39,8 @@
 
 #include "ship.h"
 
+#include "hit_confirmation.h"
+
 static Scene starting_scene = START;
 
 void LoadGame(void);
@@ -93,4 +95,5 @@ void UnloadGame(void)
     UnloadPowerUpTextures();
 	UnloadShipTextures();
     UnloadGameResources();
+	UnloadHitConfirmation();
 }
