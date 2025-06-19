@@ -42,9 +42,20 @@ void InitGame(void) {
 	InitGameBackground();
     InitWaves();
 
-    if (GetPlayerShip() == 0) ActivatePulse();
-    else if (GetPlayerShip() == 1) ActivatePhoton();
-    else if (GetPlayerShip() == 2) ActivateShotgun();
+    switch (GetPlayerShip()) {
+        case AUREA:
+            ActivatePulse();
+            break;
+        case ORION:
+            ActivatePhoton();
+            break;
+        case NEBULA:
+            ActivateShotgun();
+            break;
+        case PUDDLE_JUMPER:
+            ActivateBlabla();
+            break;
+    }
 }
 
 
@@ -109,7 +120,7 @@ void DrawGame(void)
     if (victory) DrawText("YOU WIN", GAME_SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", GAME_SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
     
-    DrawUserInterface(); // Desenha por último, está agora em outro plano
+    DrawUserInterface(); // Desenha por ï¿½ltimo, estï¿½ agora em outro plano
     EndDrawing();
 }
 

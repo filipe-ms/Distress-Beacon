@@ -5,6 +5,8 @@
 
 #include "raymath.h"
 
+#include "enemy.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -216,6 +218,162 @@ static void DrawPhoton(void) {
 
 //--------------------------------------------------------------
 //
+//                         BLABLA
+// 
+//--------------------------------------------------------------
+
+Blabla blabla;
+
+const Vector2 blabla_shoot_speed_base = { .x = 0, .y = -300 };
+
+bool IsBlablaActive(void) { return blabla.weapon.is_active; }
+void ActivateBlabla(void) { blabla.weapon.is_active = true; }
+
+static void InitBlabla(void) {
+    blabla.weapon.id = BLABLA;
+    blabla.weapon.is_active = false;
+    blabla.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
+    blabla.weapon.offset = (Vector2){ 0, 0 };
+    blabla.weapon.damage = 0.05f;
+    blabla.weapon.shoot_speed = blabla_shoot_speed_base;
+    blabla.weapon.cooldown_time = 0.4f;
+    blabla.weapon.cooldown_charge = 0.0f;
+    blabla.weapon.color = YELLOW;
+
+    blabla.blabla_shoots = List_Create(sizeof(BlablaShoot));
+}
+
+static void InitBlablaShoot(Ship* ship) {
+    BlablaShoot new_blabla_shoot = { 0 };
+    new_blabla_shoot.shoot.damage = blabla.weapon.damage + damage_modifier;
+    new_blabla_shoot.shoot.size = (Vector2){ 18 * size_modifier, 18 * size_modifier };
+    new_blabla_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
+    new_blabla_shoot.visual_rotation = 0.0f;
+    new_blabla_shoot.calc_rotation = -90.0f * DEG2RAD;
+    new_blabla_shoot.target = NULL;
+    new_blabla_shoot.current_velocity = blabla_shoot_speed_base;
+    List_AddLast(blabla.blabla_shoots, &new_blabla_shoot);
+}
+
+static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
+    // Pick the closest enemy
+    
+    if (blabla_shoot->target == NULL) {
+        Enemy* closest_enemy = NULL;
+        float closest_distance = 0;
+        Vector2 shootPos = blabla_shoot->shoot.position;
+        
+        bool hasInitialized = false;
+        
+        
+        for(int i = 0; i < MAX_ENEMY_NUMBER; i++) {
+            Enemy* enemy = &enemies[i];
+            Vector2 enemyPos = { enemy->position.x, enemy->position.y };
+            
+            float distance = Vector2Distance(enemyPos, shootPos);
+            
+            if (!hasInitialized || distance < closest_distance) { 
+                closest_distance = distance;
+                closest_enemy = enemy;
+                hasInitialized = true;
+            }
+        }
+
+        blabla_shoot->target = closest_enemy;
+    }
+    
+    if (blabla_shoot->target == NULL || !blabla_shoot->target->active) {   
+        blabla_shoot->shoot.position.y += blabla_shoot->current_velocity.y * speed_modifier * GetFrameTime();
+        blabla_shoot->shoot.position.x += blabla_shoot->current_velocity.x * speed_modifier * GetFrameTime();
+        return;
+    }
+
+    // 1. Get base speed (magnitude)
+    float base_speed = Vector2Length(blabla_shoot_speed_base);
+
+    // 2. Calculate PROPER direction vector (target -> projectile)
+    Vector2 target_position = (Vector2) { blabla_shoot->target->position.x, blabla_shoot->target->position.y };
+    Vector2 direction = Vector2Subtract(target_position, blabla_shoot->shoot.position);
+    Vector2 normalized_direction = Vector2Normalize(direction);
+
+    // 3. Calculate desired angle (atan2 returns -π to π)
+    float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
+
+    // 4. Get current angle (convert to radians)
+    float current_angle = blabla_shoot->calc_rotation;
+
+    // 5. Calculate angular difference (-π to π)
+    float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
+
+    // 6. Apply gradual adjustment
+    float max_adjustment = 1.0f * GetFrameTime(); // Radians per frame
+    float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
+    float new_angle = current_angle + adjustment;
+
+    // 7. Calculate new velocity vector
+    Vector2 new_velocity = {
+        cosf(new_angle) * base_speed,
+        sinf(new_angle) * base_speed
+    };
+
+    blabla_shoot->current_velocity = new_velocity;
+
+    // 8. Update projectile state
+    blabla_shoot->shoot.position.x += new_velocity.x * speed_modifier * GetFrameTime();
+    blabla_shoot->shoot.position.y += new_velocity.y * speed_modifier * GetFrameTime();
+
+    // 9. Set rotation (convert back to degrees)
+    blabla_shoot->visual_rotation = new_angle * RAD2DEG + 90;
+    blabla_shoot->calc_rotation = new_angle;
+        DrawLine(blabla_shoot->shoot.position.x, blabla_shoot->shoot.position.y, target_position.x, target_position.y, RED);
+    }
+
+static int CheckBlablaShootOutOfBounds(void* context, BlablaShoot* item) {
+    BlablaShoot* blabla_shoot = (BlablaShoot*)item;
+    if (blabla_shoot->shoot.position.y < -80) {
+        return 1;
+    }
+    return 0;
+}
+
+static void UpdateBlabla(Ship* ship) {
+    if (!blabla.weapon.is_active) return;
+
+    blabla.weapon.cooldown_charge -= cooldown_modifier * GetFrameTime();
+
+    if (blabla.weapon.cooldown_charge <= 0) {
+        InitBlablaShoot(ship);
+        blabla.weapon.cooldown_charge = blabla.weapon.cooldown_time;
+    }
+
+    List_ForEach(blabla.blabla_shoots, (Function)BlablaShootPositionUpdate);
+    List_RemoveWithFn(blabla.blabla_shoots, NULL, CheckBlablaShootOutOfBounds);
+}
+
+static void DrawBlablaShoot(BlablaShoot* blabla_shoot) {
+    Rectangle destRec = {
+        blabla_shoot->shoot.position.x,
+        blabla_shoot->shoot.position.y,
+        blabla_shoot->shoot.size.x,
+		blabla_shoot->shoot.size.y
+    };
+    Vector2 origin = { blabla_shoot->shoot.size.x / 2.0f, blabla_shoot->shoot.size.y / 2.0f };
+    if (DEBUG_FLAG) {
+        Vector2 center = { blabla_shoot->shoot.position.x, blabla_shoot->shoot.position.y };
+        DrawCircleV(center, 20, Fade(RED, 0.5f));
+    }
+	
+
+
+    DrawTexturePro(weapon_texture, blabla.weapon.source, destRec, origin, blabla_shoot->visual_rotation, WHITE);
+}
+
+static void DrawBlabla(void) {
+    List_ForEach(blabla.blabla_shoots, (Function)DrawBlablaShoot);
+}
+
+//--------------------------------------------------------------
+//
 //                         SHOTGUN
 // 
 //--------------------------------------------------------------
@@ -337,17 +495,19 @@ bool IsWeaponActive(int reference) {
     case PULSE:   return IsPulseActive();
     case PHOTON:  return IsPhotonActive();
     case SHOTGUN: return IsShotgunActive();
-    default:     return false;
+    case BLABLA:  return IsBlablaActive();
+    default:      return false;
     }
 }
 
 const char* GetActiveWeaponsString(void) {
-    static char active_weapons[256];  // Buffer p/ n�o precisar mallocar e dar free depois
+    static char active_weapons[256];  // Buffer p/ n�o precisar mallocar e dar free depois
     active_weapons[0] = '\0';
 
-    if (IsPulseActive()) strcat(active_weapons, "Pulse\n");
-    if (IsPhotonActive()) strcat(active_weapons, "Photon\n");
+    if (IsPulseActive())   strcat(active_weapons, "Pulse\n");
+    if (IsPhotonActive())  strcat(active_weapons, "Photon\n");
     if (IsShotgunActive()) strcat(active_weapons, "Shotgun\n");
+    if (IsBlablaActive())  strcat(active_weapons, "Blabla\n");
 
     if (strlen(active_weapons) == 0) {
         strcpy(active_weapons, "None");
@@ -364,6 +524,7 @@ static void InitAllWeapons(void) {
     InitPulse();
     InitPhoton();
     InitShotgun();
+    InitBlabla();
 }
 
 void InitWeapon(void) {
@@ -375,12 +536,14 @@ void UpdateWeapon(Ship* ship) {
     UpdatePulse(ship);
     UpdatePhoton(ship);
     UpdateShotgun(ship);
+    UpdateBlabla(ship);
 }
 
 void DrawWeapon(void) {
     DrawPulseShoot();
     DrawPhoton();
     DrawShotgun();
+    DrawBlabla();
 }
 
 void LoadWeaponTextures(void) {

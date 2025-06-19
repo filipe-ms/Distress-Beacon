@@ -54,6 +54,7 @@ bool CheckForAllCollisions(Ship* ship) {
         List_RemoveWithFn(pulse.pulse_shoots, &enemies[i], (MatchFunction)CheckForHits);
         List_RemoveWithFn(photon.photon_shoots, &enemies[i], (MatchFunction)CheckForHits);
         List_RemoveWithFn(shotgun.shotgun_shoots, &enemies[i], (MatchFunction)CheckForHits);
+        List_RemoveWithFn(blabla.blabla_shoots, &enemies[i], (MatchFunction)CheckForHits);
 
         Vector2 enemy_pos_vect = { enemies[i].position.x, enemies[i].position.y };
         if (CheckEnemyCollisionWithPlayer(&ship->position, &enemy_pos_vect)) return true;

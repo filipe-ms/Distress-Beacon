@@ -7,5 +7,11 @@
 		"**/.DS_Store": true,
 		"**/*.o": true,
 		"**/*.exe": true,
+	},
+	"files.associations": {
+		"game_behavior.h": "c",
+		"weapon.h": "c",
+		"enemy.h": "c",
+		"raylib.h": "c"
 	}
 }
