@@ -3,6 +3,7 @@
 #include "common.h"
 #include "player.h"
 #include "weapon.h"
+#include "draw_utils.h"
 
 #include <stdio.h>
 
@@ -37,30 +38,28 @@ static void DrawUIBackground(void) {
 }
 
 static void DrawActiveWeapons() {
-	DrawText("WEAPONS", GAME_SCREEN_WIDTH, 75, 20, Fade(RAYWHITE, 0.5f));
-    DrawText("WEAPONS", GAME_SCREEN_WIDTH+2, 77, 20, WHITE);
+    DrawOutlinedText("WEAPONS", GAME_SCREEN_WIDTH, 75, 20, WHITE, Fade(RAYWHITE, 0.5f));
 	DrawMultilineText(GetActiveWeaponsString(), GAME_SCREEN_WIDTH, 100, 20, BLUE, 1.0f);
 }
 
 static void DrawActiveBonuses() {
     int base_height = 250;
     int label_x = GAME_SCREEN_WIDTH;
-    int value_x = GAME_SCREEN_WIDTH + 120;
+    int value_x = GAME_SCREEN_WIDTH + 140;
 
-    DrawText("UPGRADES", label_x, base_height - 2, 20, Fade(RAYWHITE, 0.5f));
-    DrawText("UPGRADES", label_x + 2, base_height, 20, WHITE);
+    DrawOutlinedText("UPGRADES", label_x, base_height, 20, WHITE, Fade(RAYWHITE, 0.5f));
 
     DrawText("Damage", label_x, base_height + 20, 20, RED);
-    DrawText(TextFormat("%4i", GetDamageModifier() - 1), value_x, base_height + 20, 20, RED);
+    DrawText(TextFormat("%03.0f%%", GetDamageModifier()), value_x, base_height + 20, 20, RED);
 
     DrawText("Fire rate", label_x, base_height + 40, 20, YELLOW);
-    DrawText(TextFormat("%4i", GetCooldownModifier() - 1), value_x, base_height + 40, 20, YELLOW);
+    DrawText(TextFormat("%03.0f%%", GetCooldownModifier()), value_x, base_height + 40, 20, YELLOW);
 
     DrawText("Size", label_x, base_height + 60, 20, PURPLE);
-    DrawText(TextFormat("%4i", GetSizeModifier() - 1), value_x, base_height + 60, 20, PURPLE);
+    DrawText(TextFormat("%03.0f%%", GetSizeModifier()), value_x, base_height + 60, 20, PURPLE);
 
     DrawText("Bullet Speed", label_x, base_height + 80, 20, LIGHTGRAY);
-    DrawText(TextFormat("%4i", GetSpeedModifier() - 1), value_x, base_height + 80, 20, LIGHTGRAY);
+    DrawText(TextFormat("%03.0f%%", GetSpeedModifier()), value_x, base_height + 80, 20, LIGHTGRAY);
 }
 
 
@@ -88,8 +87,7 @@ static void DrawScore(void) {
 	Vector2 score_position = { GAME_SCREEN_WIDTH, 10 };
 	int font_size = 30;
 
-	DrawText(TextFormat("%04i", GetPlayerScore()), score_position.x, score_position.y, font_size, Fade(RAYWHITE, 0.5f));
-    DrawText(TextFormat("%04i", GetPlayerScore()), score_position.x+2, score_position.y+2, font_size, Fade(WHITE, 1.0f));
+    DrawOutlinedText(TextFormat("%04i", GetPlayerScore()), score_position.x, score_position.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
 }
 
 void DrawUserInterface(void) {

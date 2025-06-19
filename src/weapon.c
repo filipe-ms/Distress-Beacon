@@ -20,10 +20,14 @@ float size_modifier;
 float speed_modifier;
 
 static void InitWeaponPowerUpMultipliers(void) {
-	cooldown_modifier = 1.0f;
-	damage_modifier = 1.0f;
-	size_modifier = 1.0f;
-	speed_modifier = 1.0f;
+	cooldown_modifier = 0.0f;
+	damage_modifier = 0.0f;
+	size_modifier = 0.0f;
+	speed_modifier = 0.0f;
+}
+
+static float ApplyMultiplier(float multiplier, float variable) {
+    return variable + (multiplier/100) * variable;
 }
 
 //--------------------------------------------------------------
@@ -58,7 +62,7 @@ static void InitPulse(void) {
     pulse.weapon.is_active = false;
 
     pulse.weapon.source = (Rectangle){ 40, 0, 8, 8 };
-	pulse.weapon.offset = (Vector2){ DRAW_WH/2, DRAW_WH * 1.25 };
+	pulse.weapon.offset = (Vector2){ 0, 0 };
     pulse.weapon.color = WHITE;
 
     pulse.weapon.damage = 1.0f;
@@ -74,10 +78,15 @@ static void InitPulse(void) {
 
 static void InitPulseShoot(Ship* ship) {
     PulseShoot new_pulse_shoot = { 0 };
-    new_pulse_shoot.shoot.damage = pulse.weapon.damage * damage_modifier;
-    new_pulse_shoot.shoot.size = (Vector2){ 48 * size_modifier, 48 * size_modifier };
+    new_pulse_shoot.shoot.damage = ApplyMultiplier(damage_modifier, pulse.weapon.damage);
+    new_pulse_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 48.0f), ApplyMultiplier(size_modifier, 48.0f) };
 
-    new_pulse_shoot.shoot.position = Vector2Subtract(ship->position, pulse.weapon.offset);
+    Vector2 shoot_spawn_position = {
+        ship->position.x,
+        ship->position.y - DRAW_WH*0.75
+    };
+
+    new_pulse_shoot.shoot.position = shoot_spawn_position;
     new_pulse_shoot.rotation = pulse.shoot_cycle * 15.0f;
 
     pulse.shoot_cycle++;
@@ -88,8 +97,8 @@ static void InitPulseShoot(Ship* ship) {
 
 static void PulseShootPositionUpdate(PulseShoot* pulse_shoot) {
     Vector2 resulting_speed = Vector2Rotate(pulse.weapon.shoot_speed, pulse_shoot->rotation * DEG2RAD);
-	pulse_shoot->shoot.position.x += resulting_speed.x * speed_modifier * GetFrameTime();
-	pulse_shoot->shoot.position.y += resulting_speed.y * speed_modifier * GetFrameTime();
+	pulse_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, resulting_speed.x) * GetFrameTime();
+	pulse_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, resulting_speed.y) * GetFrameTime();
 }
 
 static int CheckIfOutOfBonds(void* context, PulseShoot* pulse_shoot) {
@@ -101,7 +110,7 @@ static int CheckIfOutOfBonds(void* context, PulseShoot* pulse_shoot) {
 
 static void UpdatePulse(Ship* ship) {
     if (!pulse.weapon.is_active) return;
-	pulse.weapon.cooldown_charge -= cooldown_modifier * GetFrameTime();
+	pulse.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
     if (pulse.weapon.cooldown_charge <= 0) {
 		pulse.weapon.cooldown_charge = pulse.weapon.cooldown_time;
@@ -114,17 +123,16 @@ static void UpdatePulse(Ship* ship) {
 
 static void PulseShootDraw(PulseShoot* pulse_shoot) {
     Rectangle pulse_rect_draw = {
-        pulse_shoot->shoot.position.x + pulse_shoot->shoot.size.x/2,
-        pulse_shoot->shoot.position.y + pulse_shoot->shoot.size.y/2,
+        pulse_shoot->shoot.position.x,
+        pulse_shoot->shoot.position.y,
         pulse_shoot->shoot.size.x,
         pulse_shoot->shoot.size.y
     };
 
-    Vector2 draw_origin = { pulse_rect_draw.width / 2.0f, pulse_rect_draw.height / 2.0f };
+    Vector2 draw_origin = { pulse_shoot->shoot.size.x / 2.0f, pulse_shoot->shoot.size.y / 2.0f };
 
     if (DEBUG_FLAG) {
-        Vector2 center = { pulse_shoot->shoot.position.x + pulse_shoot->shoot.size.x / 2, pulse_shoot->shoot.position.y + pulse_shoot->shoot.size.y / 2 };
-        DrawCircleV(center, 20, Fade(RED, 0.5f));
+        DrawCircleV(pulse_shoot->shoot.position, 20, Fade(RED, 0.5f));
     }
 
     DrawTexturePro(weapon_texture, pulse.weapon.source, pulse_rect_draw, draw_origin, pulse_shoot->rotation, WHITE);
@@ -162,14 +170,14 @@ static void InitPhoton(void) {
 
 static void InitPhotonShoot(Ship* ship) {
     PhotonShoot new_photon_shoot = { 0 };
-    new_photon_shoot.shoot.damage = photon.weapon.damage + damage_modifier;
-    new_photon_shoot.shoot.size = (Vector2){ 36 * size_modifier, 36 * size_modifier };
+    new_photon_shoot.shoot.damage = ApplyMultiplier(damage_modifier, photon.weapon.damage);
+    new_photon_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 36.0f), ApplyMultiplier(size_modifier, 36.0f) };
     new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
     List_AddLast(photon.photon_shoots, &new_photon_shoot);
 }
 
 static void PhotonShootPositionUpdate(PhotonShoot* photon_shoot) {
-    photon_shoot->shoot.position.y += photon.weapon.shoot_speed.y * speed_modifier * GetFrameTime();
+    photon_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, photon.weapon.shoot_speed.y) * GetFrameTime();
 }
 
 static int CheckPhotonShootOutOfBounds(void* context, PhotonShoot* item) {
@@ -183,7 +191,7 @@ static int CheckPhotonShootOutOfBounds(void* context, PhotonShoot* item) {
 static void UpdatePhoton(Ship* ship) {
     if (!photon.weapon.is_active) return;
 
-    photon.weapon.cooldown_charge -= cooldown_modifier * GetFrameTime();
+    photon.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
     if (photon.weapon.cooldown_charge <= 0) {
         InitPhotonShoot(ship);
@@ -205,9 +213,7 @@ static void DrawPhotonShoot(PhotonShoot* photon_shoot) {
     if (DEBUG_FLAG) {
         Vector2 center = { photon_shoot->shoot.position.x, photon_shoot->shoot.position.y };
         DrawCircleV(center, 20, Fade(RED, 0.5f));
-    }
-	
-
+    }	
 
     DrawTexturePro(weapon_texture, photon.weapon.source, destRec, origin, 0, WHITE);
 }
@@ -401,8 +407,8 @@ static void InitShotgunShoot(Ship* ship) {
     int shells = GetRandomValue(3, 6);
     for (int i = 0; i < shells; i++) {
         ShotgunShoot new_shotgun_shoot = { 0 };
-        new_shotgun_shoot.shoot.damage = shotgun.weapon.damage * damage_modifier;
-        new_shotgun_shoot.shoot.size = (Vector2){ 48 * size_modifier, 48 * size_modifier };
+        new_shotgun_shoot.shoot.damage = ApplyMultiplier(damage_modifier, shotgun.weapon.damage);
+        new_shotgun_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 48), ApplyMultiplier(size_modifier, 48) };
 
         float angle = (float)GetRandomValue((int)(-shotgun.arc), (int)(shotgun.arc));
         new_shotgun_shoot.orientation = angle;
@@ -428,11 +434,11 @@ static void InitShotgunShoot(Ship* ship) {
 }
 
 static void UpdateShotgunShoot(ShotgunShoot* shotgun_shoot) {
-    shotgun_shoot->shoot.position.x += shotgun_shoot->speed.x * GetFrameTime();
-    shotgun_shoot->shoot.position.y += shotgun_shoot->speed.y * GetFrameTime();
+    shotgun_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, shotgun_shoot->speed.x) * GetFrameTime();
+    shotgun_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, shotgun_shoot->speed.y) * GetFrameTime();
 
     shotgun_shoot->lifespan -= GetFrameTime();
-    shotgun_shoot->alpha = shotgun_shoot->lifespan / 0.3f; // Normalize alpha
+    shotgun_shoot->alpha = shotgun_shoot->lifespan / 0.3f;
     if (shotgun_shoot->alpha < 0) shotgun_shoot->alpha = 0;
 
 }
@@ -448,7 +454,7 @@ static int CheckShotgunShootExpired(void* context, ShotgunShoot* item) {
 static void UpdateShotgun(Ship* ship) {
     if (!shotgun.weapon.is_active) return;
 
-    shotgun.weapon.cooldown_charge -= cooldown_modifier * GetFrameTime();
+    shotgun.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
     if (shotgun.weapon.cooldown_charge <= 0) {
         InitShotgunShoot(ship);

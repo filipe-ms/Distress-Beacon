@@ -1,6 +1,2 @@
-5
-360 150
-a 10
--1 0
-Filipe 100
-Filipe 10
+Filipe,Aurea,200
+Filipe,Unknown,0

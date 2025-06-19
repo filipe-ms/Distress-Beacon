@@ -54,7 +54,6 @@ typedef struct PulseShoot {
 	int shoot_cycle;
 } PulseShoot;
 
-
 typedef struct Pulse {
     Weapon weapon;
     int shoot_cycle;

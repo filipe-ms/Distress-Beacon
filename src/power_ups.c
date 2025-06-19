@@ -125,21 +125,21 @@ void PowerRandomizer(void) {
 
         switch (powerup_type) {
         case SHOOT_COOLDOWN: {
-            int percentage = GetRandomValue(5, 10);
-            active_cards[i].value = percentage / 100.0f;
-            sprintf(active_cards[i].description_buffer, active_cards[i].description, percentage);
+            int value = GetRandomValue(5, 10);
+            active_cards[i].value = value;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
         }
         case SHOOT_DAMAGE: {
-            int percentage = GetRandomValue(10, 25);
-            active_cards[i].value = percentage / 100.0f;
-            sprintf(active_cards[i].description_buffer, active_cards[i].description, percentage);
+            int value = GetRandomValue(10, 25);
+            active_cards[i].value = value;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
         }
         case SHOOT_SIZE: {
-            int percentage = GetRandomValue(15, 30);
-            active_cards[i].value = percentage / 100.0f;
-            sprintf(active_cards[i].description_buffer, active_cards[i].description, percentage);
+            int value = GetRandomValue(15, 30);
+            active_cards[i].value = value;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
         }
         default:
@@ -257,14 +257,14 @@ void DrawLevelUpSelectMenu(bool flag) {
     const char* title = "Selecione um upgrade";
     int titleFontSize = 40;
     float titleWidth = (float)MeasureText(title, titleFontSize);
-    DrawText(title, (int)((SCREEN_WIDTH - titleWidth) / 2.0f) - 2, (int)(SCREEN_HEIGHT / 2.0f - 280.0f) - 2, titleFontSize, Fade(RAYWHITE, power_up_alpha - 0.5f));
-    DrawText(title, (int)((SCREEN_WIDTH - titleWidth) / 2.0f), (int)(SCREEN_HEIGHT / 2.0f - 280.0f), titleFontSize, Fade(WHITE, power_up_alpha));
+    DrawText(title, (int)((GAME_SCREEN_WIDTH - titleWidth) / 2.0f) - 2, (int)(SCREEN_HEIGHT / 2.0f - 280.0f) - 2, titleFontSize, Fade(RAYWHITE, power_up_alpha - 0.5f));
+    DrawText(title, (int)((GAME_SCREEN_WIDTH - titleWidth) / 2.0f), (int)(SCREEN_HEIGHT / 2.0f - 280.0f), titleFontSize, Fade(WHITE, power_up_alpha));
 
     float card_width = 210.0f;
     float card_height = 320.0f;
     float spacing = 20.0f;
     float total_width = (card_width * 3) + (spacing * 2);
-    float start_x = (SCREEN_WIDTH - total_width) / 2.0f;
+    float start_x = (GAME_SCREEN_WIDTH - total_width) / 2.0f;
     float y_pos = (SCREEN_HEIGHT - card_height) / 2.0f;
 
     for (int i = 0; i < 3; i++) {
