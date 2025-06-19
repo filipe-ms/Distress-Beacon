@@ -1,3 +1,4 @@
+Gabriel,Aurea,1300
 Filipe,Aurea,700
 Filipe,Aurea,500
 Filipe,Aurea,500
