@@ -240,7 +240,7 @@ static void InitBlabla(void) {
     blabla.weapon.is_active = false;
     blabla.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
     blabla.weapon.offset = (Vector2){ 0, 0 };
-    blabla.weapon.damage = 0.05f;
+    blabla.weapon.damage = 0.4f;
     blabla.weapon.shoot_speed = blabla_shoot_speed_base;
     blabla.weapon.cooldown_time = 0.4f;
     blabla.weapon.cooldown_charge = 0.0f;
@@ -251,13 +251,13 @@ static void InitBlabla(void) {
 
 static void InitBlablaShoot(Ship* ship) {
     BlablaShoot new_blabla_shoot = { 0 };
-    new_blabla_shoot.shoot.damage = blabla.weapon.damage + damage_modifier;
-    new_blabla_shoot.shoot.size = (Vector2){ 18 * size_modifier, 18 * size_modifier };
+    new_blabla_shoot.shoot.damage = ApplyMultiplier(damage_modifier, blabla.weapon.damage);
+    new_blabla_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 18), ApplyMultiplier(size_modifier, 18) };
     new_blabla_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
     new_blabla_shoot.visual_rotation = 0.0f;
     new_blabla_shoot.calc_rotation = -90.0f * DEG2RAD;
     new_blabla_shoot.target = NULL;
-    new_blabla_shoot.current_velocity = blabla_shoot_speed_base;
+    new_blabla_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, blabla_shoot_speed_base.x), ApplyMultiplier(speed_modifier, blabla_shoot_speed_base.y) };
     List_AddLast(blabla.blabla_shoots, &new_blabla_shoot);
 }
 
@@ -289,8 +289,8 @@ static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
     }
     
     if (blabla_shoot->target == NULL || !blabla_shoot->target->active) {   
-        blabla_shoot->shoot.position.y += blabla_shoot->current_velocity.y * speed_modifier * GetFrameTime();
-        blabla_shoot->shoot.position.x += blabla_shoot->current_velocity.x * speed_modifier * GetFrameTime();
+        blabla_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, blabla_shoot->current_velocity.y) * GetFrameTime();
+        blabla_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, blabla_shoot->current_velocity.x) * GetFrameTime();
         return;
     }
 
@@ -312,7 +312,7 @@ static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
     float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
 
     // 6. Apply gradual adjustment
-    float max_adjustment = 1.0f * GetFrameTime(); // Radians per frame
+    float max_adjustment = 2.0f * GetFrameTime(); // Radians per frame
     float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
     float new_angle = current_angle + adjustment;
 
@@ -325,14 +325,13 @@ static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
     blabla_shoot->current_velocity = new_velocity;
 
     // 8. Update projectile state
-    blabla_shoot->shoot.position.x += new_velocity.x * speed_modifier * GetFrameTime();
-    blabla_shoot->shoot.position.y += new_velocity.y * speed_modifier * GetFrameTime();
+    blabla_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, new_velocity.x) * GetFrameTime();
+    blabla_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, new_velocity.y) * GetFrameTime();
 
     // 9. Set rotation (convert back to degrees)
     blabla_shoot->visual_rotation = new_angle * RAD2DEG + 90;
     blabla_shoot->calc_rotation = new_angle;
-        DrawLine(blabla_shoot->shoot.position.x, blabla_shoot->shoot.position.y, target_position.x, target_position.y, RED);
-    }
+}
 
 static int CheckBlablaShootOutOfBounds(void* context, BlablaShoot* item) {
     BlablaShoot* blabla_shoot = (BlablaShoot*)item;
@@ -345,7 +344,7 @@ static int CheckBlablaShootOutOfBounds(void* context, BlablaShoot* item) {
 static void UpdateBlabla(Ship* ship) {
     if (!blabla.weapon.is_active) return;
 
-    blabla.weapon.cooldown_charge -= cooldown_modifier * GetFrameTime();
+    blabla.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
     if (blabla.weapon.cooldown_charge <= 0) {
         InitBlablaShoot(ship);
@@ -366,10 +365,17 @@ static void DrawBlablaShoot(BlablaShoot* blabla_shoot) {
     Vector2 origin = { blabla_shoot->shoot.size.x / 2.0f, blabla_shoot->shoot.size.y / 2.0f };
     if (DEBUG_FLAG) {
         Vector2 center = { blabla_shoot->shoot.position.x, blabla_shoot->shoot.position.y };
-        DrawCircleV(center, 20, Fade(RED, 0.5f));
+        DrawCircleV(center, blabla_shoot->shoot.size.x / 2.0f, Fade(RED, 0.5f));
     }
 	
-
+    if (blabla_shoot->target != NULL) {
+        DrawLine(
+            blabla_shoot->shoot.position.x,
+            blabla_shoot->shoot.position.y,
+            blabla_shoot->target->position.x,
+            blabla_shoot->target->position.y,
+            RED);
+    }
 
     DrawTexturePro(weapon_texture, blabla.weapon.source, destRec, origin, blabla_shoot->visual_rotation, WHITE);
 }
