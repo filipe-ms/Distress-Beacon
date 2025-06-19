@@ -108,7 +108,7 @@ void DrawCurrentScene(void) {
         break;
 
     case RANKING:
-        DrawRanking(100, 100);
+        DrawRanking();
         break;
 
     case SELECT_SHIP:
