@@ -224,50 +224,50 @@ static void DrawPhoton(void) {
 
 //--------------------------------------------------------------
 //
-//                         BLABLA
+//                         HOMING
 // 
 //--------------------------------------------------------------
 
-Blabla blabla;
+Homing homing;
 
-const Vector2 blabla_shoot_speed_base = { .x = 0, .y = -300 };
+const Vector2 homing_shoot_speed_base = { .x = 0, .y = -300 };
 
-bool IsBlablaActive(void) { return blabla.weapon.is_active; }
-void ActivateBlabla(void) { blabla.weapon.is_active = true; }
+bool IsHomingActive(void) { return homing.weapon.is_active; }
+void ActivateHoming(void) { homing.weapon.is_active = true; }
 
-static void InitBlabla(void) {
-    blabla.weapon.id = BLABLA;
-    blabla.weapon.is_active = false;
-    blabla.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
-    blabla.weapon.offset = (Vector2){ 0, 0 };
-    blabla.weapon.damage = 0.4f;
-    blabla.weapon.shoot_speed = blabla_shoot_speed_base;
-    blabla.weapon.cooldown_time = 0.4f;
-    blabla.weapon.cooldown_charge = 0.0f;
-    blabla.weapon.color = YELLOW;
+static void InitHoming(void) {
+    homing.weapon.id = HOMING;
+    homing.weapon.is_active = false;
+    homing.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
+    homing.weapon.offset = (Vector2){ 0, 0 };
+    homing.weapon.damage = 0.5f;
+    homing.weapon.shoot_speed = homing_shoot_speed_base;
+    homing.weapon.cooldown_time = 0.4f;
+    homing.weapon.cooldown_charge = 0.0f;
+    homing.weapon.color = YELLOW;
 
-    blabla.blabla_shoots = List_Create(sizeof(BlablaShoot));
+    homing.homing_shoots = List_Create(sizeof(HomingShoot));
 }
 
-static void InitBlablaShoot(Ship* ship) {
-    BlablaShoot new_blabla_shoot = { 0 };
-    new_blabla_shoot.shoot.damage = ApplyMultiplier(damage_modifier, blabla.weapon.damage);
-    new_blabla_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 18), ApplyMultiplier(size_modifier, 18) };
-    new_blabla_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
-    new_blabla_shoot.visual_rotation = 0.0f;
-    new_blabla_shoot.calc_rotation = -90.0f * DEG2RAD;
-    new_blabla_shoot.target = NULL;
-    new_blabla_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, blabla_shoot_speed_base.x), ApplyMultiplier(speed_modifier, blabla_shoot_speed_base.y) };
-    List_AddLast(blabla.blabla_shoots, &new_blabla_shoot);
+static void InitHomingShoot(Ship* ship) {
+    HomingShoot new_homing_shoot = { 0 };
+    new_homing_shoot.shoot.damage = ApplyMultiplier(damage_modifier, homing.weapon.damage);
+    new_homing_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 18), ApplyMultiplier(size_modifier, 18) };
+    new_homing_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
+    new_homing_shoot.visual_rotation = 0.0f;
+    new_homing_shoot.calc_rotation = -90.0f * DEG2RAD;
+    new_homing_shoot.target = NULL;
+    new_homing_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, homing_shoot_speed_base.x), ApplyMultiplier(speed_modifier, homing_shoot_speed_base.y) };
+    List_AddLast(homing.homing_shoots, &new_homing_shoot);
 }
 
-static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
+static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
     // Pick the closest enemy
     
-    if (blabla_shoot->target == NULL) {
+    if (homing_shoot->target == NULL) {
         Enemy* closest_enemy = NULL;
         float closest_distance = 0;
-        Vector2 shootPos = blabla_shoot->shoot.position;
+        Vector2 shootPos = homing_shoot->shoot.position;
         
         bool hasInitialized = false;
         
@@ -285,28 +285,28 @@ static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
             }
         }
 
-        blabla_shoot->target = closest_enemy;
+        homing_shoot->target = closest_enemy;
     }
     
-    if (blabla_shoot->target == NULL || !blabla_shoot->target->active) {   
-        blabla_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, blabla_shoot->current_velocity.y) * GetFrameTime();
-        blabla_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, blabla_shoot->current_velocity.x) * GetFrameTime();
+    if (homing_shoot->target == NULL || !homing_shoot->target->active) {   
+        homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.y) * GetFrameTime();
+        homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.x) * GetFrameTime();
         return;
     }
 
     // 1. Get base speed (magnitude)
-    float base_speed = Vector2Length(blabla_shoot_speed_base);
+    float base_speed = Vector2Length(homing_shoot_speed_base);
 
     // 2. Calculate PROPER direction vector (target -> projectile)
-    Vector2 target_position = (Vector2) { blabla_shoot->target->position.x, blabla_shoot->target->position.y };
-    Vector2 direction = Vector2Subtract(target_position, blabla_shoot->shoot.position);
+    Vector2 target_position = (Vector2) { homing_shoot->target->position.x, homing_shoot->target->position.y };
+    Vector2 direction = Vector2Subtract(target_position, homing_shoot->shoot.position);
     Vector2 normalized_direction = Vector2Normalize(direction);
 
     // 3. Calculate desired angle (atan2 returns -π to π)
     float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
 
     // 4. Get current angle (convert to radians)
-    float current_angle = blabla_shoot->calc_rotation;
+    float current_angle = homing_shoot->calc_rotation;
 
     // 5. Calculate angular difference (-π to π)
     float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
@@ -322,66 +322,66 @@ static void BlablaShootPositionUpdate(BlablaShoot* blabla_shoot) {
         sinf(new_angle) * base_speed
     };
 
-    blabla_shoot->current_velocity = new_velocity;
+    homing_shoot->current_velocity = new_velocity;
 
     // 8. Update projectile state
-    blabla_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, new_velocity.x) * GetFrameTime();
-    blabla_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, new_velocity.y) * GetFrameTime();
+    homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, new_velocity.x) * GetFrameTime();
+    homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, new_velocity.y) * GetFrameTime();
 
     // 9. Set rotation (convert back to degrees)
-    blabla_shoot->visual_rotation = new_angle * RAD2DEG + 90;
-    blabla_shoot->calc_rotation = new_angle;
+    homing_shoot->visual_rotation = new_angle * RAD2DEG + 90;
+    homing_shoot->calc_rotation = new_angle;
 }
 
-static int CheckBlablaShootOutOfBounds(void* context, BlablaShoot* item) {
-    BlablaShoot* blabla_shoot = (BlablaShoot*)item;
-    if (blabla_shoot->shoot.position.y < -80) {
+static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
+    HomingShoot* homing_shoot = (HomingShoot*)item;
+    if (homing_shoot->shoot.position.y < -80) {
         return 1;
     }
     return 0;
 }
 
-static void UpdateBlabla(Ship* ship) {
-    if (!blabla.weapon.is_active) return;
+static void UpdateHoming(Ship* ship) {
+    if (!homing.weapon.is_active) return;
 
-    blabla.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
+    homing.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
-    if (blabla.weapon.cooldown_charge <= 0) {
-        InitBlablaShoot(ship);
-        blabla.weapon.cooldown_charge = blabla.weapon.cooldown_time;
+    if (homing.weapon.cooldown_charge <= 0) {
+        InitHomingShoot(ship);
+        homing.weapon.cooldown_charge = homing.weapon.cooldown_time;
     }
 
-    List_ForEach(blabla.blabla_shoots, (Function)BlablaShootPositionUpdate);
-    List_RemoveWithFn(blabla.blabla_shoots, NULL, CheckBlablaShootOutOfBounds);
+    List_ForEach(homing.homing_shoots, (Function)HomingShootPositionUpdate);
+    List_RemoveWithFn(homing.homing_shoots, NULL, CheckHomingShootOutOfBounds);
 }
 
-static void DrawBlablaShoot(BlablaShoot* blabla_shoot) {
+static void DrawHomingShoot(HomingShoot* homing_shoot) {
     Rectangle destRec = {
-        blabla_shoot->shoot.position.x,
-        blabla_shoot->shoot.position.y,
-        blabla_shoot->shoot.size.x,
-		blabla_shoot->shoot.size.y
+        homing_shoot->shoot.position.x,
+        homing_shoot->shoot.position.y,
+        homing_shoot->shoot.size.x,
+		homing_shoot->shoot.size.y
     };
-    Vector2 origin = { blabla_shoot->shoot.size.x / 2.0f, blabla_shoot->shoot.size.y / 2.0f };
+    Vector2 origin = { homing_shoot->shoot.size.x / 2.0f, homing_shoot->shoot.size.y / 2.0f };
     if (DEBUG_FLAG) {
-        Vector2 center = { blabla_shoot->shoot.position.x, blabla_shoot->shoot.position.y };
-        DrawCircleV(center, blabla_shoot->shoot.size.x / 2.0f, Fade(RED, 0.5f));
+        Vector2 center = { homing_shoot->shoot.position.x, homing_shoot->shoot.position.y };
+        DrawCircleV(center, homing_shoot->shoot.size.x / 2.0f, Fade(RED, 0.5f));
     }
 	
-    if (blabla_shoot->target != NULL) {
+    if (homing_shoot->target != NULL) {
         DrawLine(
-            blabla_shoot->shoot.position.x,
-            blabla_shoot->shoot.position.y,
-            blabla_shoot->target->position.x,
-            blabla_shoot->target->position.y,
+            homing_shoot->shoot.position.x,
+            homing_shoot->shoot.position.y,
+            homing_shoot->target->position.x,
+            homing_shoot->target->position.y,
             RED);
     }
 
-    DrawTexturePro(weapon_texture, blabla.weapon.source, destRec, origin, blabla_shoot->visual_rotation, WHITE);
+    DrawTexturePro(weapon_texture, homing.weapon.source, destRec, origin, homing_shoot->visual_rotation, WHITE);
 }
 
-static void DrawBlabla(void) {
-    List_ForEach(blabla.blabla_shoots, (Function)DrawBlablaShoot);
+static void DrawHoming(void) {
+    List_ForEach(homing.homing_shoots, (Function)DrawHomingShoot);
 }
 
 //--------------------------------------------------------------
@@ -507,7 +507,7 @@ bool IsWeaponActive(int reference) {
     case PULSE:   return IsPulseActive();
     case PHOTON:  return IsPhotonActive();
     case SHOTGUN: return IsShotgunActive();
-    case BLABLA:  return IsBlablaActive();
+    case HOMING:  return IsHomingActive();
     default:      return false;
     }
 }
@@ -519,7 +519,7 @@ const char* GetActiveWeaponsString(void) {
     if (IsPulseActive())   strcat(active_weapons, "Pulse\n");
     if (IsPhotonActive())  strcat(active_weapons, "Photon\n");
     if (IsShotgunActive()) strcat(active_weapons, "Shotgun\n");
-    if (IsBlablaActive())  strcat(active_weapons, "Blabla\n");
+    if (IsHomingActive())  strcat(active_weapons, "Homing\n");
 
     if (strlen(active_weapons) == 0) {
         strcpy(active_weapons, "None");
@@ -536,7 +536,7 @@ static void InitAllWeapons(void) {
     InitPulse();
     InitPhoton();
     InitShotgun();
-    InitBlabla();
+    InitHoming();
 }
 
 void InitWeapon(void) {
@@ -548,14 +548,14 @@ void UpdateWeapon(Ship* ship) {
     UpdatePulse(ship);
     UpdatePhoton(ship);
     UpdateShotgun(ship);
-    UpdateBlabla(ship);
+    UpdateHoming(ship);
 }
 
 void DrawWeapon(void) {
     DrawPulseShoot();
     DrawPhoton();
     DrawShotgun();
-    DrawBlabla();
+    DrawHoming();
 }
 
 void LoadWeaponTextures(void) {

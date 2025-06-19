@@ -53,7 +53,7 @@ void InitGame(void) {
             ActivateShotgun();
             break;
         case PUDDLE_JUMPER:
-            ActivateBlabla();
+            ActivateHoming();
             break;
     }
 }

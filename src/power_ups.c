@@ -16,6 +16,7 @@ Texture shoot_size;
 Texture weapon_pulse;
 Texture weapon_photon;
 Texture weapon_shotgun;
+Texture weapon_homing;
 
 PowerUpCard active_cards[3];
 PowerUpCard power_up_type[POWERUP_COUNT];
@@ -32,6 +33,7 @@ void InitPowerUps(void) {
     weapon_pulse = LoadTexture("powerups/pulse.png");
     weapon_photon = LoadTexture("powerups/photon.png");
     weapon_shotgun = LoadTexture("powerups/shotgun.png");
+    weapon_homing = LoadTexture("powerups/homing.png");
 
     power_up_type[SHOOT_COOLDOWN] = (PowerUpCard){
         .type = SHOOT_COOLDOWN, 
@@ -53,7 +55,7 @@ void InitPowerUps(void) {
         .type = SHOOT_SIZE,
 		.type_string = "ATRIBUTO",
         .name = "Bulky Rounds",
-        .description = "Aumenta o tamanho\nde seus projéteis\n+%d%%",
+        .description = "Aumenta o tamanho\nde seus projï¿½teis\n+%d%%",
 		.texture = &shoot_size
     };
 
@@ -79,9 +81,18 @@ void InitPowerUps(void) {
         .type = WEAPON_SHOTGUN, 
         .name = "Shotgun",
 		.type_string = "ARMA",
-        .description = "Vários projéteis\nde curto alcance",
+        .description = "VÃ¡rios projÃ©teis\nde curto alcance",
         .value = SHOTGUN,
 		.texture = &weapon_shotgun
+    };
+
+    power_up_type[WEAPON_HOMING] = (PowerUpCard){
+        .type = WEAPON_HOMING, 
+        .name = "Homing",
+		.type_string = "ARMA",
+        .description = "Bumerangue energÃ©tico\ne teleguiado",
+        .value = HOMING,
+		.texture = &weapon_homing
     };
 }
 
@@ -92,6 +103,7 @@ void UnloadPowerUpTextures(void) {
 	UnloadTexture(weapon_pulse);
 	UnloadTexture(weapon_photon);
 	UnloadTexture(weapon_shotgun);
+    UnloadTexture(weapon_homing);
 }
 
 void PowerRandomizer(void) {
@@ -104,7 +116,7 @@ void PowerRandomizer(void) {
     
     for (int i = 0; i < POWERUP_COUNT; i++) {
         PowerUpType current_type = (PowerUpType)i;
-        bool is_weapon = (current_type >= WEAPON_PULSE && current_type <= WEAPON_SHOTGUN);
+        bool is_weapon = (current_type >= WEAPON_PULSE && current_type <= WEAPON_HOMING);
 
         if (is_weapon) {
             if (!IsWeaponActive(power_up_type[current_type].value)) {
@@ -119,7 +131,7 @@ void PowerRandomizer(void) {
         if (available_powerups->size == 0) break;
 
         int random_index = GetRandomValue(0, available_powerups->size - 1);
-        PowerUpType powerup_type = *(PowerUpType*)List_GetByIndex(available_powerups, random_index); // precisa de cast pq o retorno é void pointer
+        PowerUpType powerup_type = *(PowerUpType*)List_GetByIndex(available_powerups, random_index); // precisa de cast pq o retorno ï¿½ void pointer
 
         active_cards[i] = power_up_type[powerup_type];
 
@@ -164,6 +176,8 @@ static void PickPowerUp(void) {
     case WEAPON_PULSE:   ActivatePulse();   break;
     case WEAPON_PHOTON:  ActivatePhoton();  break;
     case WEAPON_SHOTGUN: ActivateShotgun(); break;
+    case WEAPON_HOMING:  ActivateHoming();  break;
+
     default: break;
     }
 }
@@ -201,7 +215,7 @@ static void DrawMultilineText(const char* text, float centerX, float y, int font
         }
 
         if (len > 0) {
-            const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
+            const char* line = TextSubtext(str, 0, len); // Funï¿½ï¿½o da raylib que faz uma substring
             float lineWidth = (float)MeasureText(line, fontSize);
             float x = centerX - (lineWidth / 2.0f);
             //DrawText(line, (int)x-2, (int)y-2, fontSize, Fade(RAYWHITE, alpha - 0.5f));

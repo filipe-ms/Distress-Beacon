@@ -11,7 +11,7 @@ typedef enum WeaponType {
 	PULSE,
 	PHOTON,
 	SHOTGUN,
-    BLABLA,
+    HOMING,
 	WEAPON_COUNT
 } WeaponType;
 
@@ -88,28 +88,28 @@ void ActivatePhoton(void);
 
 //--------------------------------------------------------------
 //
-//                         BLABLA
+//                         HOMING
 // 
 //--------------------------------------------------------------
 
 // Deixei como struct para facilitar no futuro se formos adicionar algum comportamento
-typedef struct BlablaShoot {
+typedef struct HomingShoot {
     Shoot shoot;
     float visual_rotation;
     float calc_rotation;
     Vector2 current_velocity;
     Enemy* target;
-} BlablaShoot;
+} HomingShoot;
 
-typedef struct Blabla {
+typedef struct Homing {
     Weapon weapon;
-    List* blabla_shoots;
-} Blabla;
+    List* homing_shoots;
+} Homing;
 
-extern Blabla blabla;
+extern Homing homing;
 
-bool IsBlablaActive(void);
-void ActivateBlabla(void);
+bool IsHomingActive(void);
+void ActivateHoming(void);
 
 //--------------------------------------------------------------
 //
