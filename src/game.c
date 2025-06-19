@@ -12,6 +12,7 @@
 #include "enemy_wave.h"
 #include "raymath.h"
 #include "hit_confirmation.h"
+#include "list.h"
 
 
 // Waves
@@ -34,16 +35,16 @@ void InitGame(void) {
     pause_flag = false;
     victory = false;
     level_up_flag = false;
-    
+
     // Other inits
     InitShip(&ship, GetPlayerShip());
     InitWeapon();
     InitPlayer();
     InitEnemies();
     InitPowerUps();
-	InitGameBackground();
+    InitGameBackground();
     InitWaves();
-	InitHitConfirmation();
+    InitHitConfirmation();
 
     if (GetPlayerShip() == 0) ActivatePulse();
     else if (GetPlayerShip() == 1) ActivatePhoton();
@@ -73,20 +74,21 @@ void UpdateGame(void)
     {
         if (level_up_flag) {
             UpdateLevelUpSelectMenu(&level_up_flag);
-        } else {
+        }
+        else {
             UpdateGameBackground();
             UpdateHitConfirmation();
             UpdateWaves();
             UpdateEnemies(&ship);
             UpdateShip(&ship);
             UpdateWeapon(&ship);
-			int player_level = GetPlayerLevel();
+            int player_level = GetPlayerLevel();
             if (CheckForAllCollisions(&ship)) ChangeScene(GAME_OVER);
             if (GetPlayerLevel() > player_level) {
                 PowerRandomizer();
                 level_up_flag = true;
             }
-            
+
         }
     }
 }
@@ -103,18 +105,18 @@ void DrawGame(void)
 {
     BeginDrawing();
     ClearBackground(BLACK);
-	DrawGameBackground();
-	
+    DrawGameBackground();
+
     DrawEnemies();
     DrawWeapon();
     DrawHitConfirmation();
     DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
     DrawWaves();
-    
+
     if (victory) DrawText("YOU WIN", GAME_SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", GAME_SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
-    
+
     DrawUserInterface(); // Desenha por último, está agora em outro plano
     EndDrawing();
 }
@@ -126,5 +128,5 @@ void DrawGame(void)
 //--------------------------------------------------------------
 
 void UnloadGameResources(void) {
-	UnloadGameBackground();
+    UnloadGameBackground();
 }
