@@ -55,7 +55,7 @@ void InitPowerUps(void) {
         .type = SHOOT_SIZE,
 		.type_string = "ATRIBUTO",
         .name = "Bulky Rounds",
-        .description = "Aumenta o tamanho\nde seus proj�teis\n+%d%%",
+        .description = "Aumenta o tamanho\nde seus projéteis\n+%d%%",
 		.texture = &shoot_size
     };
 
@@ -215,7 +215,7 @@ static void DrawMultilineText(const char* text, float centerX, float y, int font
         }
 
         if (len > 0) {
-            const char* line = TextSubtext(str, 0, len); // Fun��o da raylib que faz uma substring
+            const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
             float lineWidth = (float)MeasureText(line, fontSize);
             float x = centerX - (lineWidth / 2.0f);
             //DrawText(line, (int)x-2, (int)y-2, fontSize, Fade(RAYWHITE, alpha - 0.5f));

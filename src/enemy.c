@@ -119,7 +119,7 @@ void DrawEnemies(void) {
 void LoadEnemyTextures(void) {
     texture = LoadTexture("ships.png");
     if (texture.id <= 0) {
-        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) não encontrada.");
+        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) nÃ£o encontrada.");
         return;
     }
 

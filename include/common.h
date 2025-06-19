@@ -4,7 +4,7 @@
 //
 //--------------------------------------------------------------
 //
-//              Constantes de v�rias partes do jogo
+//              Constantes de várias partes do jogo
 //
 //--------------------------------------------------------------
 
@@ -30,14 +30,14 @@
 //
 //--------------------------------------------------------------
 
-#define BASE_EXP_TO_LEVEL 100       // EXP base necess�ria para o primeiro level
-#define EXP_TO_LEVEL_INCREMENT 10   // Incremento de EXP necess�rio por level subsequente
+#define BASE_EXP_TO_LEVEL 100       // EXP base necessária para o primeiro level
+#define EXP_TO_LEVEL_INCREMENT 10   // Incremento de EXP necessário por level subsequente
 
 #define BASE_ENEMY_SPAWN_TIMER 5.0f // Tempo base entre spawns de inimigos
-#define BASE_WAVE_DURATION 60.0f    // Dura��o base de cada wave em segundos
+#define BASE_WAVE_DURATION 60.0f    // Duração base de cada wave em segundos
 
-#define MAX_ENEMY_NUMBER 100        // N�mero m�ximo de inimigos
-#define MAX_WAVES 3                 // N�mero m�ximo de waves
+#define MAX_ENEMY_NUMBER 100        // Número máximo de inimigos
+#define MAX_WAVES 3                 // Número máximo de waves
 
 //--------------------------------------------------------------
 //
@@ -45,7 +45,7 @@
 //
 //--------------------------------------------------------------
 
-#define DRAW_WH 48 // Largura/Altura padr�o de desenho
+#define DRAW_WH 48 // Largura/Altura padrão de desenho
 
 //--------------------------------------------------------------
 //

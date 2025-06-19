@@ -89,7 +89,7 @@ void UpdateShip(Ship* ship) {
 static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {
 	Rectangle puddle_jumper_sprite = { 8, 16, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
 	Rectangle left_thruster_sprite = { 40, 0, 8, 8 };		// Primeiro thruster da sheet
-	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Refer�ncia do segundo thruster
+	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Referência do segundo thruster
 	
 	Rectangle left_thruster_position = { draw_pos.x - 18, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
 	Rectangle right_thruster_position = { draw_pos.x + 12, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
@@ -130,7 +130,7 @@ static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {
 static void DrawAurea(Ship* ship, Rectangle draw_pos) {
 	Rectangle aurea_sprite = { 8, 8, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
 	Rectangle left_thruster_sprite = { 40, 0, 8, 8 };		// Primeiro thruster da sheet
-	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Refer�ncia do segundo thruster
+	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Referência do segundo thruster
 	
 	Rectangle left_thruster_position = { draw_pos.x - 18, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
 	Rectangle right_thruster_position = { draw_pos.x + 12, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };

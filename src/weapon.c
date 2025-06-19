@@ -513,7 +513,7 @@ bool IsWeaponActive(int reference) {
 }
 
 const char* GetActiveWeaponsString(void) {
-    static char active_weapons[256];  // Buffer p/ n�o precisar mallocar e dar free depois
+    static char active_weapons[256];  // Buffer p/ não precisar mallocar e dar free depois
     active_weapons[0] = '\0';
 
     if (IsPulseActive())   strcat(active_weapons, "Pulse\n");
