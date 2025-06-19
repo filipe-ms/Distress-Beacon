@@ -11,10 +11,14 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+
 RankingEntry entries[MAX_ENTRIES];
+
 int playerCount = 0;
+
 bool enter_transition = true;
 bool leave_transition = false;
+
 float rec_alpha = 1.0f;
 
 const char* GetShipName(int shipType) {
@@ -22,11 +26,10 @@ const char* GetShipName(int shipType) {
     case 0: return "Aurea";
     case 1: return "Orion";
     case 2: return "Nebula";
-	case 3: return "Puddle Jumper";
+    case 3: return "Puddle Jumper";
     default: return "Unknown";
     }
 }
-
 void LoadRanking(void) {
     FILE* file = fopen("ranking.txt", "r");
     if (!file) {
@@ -54,7 +57,6 @@ void LoadRanking(void) {
     }
     fclose(file);
 }
-
 void SaveRanking(void) {
     FILE* file = fopen("ranking.txt", "w");
     if (file) {
@@ -64,7 +66,6 @@ void SaveRanking(void) {
         fclose(file);
     }
 }
-
 void InitRanking() {
     enter_transition = true;
     leave_transition = false;
@@ -77,7 +78,6 @@ void InitRanking() {
     }
     LoadRanking();
 }
-
 void AddToRanking(const char* name, int shipType, int score) {
     LoadRanking();
 
@@ -113,25 +113,26 @@ void AddToRanking(const char* name, int shipType, int score) {
 
     SaveRanking();
 }
-
 void UpdateRanking() {
     if (IsKeyPressed(KEY_ENTER)) {
-        leave_transition = true;
+        if (enter_transition) {
+            enter_transition = false;
+            rec_alpha = 0;
+        }
+        else {
+            leave_transition = true;
+        }
     }
-
-    if (enter_transition && !leave_transition) {
+    if (enter_transition) {
         rec_alpha -= 0.5f * GetFrameTime();
         if (rec_alpha <= 0) {
             rec_alpha = 0;
             enter_transition = false;
         }
-    }
-
-    if (!enter_transition && leave_transition) {
+    } else if (leave_transition) {
         rec_alpha += 0.5f * GetFrameTime();
         if (rec_alpha >= 1) {
             rec_alpha = 1;
-            leave_transition = false;
             ChangeScene(START);
         }
     }
@@ -157,7 +158,6 @@ static Color GetShipColor(const char* shipName) {
     return WHITE;
 }
 
-
 void DrawRanking(void) {
     BeginDrawing();
     ClearBackground(BLACK);
@@ -178,7 +178,7 @@ void DrawRanking(void) {
     DrawOutlinedText(ranking_header, k, pos_y, header_font_size, WHITE, Fade(RAYWHITE, 0.5f));
 
     int start_y = pos_y + header_font_size + entry_font_size;
-    int line_spacing = entry_font_size + entry_font_size/2;
+    int line_spacing = entry_font_size + entry_font_size / 2;
 
     for (int i = 0; i < playerCount; i++) {
         int line_y = start_y + i * line_spacing;
@@ -209,4 +209,3 @@ void DrawRanking(void) {
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, rec_alpha));
     EndDrawing();
 }
-
