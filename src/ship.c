@@ -38,17 +38,17 @@ void UpdateShip(Ship* ship) {
 	float movement_x = ship->speed.x * GetFrameTime();
 	float movement_y = ship->speed.y * GetFrameTime();
 
-	if (IsKeyDown(KEY_RIGHT)) {
+	if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
 		ship->position.x += movement_x;
 		ship->direction = RIGHT;
-	} else if (IsKeyDown(KEY_LEFT)) {
+	} else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
 		ship->position.x -= movement_x;
 		ship->direction = LEFT;
 	}
 	else ship->direction = CENTER;
 
-	if (IsKeyDown(KEY_UP)) ship->position.y -= movement_y;
-	if (IsKeyDown(KEY_DOWN)) ship->position.y += movement_y;
+	if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) ship->position.y -= movement_y;
+	if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) ship->position.y += movement_y;
 
 	ship->animation_cycle += GetFrameTime();
 

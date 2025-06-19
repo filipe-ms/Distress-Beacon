@@ -33,12 +33,12 @@ static bool CheckForHits(void* context, void* data) {
 
     Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
 
-    if (CheckCollisionCircles(enemy_pos, 20, shoot->position, 20 * GetSizeModifier())) {
+    if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
 
         if (enemy->hp <= 0) {
             AddExperience(enemy->exp);
-            AddScore(10);
+            AddScore(100);
             enemy->active = false;
         }
 
