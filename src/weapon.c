@@ -330,7 +330,7 @@ static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
     HomingShoot* homing_shoot = (HomingShoot*)item;
     Vector2 position = homing_shoot->shoot.position;
     if (position.y < -80 || position.y > GAME_SCREEN_HEIGHT + 80 ||
-        position.x < -80 || position.x > GAME_SCREEN_START + 80) {
+        position.x < -80 || position.x > GAME_SCREEN_END + 80) {
         return 1;
     }
     return 0;
@@ -344,6 +344,7 @@ static void UpdateHoming(Ship* ship) {
     if (homing.weapon.cooldown_charge <= 0) {
         InitHomingShoot(ship);
         homing.weapon.cooldown_charge = homing.weapon.cooldown_time;
+        TraceLog(LOG_INFO, "ATIROU");
     }
 
     List_ForEach(homing.homing_shoots, (Function)HomingShootPositionUpdate);
