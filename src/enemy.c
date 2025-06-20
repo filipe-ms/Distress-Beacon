@@ -16,7 +16,7 @@ static Rectangle source_rects[ENEMY_TYPE_COUNT];
 List* enemies;
 
 static void ActivateEnemy(Enemy* enemy, EnemyType type, int hp) {
-    enemy->active = true;
+    enemy->is_on_screen = false;
     enemy->type = type;
     enemy->hp = (float)hp;
     enemy->color = WHITE;
@@ -65,8 +65,6 @@ static void UpdateEnemy(void* context, void* data) {
     Ship* ship = (Ship*)context;
     Enemy* e = (Enemy*)data;
 
-    if (!e->active) return;
-
     switch (e->type) {
 
     case ENEMY_BASIC:   BehaviorBasic(&e->position, BASE_SPEED_Y); break;
@@ -86,18 +84,31 @@ static void UpdateEnemy(void* context, void* data) {
         if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
     }
 
-    if (e->position.y > SCREEN_HEIGHT + 20) {
-        e->active = false;
+    e->is_on_screen = (e->position.y > -20);
+}
+
+static void CheckEnemyOutOfBounds(Enemy* enemy) {
+    bool isOutOfBounds = enemy->position.y > GAME_SCREEN_HEIGHT + 50;
+
+    if (isOutOfBounds) {
+        enemy->hp = 0;
+        enemy->exp = 0;
     }
 }
 
 void UpdateEnemies(Ship* ship) {
+
+    TraceLog(LOG_WARNING, "Enemies: %d", enemies->size);
+
     List_ForEachCtx(enemies, ship, UpdateEnemy);
+
+    // Kill the enemy but do not remove it from the list yet
+    List_ForEach(enemies, (MatchFunction)CheckEnemyOutOfBounds);
 }
 
 static void DrawEnemy(void* context, void* data) {
     Enemy* e = (Enemy*)data;
-    if (e->active) {
+    if (e->is_on_screen) {
         if (DEBUG_FLAG) {
             Vector2 center = { e->position.x, e->position.y };
             DrawCircleV(center, 20.0f, Fade(GREEN, 0.5f));
@@ -121,7 +132,10 @@ void DrawEnemies(void) {
 void LoadEnemyTextures(void) {
 
     texture = LoadTexture("ships.png");
-
+    if (texture.id <= 0) {
+        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) não encontrada.");
+        return;
+    }
 
     source_rects[ENEMY_BASIC] = (Rectangle){ 32, 0, 8, 8 };
     source_rects[ENEMY_ZIGZAG] = (Rectangle){ 32, 24, 8, 8 };

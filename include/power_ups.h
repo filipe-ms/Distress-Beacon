@@ -14,8 +14,9 @@ typedef enum PowerUpType {
     WEAPON_PULSE,
     WEAPON_PHOTON,
     WEAPON_SHOTGUN,
+    WEAPON_HOMING,
 
-    // Esse aqui sempre vai ser o número total de power ups
+    // Esse aqui sempre vai ser o nÃºmero total de power ups
     POWERUP_COUNT
 } PowerUpType;
 

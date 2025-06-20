@@ -31,6 +31,7 @@ float select_text_alpha;
 Vector2 select_pos1;
 Vector2 select_pos2;
 Vector2 select_pos3;
+Vector2 select_pos4;
 
 void InitSelectMenu() {
     select_alpha_flag = true;
@@ -48,9 +49,10 @@ void InitSelectMenu() {
     select_background.position_y = 0;
     select_background.alpha = 0.0f;
 
-    select_pos1 = (Vector2){ SCREEN_WIDTH * 0.25, 300 };
-    select_pos2 = (Vector2){ SCREEN_WIDTH / 2, 300 };
-    select_pos3 = (Vector2){ SCREEN_WIDTH * 0.75, 300 };
+    select_pos1 = (Vector2){ SCREEN_WIDTH * 0.20, SCREEN_HEIGHT * 0.6 };
+    select_pos2 = (Vector2){ SCREEN_WIDTH * 0.40, SCREEN_HEIGHT * 0.4  };
+    select_pos3 = (Vector2){ SCREEN_WIDTH * 0.60, SCREEN_HEIGHT * 0.4  };
+    select_pos4 = (Vector2){ SCREEN_WIDTH * 0.80, SCREEN_HEIGHT * 0.6  };
 
     select_ship_draw.draw_size = select_ship_draw_size;
     select_ship_draw.direction = CENTER;
@@ -75,6 +77,11 @@ void UpdateMenuAfterShipSelection() {
     else if (ship_select_menu_option == NEBULA) {
         if (select_pos3.y >= select_ship_draw.draw_size.y * -1) {
             select_pos3.y -= 1000 * GetFrameTime();
+        }
+    }
+    else if (ship_select_menu_option == PUDDLE_JUMPER) {
+        if (select_pos4.y >= select_ship_draw.draw_size.y * -1) {
+            select_pos4.y -= 1000 * GetFrameTime();
         }
     }
 
@@ -144,6 +151,7 @@ void DrawSelectMenu() {
     Color ship_1 = (ship_select_menu_option == AUREA) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
     Color ship_2 = (ship_select_menu_option == ORION) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
     Color ship_3 = (ship_select_menu_option == NEBULA) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
+    Color ship_4 = (ship_select_menu_option == PUDDLE_JUMPER) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
     
     select_ship_draw.direction = CENTER;
     
@@ -159,13 +167,32 @@ void DrawSelectMenu() {
     select_ship_draw.position = select_pos3;
     DrawShip(&select_ship_draw);
 
-    char* left_ship = "Aurea";
-    char* middle_ship = "Orion";
-    char* right_ship = "Nebula";
+    select_ship_draw.id = PUDDLE_JUMPER;
+    select_ship_draw.position = select_pos4;
+    DrawShip(&select_ship_draw);
 
-    DrawText(left_ship, (int)(SCREEN_WIDTH*0.25f - MeasureText(left_ship, 20) / 2.0f), 400, 20, ship_1);
-    DrawText(middle_ship, (int)(SCREEN_WIDTH/2.0f - MeasureText(middle_ship, 20) / 2.0f), 400, 20, ship_2);
-    DrawText(right_ship, (int)(SCREEN_WIDTH*0.75f - MeasureText(right_ship, 20) / 2.0f), 400, 20, ship_3);
+    char* aurea_text = "Aurea";
+    char* orion_text = "Orion";
+    char* nebula_text = "Nebula";
+    char* puddle_jumper_text = "Puddle Jumper";
+
+    DrawText(aurea_text,
+        (int)(select_pos1.x - MeasureText(aurea_text, 20) / 2.0f),
+        select_pos1.y + 100,
+        20, ship_1);
+    DrawText(orion_text,
+        (int)(select_pos2.x - MeasureText(orion_text, 20) / 2.0f),
+        select_pos2.y + 100,
+        20, ship_2);
+    DrawText(nebula_text,
+        (int)(select_pos3.x - MeasureText(nebula_text, 20) / 2.0f),
+        select_pos3.y + 100,
+        20, ship_3);
+    DrawText(puddle_jumper_text,
+        (int)(select_pos4.x - MeasureText(puddle_jumper_text, 20) / 2.0f),
+        select_pos4.y + 100,
+        20, ship_4);
+
     EndDrawing();
 }
 

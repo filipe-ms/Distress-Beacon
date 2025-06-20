@@ -406,3 +406,8 @@ build/external/raylib-master/*.md
 
 bin/Debug
 build/build_files/obj
+
+.vscode/*
+build/build_files/spaceinvaders.make
+.vscode/settings.json
+build/premake5

@@ -6,4 +6,3 @@ folder name has to be Space due to the script
 
 run linux.sh to compile
 
-

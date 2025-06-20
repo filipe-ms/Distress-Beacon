@@ -34,6 +34,15 @@ void InitShip(Ship* ship, int id) {
 	ship->alpha = 1.0f;
 	ship->speed = GetInitShipSpeed(id);
 }
+
+static void UpdateAurea() { }
+
+static void UpdateOrion() { }
+
+static void UpdateNebula() { }
+
+static void UpdatePuddleJumper() { }
+
 void UpdateShip(Ship* ship) {
 	float movement_x = ship->speed.x * GetFrameTime();
 	float movement_y = ship->speed.y * GetFrameTime();
@@ -58,12 +67,70 @@ void UpdateShip(Ship* ship) {
 	}
 
 	WallBehavior(&ship->position);
+
+	switch(ship->id) {
+		case AUREA:
+			UpdateAurea();
+			break;
+		case ORION:
+			UpdateOrion();
+			break;
+		case NEBULA:
+			UpdateNebula();
+			break;
+		case PUDDLE_JUMPER:
+			UpdatePuddleJumper();
+			break;
+		default:
+			return;
+	}
+}
+
+static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {
+	Rectangle puddle_jumper_sprite = { 8, 16, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
+	Rectangle left_thruster_sprite = { 40, 0, 8, 8 };		// Primeiro thruster da sheet
+	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Referência do segundo thruster
+	
+	Rectangle left_thruster_position = { draw_pos.x - 18, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
+	Rectangle right_thruster_position = { draw_pos.x + 12, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
+
+	if (ship->direction == LEFT) {
+		puddle_jumper_sprite.x -= SOURCE_WH;
+		left_thruster_position.x -= 4;
+		right_thruster_position.x -= 10;
+	} else if (ship->direction == RIGHT) {
+		puddle_jumper_sprite.x += SOURCE_WH;
+		left_thruster_position.x += 10;
+		right_thruster_position.x += 4;
+	}
+
+	if (ship->thruster_cycle == 1) {
+		left_thruster_sprite.x = 48;
+		right_thruster_sprite.x = 64;
+	}
+	else if (ship->thruster_cycle == 2) {
+		left_thruster_sprite.x = 56;
+		right_thruster_sprite.x = 48;
+	}
+	else if (ship->thruster_cycle == 3) {
+		left_thruster_sprite.x = 64;
+		right_thruster_sprite.x = 40;
+	}
+
+	Vector2 origin = { 0 };
+	float rotation = 0.0f;
+
+	DrawTexturePro(ships, puddle_jumper_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+
+	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 }
 
 static void DrawAurea(Ship* ship, Rectangle draw_pos) {
 	Rectangle aurea_sprite = { 8, 8, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
 	Rectangle left_thruster_sprite = { 40, 0, 8, 8 };		// Primeiro thruster da sheet
-	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Refer�ncia do segundo thruster
+	Rectangle right_thruster_sprite = { 56, 0, 8, 8 };		// Referência do segundo thruster
 	
 	Rectangle left_thruster_position = { draw_pos.x - 18, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
 	Rectangle right_thruster_position = { draw_pos.x + 12, draw_pos.y + DRAW_WH, ship->draw_size.x, ship->draw_size.y };
@@ -180,15 +247,20 @@ void DrawShip(Ship* ship) {
 	case ORION:
 		DrawOrion(ship, destination);
 		break;
-	default:
+	case NEBULA:
 		DrawNebula(ship, destination);
+		break;
+	case PUDDLE_JUMPER:
+		DrawPuddleJumper(ship, destination);
 		break;
 	}
 }
+
 void LoadShipTextures(void) {
     ships = LoadTexture("ships.png");
     thrusters = LoadTexture("playerassets.png");
 }
+
 void UnloadShipTextures(void) {
     UnloadTexture(ships);
     UnloadTexture(thrusters);

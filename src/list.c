@@ -1,11 +1,12 @@
 // File: list.c
 #include "list.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-// Estrutura interna para armazenar todas as listas criadas para a função List_FreeAll
-// A ideia é chamar o List_FreeAll ao final do jogo para não precisar se lembrar de liberar cada lista individualmente.
+// Estrutura interna para armazenar todas as listas criadas para a funï¿½ï¿½o List_FreeAll
+// A ideia ï¿½ chamar o List_FreeAll ao final do jogo para nï¿½o precisar se lembrar de liberar cada lista individualmente.
 typedef struct ListInfo {
     List* list;
     struct ListInfo* next;
@@ -37,7 +38,7 @@ List* List_Create(size_t data_size) {
     return list;
 }
 
-// Adiciona no começo da lista
+// Adiciona no comeï¿½o da lista
 int List_Add(List* list, void* data) {
     if (!list || !data) return 0;
 
@@ -192,7 +193,7 @@ int List_Destroy(List* target) {
     return 1;
 }
 
-// Libera todas as listas criadas, liberando também os dados de cada nó.
+// Libera todas as listas criadas, liberando tambï¿½m os dados de cada nï¿½.
 int List_FreeAll() {
     ListInfo* current_info = lists;
     while (current_info) {
@@ -226,9 +227,9 @@ void* List_GetByIndex(List* list, int index) {
 }
 
 
-// Daqui pra baixo é a parte funcional.
+// Daqui pra baixo ï¿½ a parte funcional.
 
-// Aplica uma função a cada nó da lista.
+// Aplica uma funï¿½ï¿½o a cada nï¿½ da lista.
 void List_ForEach(List* list, Function fn) {
     if (!list || !fn) return;
 
@@ -266,7 +267,7 @@ void* List_FindWithFn(List* list, void* context, MatchFunction matchfn) {
 }
 
 
-// Adiciona um elemento na lista em ordem, usando uma função de comparação.
+// Adiciona um elemento na lista em ordem, usando uma funï¿½ï¿½o de comparaï¿½ï¿½o.
 int List_AddWithFn(List* list, void* data, ComparisonFunc comparefn) {
     if (!list || !data || !comparefn) return 0;
 
@@ -309,7 +310,7 @@ int List_AddWithFn(List* list, void* data, ComparisonFunc comparefn) {
     return 1;
 }
 
-// Remove todos os nós que a matchfunction pega
+// Remove todos os nï¿½s que a matchfunction pega
 int List_RemoveWithFn(List* list, void* context, MatchFunction matchfn) {
     if (!list || !matchfn || list->size == 0) return 0;
 
@@ -320,7 +321,9 @@ int List_RemoveWithFn(List* list, void* context, MatchFunction matchfn) {
     while (current) {
         Node* next = current->next;
 
-        if (matchfn(context, current->data)) {
+        bool should_remove = matchfn(context, current->data);
+
+        if (should_remove) {
             if (previous) previous->next = next;
             else list->head = next;
 
