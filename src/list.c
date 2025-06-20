@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Estrutura interna para armazenar todas as listas criadas para a fun��o List_FreeAll
-// A ideia � chamar o List_FreeAll ao final do jogo para n�o precisar se lembrar de liberar cada lista individualmente.
+// Estrutura interna para armazenar todas as listas criadas para a função List_FreeAll
+// A ideia é chamar o List_FreeAll ao final do jogo para n�o precisar se lembrar de liberar cada lista individualmente.
 typedef struct ListInfo {
     List* list;
     struct ListInfo* next;

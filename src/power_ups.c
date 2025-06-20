@@ -5,6 +5,7 @@
 #include "weapon.h"
 #include "list.h"
 #include "raymath.h"
+#include "draw_utils.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -54,7 +55,7 @@ void InitPowerUps(void) {
     power_up_type[SHOOT_SIZE] = (PowerUpCard){
         .type = SHOOT_SIZE,
 		.type_string = "ATRIBUTO",
-        .name = "Bulky Rounds",
+        .name = "Bulkier Rounds",
         .description = "Aumenta o tamanho\nde seus projéteis\n+%d%%",
 		.texture = &shoot_size
     };
@@ -204,84 +205,93 @@ void UpdateLevelUpSelectMenu(bool* flag) {
     }
 }
 
-static void DrawMultilineText(const char* text, float centerX, float y, int fontSize, Color color, float alpha) {
+static void DrawCardText(const char* text, float centerX, float y, int fontSize, Color color, bool outlined, float alpha) {
     const char* str = text;
+    float currentY = y;
     float lineHeight = (float)fontSize + 4.0f;
 
     while (*str) {
         int len = 0;
-        while (str[len] != '\n' && str[len] != '\0') {
-            len++;
-        }
+        while (str[len] != '\n' && str[len] != '\0') len++;
 
         if (len > 0) {
-            const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
+            const char* line = TextSubtext(str, 0, len);
             float lineWidth = (float)MeasureText(line, fontSize);
-            float x = centerX - (lineWidth / 2.0f);
-            DrawText(line, (int)x, (int)y, fontSize, Fade(color, alpha));
+            int posX = (int)(centerX - lineWidth / 2.0f);
+
+            if (outlined) {
+                DrawOutlinedText(line, posX, (int)currentY, fontSize, Fade(color, alpha), Fade(color, 0.5f * alpha));
+            }
+            else {
+                DrawText(line, posX, (int)currentY, fontSize, Fade(color, alpha));
+            }
         }
 
         str += len;
         if (*str == '\n') {
             str++;
-            y += lineHeight;
+            currentY += lineHeight;
         }
     }
 }
 
-static void DrawPowerUpCard(PowerUpCard* card, Rectangle card_rec, bool is_selected, float alpha) {
-    float card_center_x = card_rec.x + card_rec.width / 2.0f;
-
-    DrawRectangleRounded(card_rec, 0.1f, 10, Fade(BLACK, 0.75f * alpha));
-    Color border_color = is_selected ? Fade(RED, alpha) : Fade(GRAY, alpha);
-    DrawRectangleRoundedLinesEx(card_rec, 0.1f, 10, 4.0f, border_color);
-
-    float name_size = 26.0f;
-
-    float name_y = card_rec.y + 20.0f;
-    float name_width = (float)MeasureText(card->name, name_size);
-    DrawText(card->name, (int)(card_center_x - name_width / 2.0f), (int)name_y, name_size, Fade(GREEN, alpha));
-
-    Texture* texture = card->texture;
-    float scale = 2.5f;
-    float texture_width = (float)texture->width * scale;
-    Vector2 texture_pos = { card_center_x - (texture_width / 2.0f), name_y + 40.0f };
-    DrawTextureEx(*texture, texture_pos, 0, scale, Fade(WHITE, alpha));
-
-    const char* type_text = card->type_string;
-    int typeFontSize = 20;
-    float type_y = texture_pos.y + (texture->height * scale) + 15.0f;
-    Color type_color;
-    if (strcmp(type_text, "ARMA") == 0) type_color = RED;
-    else type_color = BLUE;
-    float type_width = (float)MeasureText(type_text, typeFontSize);
-    Color shadow_color = (Color){ type_color.r, type_color.g, type_color.b, alpha };
-    DrawText(type_text, (int)(card_center_x - type_width / 2.0f) - 2, (int)type_y - 2, typeFontSize, Fade(shadow_color, alpha-0.5f));
-    DrawText(type_text, (int)(card_center_x - type_width / 2.0f), (int)type_y, typeFontSize, Fade(type_color, alpha));
-
-    float description_y = type_y + 35.0f;
-    DrawMultilineText(card->description_buffer, card_center_x, description_y, 20, WHITE, alpha);
+static Color GetTypeColor(const char* type) {
+    if (strcmp(type, "ARMA") == 0) return RED;
+    else return BLUE;
 }
 
-void DrawLevelUpSelectMenu(bool flag) {
-    if (!flag) return;
+static void DrawPowerUpCard(PowerUpCard* card, Rectangle cardRect, bool is_selected, float alpha) {
 
-    const char* title = "Selecione um upgrade";
-    int titleFontSize = 40;
-    float titleWidth = (float)MeasureText(title, titleFontSize);
-    DrawText(title, (int)((GAME_SCREEN_WIDTH - titleWidth) / 2.0f) - 2, (int)(SCREEN_HEIGHT / 2.0f - 280.0f) - 2, titleFontSize, Fade(RAYWHITE, power_up_alpha - 0.5f));
-    DrawText(title, (int)((GAME_SCREEN_WIDTH - titleWidth) / 2.0f), (int)(SCREEN_HEIGHT / 2.0f - 280.0f), titleFontSize, Fade(WHITE, power_up_alpha));
+    float card_roundness = 0.3f;
+    int card_segments = 20;
+    float card_texture_scale = 2.5f;
+    float border_thickness = 3.0f;
 
-    float card_width = 210.0f;
-    float card_height = 320.0f;
-    float spacing = 20.0f;
-    float total_width = (card_width * 3) + (spacing * 2);
-    float start_x = (GAME_SCREEN_WIDTH - total_width) / 2.0f;
-    float y_pos = (SCREEN_HEIGHT - card_height) / 2.0f;
+    const float card_center_x = cardRect.x + cardRect.width / 2.0f;
+
+    DrawRectangleRounded(cardRect, card_roundness, card_segments, Fade(BLACK, 0.75f * alpha));
+    const Color border_color = is_selected ? Fade(RED, alpha) : Fade(GRAY, alpha);
+    DrawRectangleRoundedLinesEx(cardRect, card_roundness, card_segments, border_thickness, border_color);
+
+    float current_y = cardRect.y + 20.0f;
+
+    DrawCardText(card->name, card_center_x, current_y, 26, GREEN, false, alpha);
+    current_y += 40.0f;
+
+    const float texture_width = (float)card->texture->width * card_texture_scale;
+    const float texture_height = (float)card->texture->height * card_texture_scale;
+    const Vector2 texture_pos = { card_center_x - texture_width / 2.0f, current_y };
+    DrawTextureEx(*card->texture, texture_pos, 0, card_texture_scale, Fade(WHITE, alpha));
+    current_y += texture_height + 15.0f;
+
+    DrawCardText(card->type_string, card_center_x, current_y, 20, GetTypeColor(card->type_string), true, alpha);
+    current_y += 35.0f;
+
+    DrawCardText(card->description_buffer, card_center_x, current_y, 20, WHITE, false, alpha);
+}
+
+void DrawLevelUpSelectMenu(bool should_draw) {
+    if (!should_draw) return;
+
+    int card_width = 220;
+    int card_spacing = 50;
+    int card_height = 320;
+
+    DrawCardText("Selecione um upgrade", GAME_SCREEN_CENTER, SCREEN_HEIGHT / 2.0f - 280.0f, 40, WHITE, true, power_up_alpha);
+
+    const float cards_y = (SCREEN_HEIGHT / 2.0f) - (card_height / 2.0f);
+    const float center_card_x = GAME_SCREEN_CENTER - card_width / 2.0f;
+    const float card_positions_x[3] = {
+        center_card_x - card_width - card_spacing,
+        center_card_x,
+        center_card_x + card_width + card_spacing
+    };
 
     for (int i = 0; i < 3; i++) {
-        Rectangle card_rec = { start_x + i * (card_width + spacing), y_pos, card_width, card_height };
-        bool is_selected = (current_option == i);
-        DrawPowerUpCard(&active_cards[i], card_rec, is_selected, power_up_alpha);
+        if (i < 3 && active_cards[i].texture != NULL) {
+            const bool is_selected = (current_option == i);
+            const Rectangle cardRect = { card_positions_x[i], cards_y, card_width, card_height };
+            DrawPowerUpCard(&active_cards[i], cardRect, is_selected, power_up_alpha);
+        }
     }
 }

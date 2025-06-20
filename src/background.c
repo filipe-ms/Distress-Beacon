@@ -1,5 +1,6 @@
 // background.c
 #include "background.h"
+#include "common.h"
 #include "raymath.h"
 
 typedef struct Background {
@@ -17,17 +18,17 @@ Background background;
 static void LoadSelectedTexture(BackgroundTexture background_texture) {
 	if (texture.id != 0) UnloadTexture(texture);
 	switch (background_texture) {
-	case BACKGROUND_MAIN_MENU:
-		texture = LoadTexture("menubg.png");
+	case BACKGROUND_STARS:
+		texture = LoadTexture("background/stars.png");
 		break;
 	case BACKGROUND_GAME:
-		texture = LoadTexture("purplebg.png");
+		texture = LoadTexture("background/dark_space.png");
 		break;
 	case BACKGROUND_SELECT_SHIP:
-		texture = LoadTexture("shipselectbg.png");
+		texture = LoadTexture("background/stars_and_dust.png");
 		break;
 	default:
-		texture = LoadTexture("menubg.png");
+		texture = LoadTexture("background/menubg.png");
 		break;
 	}
 }
@@ -38,12 +39,22 @@ void UnloadBackgroundTexture(void) {
 	}
 }
 
-void InitBackground(BackgroundTexture texture, Color tint, float scale, float alpha, float speed) {
-	LoadSelectedTexture(texture);
+static float GetStretchScale(void) {
+	float width_scale = (float)SCREEN_WIDTH / texture.width;
+	float height_scale = (float)SCREEN_HEIGHT / texture.height;
+	return fmaxf(width_scale, height_scale);
+}
+
+
+void InitBackground(BackgroundTexture bg_texture, Color tint, float scale, float alpha, float speed) {
+	LoadSelectedTexture(bg_texture);
 	background.position_x = 0.0f;
 	background.position_y = 0.0f;
 	background.color = tint;
-	background.scale = scale;
+
+	if ((int)scale == STRETCH_TO_SCREEN) background.scale = GetStretchScale();
+	else background.scale = scale;
+
 	background.alpha = alpha;
 	background.speed = speed;
 }

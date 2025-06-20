@@ -41,8 +41,6 @@
 #include "hit_confirmation.h"
 #include "list.h"
 
-#include "list.h"
-
 #include "background.h"
 
 static Scene starting_scene = START;
