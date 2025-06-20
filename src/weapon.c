@@ -552,14 +552,6 @@ bool CheckForProjectileCollisions(Ship* ship) {
         List_RemoveWithFn(homing.homing_shoots, enemy, (MatchFunction)CheckForHits);
     }
 
-    // (Enemy update)
-    // 
-    // Mata o inimigo - Se tiver out of bounds
-    
-    // (Weapon update)
-    // Unbind
-    // mata o inimigo - Se tiver morto
-
     List_ForEach(enemies, UnbindHomingProjectiles);
     List_RemoveWithFn(enemies, NULL, (MatchFunction)CheckForDeadEnemies);
 
