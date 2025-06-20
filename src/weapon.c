@@ -6,6 +6,9 @@
 #include "raymath.h"
 
 #include "enemy.h"
+#include "list.h"
+
+#include "hit_confirmation.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -257,85 +260,76 @@ static void InitHomingShoot(Ship* ship) {
     new_homing_shoot.visual_rotation = 0.0f;
     new_homing_shoot.calc_rotation = -90.0f * DEG2RAD;
     new_homing_shoot.target = NULL;
+    new_homing_shoot.has_locked_on_any_target = false;
     new_homing_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, homing_shoot_speed_base.x), ApplyMultiplier(speed_modifier, homing_shoot_speed_base.y) };
     List_AddLast(homing.homing_shoots, &new_homing_shoot);
 }
 
 static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
     // Pick the closest enemy
-    
-    if (homing_shoot->target == NULL) {
+    if (homing_shoot->target == NULL && !homing_shoot->has_locked_on_any_target) {
         Enemy* closest_enemy = NULL;
         float closest_distance = 0;
         Vector2 shootPos = homing_shoot->shoot.position;
         
         bool hasInitialized = false;
         
-        
-        for(int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-            Enemy* enemy = &enemies[i];
+        for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+            Enemy* enemy = (Enemy*)enemyNode->data;
             Vector2 enemyPos = { enemy->position.x, enemy->position.y };
             
             float distance = Vector2Distance(enemyPos, shootPos);
             
-            if (!hasInitialized || distance < closest_distance) { 
-                closest_distance = distance;
-                closest_enemy = enemy;
-                hasInitialized = true;
+            if (enemy->is_on_screen) {
+                if (!hasInitialized || distance < closest_distance) { 
+                    closest_distance = distance;
+                    closest_enemy = enemy;
+                    hasInitialized = true;
+                }
             }
         }
 
         homing_shoot->target = closest_enemy;
+        homing_shoot->has_locked_on_any_target = true;
     }
     
-    if (homing_shoot->target == NULL || !homing_shoot->target->active) {   
+    if (homing_shoot->target == NULL || !homing_shoot->target->is_on_screen) {   
         homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.y) * GetFrameTime();
         homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.x) * GetFrameTime();
         return;
     }
 
-    // 1. Get base speed (magnitude)
     float base_speed = Vector2Length(homing_shoot_speed_base);
 
-    // 2. Calculate PROPER direction vector (target -> projectile)
     Vector2 target_position = (Vector2) { homing_shoot->target->position.x, homing_shoot->target->position.y };
     Vector2 direction = Vector2Subtract(target_position, homing_shoot->shoot.position);
     Vector2 normalized_direction = Vector2Normalize(direction);
 
-    // 3. Calculate desired angle (atan2 returns -π to π)
     float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
-
-    // 4. Get current angle (convert to radians)
     float current_angle = homing_shoot->calc_rotation;
-
-    // 5. Calculate angular difference (-π to π)
     float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
 
-    // 6. Apply gradual adjustment
     float max_adjustment = 2.0f * GetFrameTime(); // Radians per frame
     float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
     float new_angle = current_angle + adjustment;
 
-    // 7. Calculate new velocity vector
     Vector2 new_velocity = {
         cosf(new_angle) * base_speed,
         sinf(new_angle) * base_speed
     };
 
     homing_shoot->current_velocity = new_velocity;
-
-    // 8. Update projectile state
     homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, new_velocity.x) * GetFrameTime();
     homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, new_velocity.y) * GetFrameTime();
-
-    // 9. Set rotation (convert back to degrees)
     homing_shoot->visual_rotation = new_angle * RAD2DEG + 90;
     homing_shoot->calc_rotation = new_angle;
 }
 
 static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
     HomingShoot* homing_shoot = (HomingShoot*)item;
-    if (homing_shoot->shoot.position.y < -80) {
+    Vector2 position = homing_shoot->shoot.position;
+    if (position.y < -80 || position.y > GAME_SCREEN_HEIGHT + 80 ||
+        position.x < -80 || position.x > GAME_SCREEN_WIDTH + 80) {
         return 1;
     }
     return 0;
@@ -368,7 +362,7 @@ static void DrawHomingShoot(HomingShoot* homing_shoot) {
         DrawCircleV(center, homing_shoot->shoot.size.x / 2.0f, Fade(RED, 0.5f));
     }
 	
-    if (homing_shoot->target != NULL) {
+    if (homing_shoot->target != NULL && homing_shoot->target->is_on_screen) {
         DrawLine(
             homing_shoot->shoot.position.x,
             homing_shoot->shoot.position.y,
@@ -502,6 +496,76 @@ static void DrawShotgun(void) {
 // 
 //--------------------------------------------------------------
 
+static bool CheckForDeadEnemies(void* context, void* data) {
+    Enemy* enemy = (Enemy*)data;
+    bool expression = enemy->hp <= 0;
+    return expression;
+}
+
+static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
+    Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
+
+    if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
+        enemy->hp -= shoot->damage;
+        ConfirmHit(SHOCKWAVE, enemy_pos);
+
+        if (enemy->hp <= 0) {
+            AddExperience(enemy->exp);
+            AddScore(100);
+            enemy->is_on_screen = false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+static int UnbindHomingProjectiles() {
+    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        if (enemy->hp > 0) {
+            continue;
+        }
+
+        for(Node* homingNode = homing.homing_shoots->head; homingNode != NULL; homingNode = homingNode->next) {
+            HomingShoot* shoot = (HomingShoot*)homingNode->data;
+
+            if (shoot->target == enemy) {
+                shoot->target = NULL;
+            }
+        }
+    }
+}
+
+bool CheckForProjectileCollisions(Ship* ship) {
+    int enemy_count = enemies->size;
+    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        if (!enemy->is_on_screen) continue;
+
+        List_RemoveWithFn(pulse.pulse_shoots, enemy, (MatchFunction)CheckForHits);
+        List_RemoveWithFn(photon.photon_shoots, enemy, (MatchFunction)CheckForHits);
+        List_RemoveWithFn(shotgun.shotgun_shoots, enemy, (MatchFunction)CheckForHits);
+        List_RemoveWithFn(homing.homing_shoots, enemy, (MatchFunction)CheckForHits);
+    }
+
+    // (Enemy update)
+    // 
+    // Mata o inimigo - Se tiver out of bounds
+    
+    // (Weapon update)
+    // Unbind
+    // mata o inimigo - Se tiver morto
+
+    List_ForEach(enemies, UnbindHomingProjectiles);
+    List_RemoveWithFn(enemies, NULL, (MatchFunction)CheckForDeadEnemies);
+
+    return false;
+}
+
 bool IsWeaponActive(int reference) {
     switch (reference) {
     case PULSE:   return IsPulseActive();
@@ -549,6 +613,8 @@ void UpdateWeapon(Ship* ship) {
     UpdatePhoton(ship);
     UpdateShotgun(ship);
     UpdateHoming(ship);
+
+    CheckForProjectileCollisions(ship);
 }
 
 void DrawWeapon(void) {

@@ -21,7 +21,9 @@
 #define SCREEN_WIDTH 1100     // Largura
 #define SCREEN_HEIGHT 960     // Altura
 
-#define GAME_SCREEN_WIDTH 700 // A soma disso com UI_WIDTH tem que ser igual a SCREEN_WIDTH
+#define GAME_SCREEN_WIDTH 700  // A soma disso com UI_WIDTH tem que ser igual a SCREEN_WIDTH
+#define GAME_SCREEN_HEIGHT 960 // Altura
+
 #define UI_WIDTH 400
 
 //--------------------------------------------------------------

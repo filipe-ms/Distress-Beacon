@@ -14,7 +14,7 @@ typedef enum {
 } EnemyType;
 
 typedef struct {
-    bool active;
+    bool is_on_screen;
     Rectangle position;
     Vector2 speed;
     EnemyType type;
@@ -24,6 +24,8 @@ typedef struct {
     bool action_flag;
     Color color;
 } Enemy;
+
+extern List* enemies;
 
 void InitEnemies(void);
 void UpdateEnemies(Ship* ship);

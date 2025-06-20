@@ -4,4 +4,7 @@ Filipe,Aurea,500
 Filipe,Aurea,500
 dfghdfhgj,Aurea,300
 Filipe,Aurea,200
+1,Puddle Jumper,200
+fdesa,Puddle Jumper,200
 Filipe,Orion,100
+1,Puddle Jumper,100

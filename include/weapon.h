@@ -99,6 +99,7 @@ typedef struct HomingShoot {
     float calc_rotation;
     Vector2 current_velocity;
     Enemy* target;
+    bool has_locked_on_any_target;
 } HomingShoot;
 
 typedef struct Homing {
