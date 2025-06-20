@@ -1,2 +1,7 @@
+Gabriel,Aurea,1300
+Filipe,Aurea,700
+Filipe,Aurea,500
+Filipe,Aurea,500
+dfghdfhgj,Aurea,300
 Filipe,Aurea,200
-Filipe,Unknown,0
+Filipe,Orion,100

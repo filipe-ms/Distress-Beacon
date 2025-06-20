@@ -12,6 +12,7 @@
 		"game_behavior.h": "c",
 		"weapon.h": "c",
 		"enemy.h": "c",
-		"raylib.h": "c"
+		"raylib.h": "c",
+		"source_location": "c"
 	}
 }

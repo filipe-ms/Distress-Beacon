@@ -39,6 +39,9 @@
 
 #include "ship.h"
 
+#include "hit_confirmation.h"
+#include "list.h"
+
 static Scene starting_scene = START;
 
 void LoadGame(void);
@@ -57,7 +60,7 @@ int main(void)
     SetTargetFPS(240);
 
     LoadGame();         // Inicializa o diretório de recursos/assets e as texturas
-    
+    InitEnemies();
     InitSceneManager(starting_scene);
 
     LoopScene();
@@ -91,6 +94,8 @@ void UnloadGame(void)
     UnloadTutorialTextures();
     UnloadWeaponTextures();
     UnloadPowerUpTextures();
-	UnloadShipTextures();
+    UnloadShipTextures();
     UnloadGameResources();
+    UnloadHitConfirmation();
+    List_FreeAll();
 }
