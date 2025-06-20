@@ -13,12 +13,10 @@ static const float ENEMY_BASE_HEIGHT = 48.0f;
 static Texture2D texture;
 static Rectangle source_rects[ENEMY_TYPE_COUNT];
 
-List* enemiesx;
-
-Enemy enemies[MAX_ENEMY_NUMBER];
+List* enemies;
 
 static void ActivateEnemy(Enemy* enemy, EnemyType type, int hp) {
-    enemy->active = true;
+    enemy->is_on_screen = false;
     enemy->type = type;
     enemy->hp = (float)hp;
     enemy->color = WHITE;
@@ -43,22 +41,15 @@ static void ActivateEnemy(Enemy* enemy, EnemyType type, int hp) {
 }
 
 void InitEnemies(void) {
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        enemies[i].active = false;
-        enemies[i].position.width = DRAW_WH;
-        enemies[i].position.height = DRAW_WH;
-    }
-	enemiesx = List_Create(sizeof(Enemy));
+    enemies = List_Create(sizeof(Enemy));
 }
 
 static void Spawn(int amount, int hp, EnemyType type, bool random) {
-    int spawned_count = 0;
-    for (int i = 0; i < MAX_ENEMY_NUMBER && spawned_count < amount; i++) {
-        if (!enemies[i].active) {
-            EnemyType final_type = random ? (EnemyType)GetRandomValue(ENEMY_BASIC, ENEMY_WALLER) : type;
-            ActivateEnemy(&enemies[i], final_type, hp);
-            spawned_count++;
-        }
+    for (int i = 0; i < amount; i++) {
+        Enemy new_enemy;
+        EnemyType final_type = random ? (EnemyType)GetRandomValue(ENEMY_BASIC, ENEMY_WALLER) : type;
+        ActivateEnemy(&new_enemy, final_type, hp);
+        List_AddLast(enemies, &new_enemy);
     }
 }
 
@@ -70,60 +61,79 @@ void SpawnRandomEnemies(int amount, int hp) {
     Spawn(amount, hp, ENEMY_BASIC, true);
 }
 
+static void UpdateEnemy(void* context, void* data) {
+    Ship* ship = (Ship*)context;
+    Enemy* e = (Enemy*)data;
+
+    switch (e->type) {
+
+    case ENEMY_BASIC:   BehaviorBasic(&e->position, BASE_SPEED_Y); break;
+    case ENEMY_ZIGZAG:  BehaviorZigZag(&e->position, BASE_SPEED_Y, &e->speed.x, &e->move_time, &e->action_flag); break;
+    case ENEMY_BOOSTER: BehaviorBooster(&e->position, ship, &e->move_time, &e->action_flag); break;
+    case ENEMY_WALLER:  BehaviorWaller(&e->position, e->speed.x); break;
+    default:            BehaviorBasic(&e->position, BASE_SPEED_Y); break;
+
+    }
+
+    if (e->position.x <= 0) {
+        e->position.x = 0;
+        if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
+    }
+    else if (e->position.x >= GAME_SCREEN_WIDTH - e->position.width) {
+        e->position.x = GAME_SCREEN_WIDTH - e->position.width;
+        if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
+    }
+
+    e->is_on_screen = (e->position.y > -20);
+}
+
+static void CheckEnemyOutOfBounds(Enemy* enemy) {
+    bool isOutOfBounds = enemy->position.y > GAME_SCREEN_HEIGHT + 50;
+
+    if (isOutOfBounds) {
+        enemy->hp = 0;
+        enemy->exp = 0;
+    }
+}
+
 void UpdateEnemies(Ship* ship) {
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (!enemies[i].active) continue;
 
-        Enemy* e = &enemies[i];
+    TraceLog(LOG_WARNING, "Enemies: %d", enemies->size);
 
-        switch (e->type) {
-        case ENEMY_BASIC:   BehaviorBasic(&e->position, BASE_SPEED_Y); break;
-        case ENEMY_ZIGZAG:  BehaviorZigZag(&e->position, BASE_SPEED_Y, &e->speed.x, &e->move_time, &e->action_flag); break;
-        case ENEMY_BOOSTER: BehaviorBooster(&e->position, ship, &e->move_time, &e->action_flag); break;
-        case ENEMY_WALLER:  BehaviorWaller(&e->position, e->speed.x); break;
-        default:            BehaviorBasic(&e->position, BASE_SPEED_Y); break;
+    List_ForEachCtx(enemies, ship, UpdateEnemy);
+
+    // Kill the enemy but do not remove it from the list yet
+    List_ForEach(enemies, (MatchFunction)CheckEnemyOutOfBounds);
+}
+
+static void DrawEnemy(void* context, void* data) {
+    Enemy* e = (Enemy*)data;
+    if (e->is_on_screen) {
+        if (DEBUG_FLAG) {
+            Vector2 center = { e->position.x, e->position.y };
+            DrawCircleV(center, 20.0f, Fade(GREEN, 0.5f));
         }
 
-        if (e->position.x <= 0) {
-            e->position.x = 0;
-            if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
-        }
-        else if (e->position.x >= GAME_SCREEN_WIDTH - e->position.width) {
-            e->position.x = GAME_SCREEN_WIDTH - e->position.width;
-            if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
-        }
+        Rectangle destination = {
+            e->position.x - e->position.width / 2,
+            e->position.y - e->position.height / 2,
+            e->position.width,
+            e->position.height
+        };
 
-        if (e->position.y > SCREEN_HEIGHT + 20) {
-            e->active = false;
-        }
+        DrawTexturePro(texture, source_rects[e->type], destination, (Vector2) { 0, 0 }, 0, e->color);
     }
 }
 
 void DrawEnemies(void) {
-    Vector2 origin = { 0, 0 };
-    for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
-        if (enemies[i].active) {
-            if (DEBUG_FLAG) {
-				Vector2 center = { enemies[i].position.x, enemies[i].position.y };
-                DrawCircleV(center, 20.0f, Fade(GREEN, 0.5f));
-            }
-
-            Rectangle destination = {
-                enemies[i].position.x - enemies[i].position.width / 2,
-                enemies[i].position.y - enemies[i].position.height / 2,
-                enemies[i].position.width,
-                enemies[i].position.height
-            };
-
-            DrawTexturePro(texture, source_rects[enemies[i].type], destination, origin, 0, enemies[i].color);
-        }
-    }
+    List_ForEachCtx(enemies, NULL, DrawEnemy);
 }
 
 void LoadEnemyTextures(void) {
+
     texture = LoadTexture("ships.png");
     if (texture.id <= 0) {
-        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) não encontrada.");
+        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) nÃ£o encontrada.");
         return;
     }
 
@@ -136,4 +146,5 @@ void LoadEnemyTextures(void) {
 
 void UnloadEnemyTextures(void) {
     UnloadTexture(texture);
+    List_Destroy(enemies);
 }

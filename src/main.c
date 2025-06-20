@@ -39,6 +39,7 @@
 #include "ship.h"
 
 #include "hit_confirmation.h"
+#include "list.h"
 
 #include "list.h"
 
@@ -62,7 +63,7 @@ int main(void)
     SetTargetFPS(240);
 
     LoadGame();         // Inicializa o diretório de recursos/assets e as texturas
-    
+    InitEnemies();
     InitSceneManager(starting_scene);
 
     LoopScene();

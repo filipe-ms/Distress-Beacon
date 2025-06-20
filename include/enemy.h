@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "ship.h"
+#include "list.h"
 
 typedef enum {
     ENEMY_BASIC,
@@ -13,7 +14,7 @@ typedef enum {
 } EnemyType;
 
 typedef struct {
-    bool active;
+    bool is_on_screen;
     Rectangle position;
     Vector2 speed;
     EnemyType type;
@@ -24,7 +25,7 @@ typedef struct {
     Color color;
 } Enemy;
 
-extern Enemy enemies[MAX_ENEMY_NUMBER];
+extern List* enemies;
 
 void InitEnemies(void);
 void UpdateEnemies(Ship* ship);

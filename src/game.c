@@ -14,6 +14,7 @@
 #include "background.h"
 
 
+
 // Waves
 #define FIRST_WAVE 0
 #define SECOND_WAVE 1
@@ -34,7 +35,7 @@ void InitGame(void) {
     pause_flag = false;
     victory = false;
     level_up_flag = false;
-    
+
     // Other inits
     InitShip(&ship, GetPlayerShip());
     InitWeapon();
@@ -45,9 +46,20 @@ void InitGame(void) {
 	InitHitConfirmation();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), 1.0f, 1.0f, 100.0f);
 
-    if (GetPlayerShip() == 0) ActivatePulse();
-    else if (GetPlayerShip() == 1) ActivatePhoton();
-    else if (GetPlayerShip() == 2) ActivateShotgun();
+    switch (GetPlayerShip()) {
+        case AUREA:
+            ActivatePulse();
+            break;
+        case ORION:
+            ActivatePhoton();
+            break;
+        case NEBULA:
+            ActivateShotgun();
+            break;
+        case PUDDLE_JUMPER:
+            ActivateHoming();
+            break;
+    }
 }
 
 
@@ -80,13 +92,13 @@ void UpdateGame(void)
             UpdateEnemies(&ship);
             UpdateShip(&ship);
             UpdateWeapon(&ship);
-			int player_level = GetPlayerLevel();
-            if (CheckForAllCollisions(&ship)) ChangeScene(GAME_OVER);
+            int player_level = GetPlayerLevel();
+            if (CheckForEnemyCollisions(&ship)) ChangeScene(GAME_OVER);
             if (GetPlayerLevel() > player_level) {
                 PowerRandomizer();
                 level_up_flag = true;
             }
-            
+
         }
     }
 }
@@ -110,11 +122,10 @@ void DrawGame(void)
     DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
     DrawWaves();
-    
+
     if (victory) DrawText("YOU WIN", GAME_SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", GAME_SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
-    
-    
+
     DrawUserInterface(); // Desenha por último, está agora em outro plano
     EndDrawing();
 }

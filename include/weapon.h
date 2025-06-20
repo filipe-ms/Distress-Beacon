@@ -5,11 +5,13 @@
 #include "raylib.h"
 #include "ship.h"
 #include "list.h"
+#include "enemy.h"
 
 typedef enum WeaponType {
 	PULSE,
 	PHOTON,
 	SHOTGUN,
+    HOMING,
 	WEAPON_COUNT
 } WeaponType;
 
@@ -83,6 +85,32 @@ extern Photon photon;
 
 bool IsPhotonActive(void);
 void ActivatePhoton(void);
+
+//--------------------------------------------------------------
+//
+//                         HOMING
+// 
+//--------------------------------------------------------------
+
+// Deixei como struct para facilitar no futuro se formos adicionar algum comportamento
+typedef struct HomingShoot {
+    Shoot shoot;
+    float visual_rotation;
+    float calc_rotation;
+    Vector2 current_velocity;
+    Enemy* target;
+    bool has_locked_on_any_target;
+} HomingShoot;
+
+typedef struct Homing {
+    Weapon weapon;
+    List* homing_shoots;
+} Homing;
+
+extern Homing homing;
+
+bool IsHomingActive(void);
+void ActivateHoming(void);
 
 //--------------------------------------------------------------
 //

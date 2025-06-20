@@ -5,6 +5,11 @@
 
 #include "raymath.h"
 
+#include "enemy.h"
+#include "list.h"
+
+#include "hit_confirmation.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -221,6 +226,159 @@ static void DrawPhoton(void) {
 
 //--------------------------------------------------------------
 //
+//                         HOMING
+// 
+//--------------------------------------------------------------
+
+Homing homing;
+
+const Vector2 homing_shoot_speed_base = { .x = 0, .y = -300 };
+
+bool IsHomingActive(void) { return homing.weapon.is_active; }
+void ActivateHoming(void) { homing.weapon.is_active = true; }
+
+static void InitHoming(void) {
+    homing.weapon.id = HOMING;
+    homing.weapon.is_active = false;
+    homing.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
+    homing.weapon.offset = (Vector2){ 0, 0 };
+    homing.weapon.damage = 0.5f;
+    homing.weapon.shoot_speed = homing_shoot_speed_base;
+    homing.weapon.cooldown_time = 0.4f;
+    homing.weapon.cooldown_charge = 0.0f;
+    homing.weapon.color = YELLOW;
+
+    homing.homing_shoots = List_Create(sizeof(HomingShoot));
+}
+
+static void InitHomingShoot(Ship* ship) {
+    HomingShoot new_homing_shoot = { 0 };
+    new_homing_shoot.shoot.damage = ApplyMultiplier(damage_modifier, homing.weapon.damage);
+    new_homing_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 18), ApplyMultiplier(size_modifier, 18) };
+    new_homing_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
+    new_homing_shoot.visual_rotation = 0.0f;
+    new_homing_shoot.calc_rotation = -90.0f * DEG2RAD;
+    new_homing_shoot.target = NULL;
+    new_homing_shoot.has_locked_on_any_target = false;
+    new_homing_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, homing_shoot_speed_base.x), ApplyMultiplier(speed_modifier, homing_shoot_speed_base.y) };
+    List_AddLast(homing.homing_shoots, &new_homing_shoot);
+}
+
+static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
+    // Pick the closest enemy
+    if (homing_shoot->target == NULL && !homing_shoot->has_locked_on_any_target) {
+        Enemy* closest_enemy = NULL;
+        float closest_distance = 0;
+        Vector2 shootPos = homing_shoot->shoot.position;
+        
+        bool hasInitialized = false;
+        
+        for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+            Enemy* enemy = (Enemy*)enemyNode->data;
+            Vector2 enemyPos = { enemy->position.x, enemy->position.y };
+            
+            float distance = Vector2Distance(enemyPos, shootPos);
+            
+            if (enemy->is_on_screen) {
+                if (!hasInitialized || distance < closest_distance) { 
+                    closest_distance = distance;
+                    closest_enemy = enemy;
+                    hasInitialized = true;
+                }
+            }
+        }
+
+        homing_shoot->target = closest_enemy;
+        homing_shoot->has_locked_on_any_target = true;
+    }
+    
+    if (homing_shoot->target == NULL || !homing_shoot->target->is_on_screen) {   
+        homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.y) * GetFrameTime();
+        homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.x) * GetFrameTime();
+        return;
+    }
+
+    float base_speed = Vector2Length(homing_shoot_speed_base);
+
+    Vector2 target_position = (Vector2) { homing_shoot->target->position.x, homing_shoot->target->position.y };
+    Vector2 direction = Vector2Subtract(target_position, homing_shoot->shoot.position);
+    Vector2 normalized_direction = Vector2Normalize(direction);
+
+    float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
+    float current_angle = homing_shoot->calc_rotation;
+    float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
+
+    float max_adjustment = 2.0f * GetFrameTime(); // Radians per frame
+    float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
+    float new_angle = current_angle + adjustment;
+
+    Vector2 new_velocity = {
+        cosf(new_angle) * base_speed,
+        sinf(new_angle) * base_speed
+    };
+
+    homing_shoot->current_velocity = new_velocity;
+    homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, new_velocity.x) * GetFrameTime();
+    homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, new_velocity.y) * GetFrameTime();
+    homing_shoot->visual_rotation = new_angle * RAD2DEG + 90;
+    homing_shoot->calc_rotation = new_angle;
+}
+
+static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
+    HomingShoot* homing_shoot = (HomingShoot*)item;
+    Vector2 position = homing_shoot->shoot.position;
+    if (position.y < -80 || position.y > GAME_SCREEN_HEIGHT + 80 ||
+        position.x < -80 || position.x > GAME_SCREEN_WIDTH + 80) {
+        return 1;
+    }
+    return 0;
+}
+
+static void UpdateHoming(Ship* ship) {
+    if (!homing.weapon.is_active) return;
+
+    homing.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
+
+    if (homing.weapon.cooldown_charge <= 0) {
+        InitHomingShoot(ship);
+        homing.weapon.cooldown_charge = homing.weapon.cooldown_time;
+    }
+
+    List_ForEach(homing.homing_shoots, (Function)HomingShootPositionUpdate);
+    List_RemoveWithFn(homing.homing_shoots, NULL, CheckHomingShootOutOfBounds);
+}
+
+static void DrawHomingShoot(HomingShoot* homing_shoot) {
+    Rectangle destRec = {
+        homing_shoot->shoot.position.x,
+        homing_shoot->shoot.position.y,
+        homing_shoot->shoot.size.x,
+		homing_shoot->shoot.size.y
+    };
+    Vector2 origin = { homing_shoot->shoot.size.x / 2.0f, homing_shoot->shoot.size.y / 2.0f };
+    if (DEBUG_FLAG) {
+        Vector2 center = { homing_shoot->shoot.position.x, homing_shoot->shoot.position.y };
+        DrawCircleV(center, homing_shoot->shoot.size.x / 2.0f, Fade(RED, 0.5f));
+    }
+	
+    if (homing_shoot->target != NULL && homing_shoot->target->is_on_screen) {
+        DrawLine(
+            homing_shoot->shoot.position.x,
+            homing_shoot->shoot.position.y,
+            homing_shoot->target->position.x,
+            homing_shoot->target->position.y,
+            RED);
+    }
+
+    DrawTexturePro(weapon_texture, homing.weapon.source, destRec, origin, homing_shoot->visual_rotation, WHITE);
+}
+
+static void DrawHoming(void) {
+    List_ForEach(homing.homing_shoots, (Function)DrawHomingShoot);
+}
+
+//--------------------------------------------------------------
+//
 //                         SHOTGUN
 // 
 //--------------------------------------------------------------
@@ -337,22 +495,86 @@ static void DrawShotgun(void) {
 // 
 //--------------------------------------------------------------
 
+static bool CheckForDeadEnemies(void* context, void* data) {
+    Enemy* enemy = (Enemy*)data;
+    bool expression = enemy->hp <= 0;
+    return expression;
+}
+
+static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
+    Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
+
+    if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
+        enemy->hp -= shoot->damage;
+        ConfirmHit(SHOCKWAVE, enemy_pos);
+
+        if (enemy->hp <= 0) {
+            AddExperience(enemy->exp);
+            AddScore(100);
+            enemy->is_on_screen = false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+static int UnbindHomingProjectiles() {
+    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        if (enemy->hp > 0) {
+            continue;
+        }
+
+        for(Node* homingNode = homing.homing_shoots->head; homingNode != NULL; homingNode = homingNode->next) {
+            HomingShoot* shoot = (HomingShoot*)homingNode->data;
+
+            if (shoot->target == enemy) {
+                shoot->target = NULL;
+            }
+        }
+    }
+}
+
+bool CheckForProjectileCollisions(Ship* ship) {
+    int enemy_count = enemies->size;
+    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        if (!enemy->is_on_screen) continue;
+
+        List_RemoveWithFn(pulse.pulse_shoots, enemy, (MatchFunction)CheckForHits);
+        List_RemoveWithFn(photon.photon_shoots, enemy, (MatchFunction)CheckForHits);
+        List_RemoveWithFn(shotgun.shotgun_shoots, enemy, (MatchFunction)CheckForHits);
+        List_RemoveWithFn(homing.homing_shoots, enemy, (MatchFunction)CheckForHits);
+    }
+
+    List_ForEach(enemies, UnbindHomingProjectiles);
+    List_RemoveWithFn(enemies, NULL, (MatchFunction)CheckForDeadEnemies);
+
+    return false;
+}
+
 bool IsWeaponActive(int reference) {
     switch (reference) {
     case PULSE:   return IsPulseActive();
     case PHOTON:  return IsPhotonActive();
     case SHOTGUN: return IsShotgunActive();
-    default:     return false;
+    case HOMING:  return IsHomingActive();
+    default:      return false;
     }
 }
 
 const char* GetActiveWeaponsString(void) {
-    static char active_weapons[256];  // Buffer p/ n„o precisar mallocar e dar free depois
+    static char active_weapons[256];  // Buffer p/ n√£o precisar mallocar e dar free depois
     active_weapons[0] = '\0';
 
-    if (IsPulseActive()) strcat(active_weapons, "Pulse\n");
-    if (IsPhotonActive()) strcat(active_weapons, "Photon\n");
+    if (IsPulseActive())   strcat(active_weapons, "Pulse\n");
+    if (IsPhotonActive())  strcat(active_weapons, "Photon\n");
     if (IsShotgunActive()) strcat(active_weapons, "Shotgun\n");
+    if (IsHomingActive())  strcat(active_weapons, "Homing\n");
 
     if (strlen(active_weapons) == 0) {
         strcpy(active_weapons, "None");
@@ -369,6 +591,7 @@ static void InitAllWeapons(void) {
     InitPulse();
     InitPhoton();
     InitShotgun();
+    InitHoming();
 }
 
 void InitWeapon(void) {
@@ -380,12 +603,16 @@ void UpdateWeapon(Ship* ship) {
     UpdatePulse(ship);
     UpdatePhoton(ship);
     UpdateShotgun(ship);
+    UpdateHoming(ship);
+
+    CheckForProjectileCollisions(ship);
 }
 
 void DrawWeapon(void) {
     DrawPulseShoot();
     DrawPhoton();
     DrawShotgun();
+    DrawHoming();
 }
 
 void LoadWeaponTextures(void) {
