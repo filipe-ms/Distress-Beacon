@@ -1,4 +1,4 @@
-// main_menu.c
+﻿// main_menu.c
 
 #include "main_menu.h"
 #include "common.h"
@@ -23,7 +23,7 @@ static MainMenu main_menu;
 void InitMainMenu() {
     main_menu.option = MENU_OPTION_START;
     main_menu.option_picked = false;
-	InitBackground(BACKGROUND_MAIN_MENU, WHITE, 2.0f, 1.0f, 100.0f);
+	InitBackground(BACKGROUND_STARS, WHITE, STRETCH_TO_SCREEN, 1.0f, 100.0f);
     InitFadeInThenPulse(2.0f, BLACK, 1.0f, 3.0f, 0.0f, 0.4f);
 }
 
@@ -85,7 +85,7 @@ void DrawMainMenu() {
     DrawOutlinedText("SPACE INVADERS", SCREEN_WIDTH / 2 - MeasureText("SPACE INVADERS", 50) / 2, 300, 50, Fade(WHITE, main_menu.alpha), Fade(RAYWHITE, main_menu.alpha - 0.5f));
 	DrawCenteredText("Iniciar Jogo", 400, 30, Fade(color_game_start, main_menu.alpha));
 	DrawCenteredText("Ranking",      450, 30, Fade(color_ranking, main_menu.alpha));
-	DrawCenteredText("Cr�ditos",     500, 30, Fade(color_credits, main_menu.alpha));
+	DrawCenteredText("Créditos",     500, 30, Fade(color_credits, main_menu.alpha));
 	DrawCenteredText("Sair",         550, 30, Fade(color_exit, main_menu.alpha));
     
 

@@ -23,7 +23,6 @@ typedef struct ShipSelectMenu {
     bool is_ship_selected;
 } ShipSelectMenu;
 
-
 static ShipSelectMenu ship_menu;
 
 void InitSelectMenu() {
@@ -41,12 +40,11 @@ void InitSelectMenu() {
 	ship_menu.ship.alpha = 1.0f;
 	ship_menu.is_ship_selected = false;
 
-	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, 2.0f, 1.0f, 100.0f);
+	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
 	InitFadeInEffect(1.5f, BLACK, 1.0f);
 }
 
 void UpdateShipSelectMenu() {
-    TraceLog(LOG_INFO, "%f", GetCurrentScreenEffectAlpha());
     UpdateBackground();
     UpdateShip(&ship_menu.ship);
 

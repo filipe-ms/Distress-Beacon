@@ -10,6 +10,8 @@
 
 #include "hit_confirmation.h"
 
+#include "player.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -328,7 +330,7 @@ static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
     HomingShoot* homing_shoot = (HomingShoot*)item;
     Vector2 position = homing_shoot->shoot.position;
     if (position.y < -80 || position.y > GAME_SCREEN_HEIGHT + 80 ||
-        position.x < -80 || position.x > GAME_SCREEN_WIDTH + 80) {
+        position.x < -80 || position.x > GAME_SCREEN_START + 80) {
         return 1;
     }
     return 0;
@@ -506,7 +508,7 @@ static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
 
     if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
-        ConfirmHit(SHOCKWAVE, enemy_pos);
+        ConfirmHit(EXPLOSION, enemy_pos);
 
         if (enemy->hp <= 0) {
             AddExperience(enemy->exp);
