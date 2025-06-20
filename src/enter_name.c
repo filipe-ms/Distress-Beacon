@@ -4,7 +4,6 @@
 #include "raylib.h"
 #include "player.h"
 #include "scene_manager.h"
-#include "select_ship.h"
 #include "winner.h"
 
 #include <string.h>
@@ -58,7 +57,6 @@ void UpdateEnterName(void) {
 void DrawEnterName(void) {
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawSelectMenuBackground();
     DrawText("Voce esta no ranking! Escreva seu nome:", 100, 100, 30, WHITE);
     DrawText(playerName, 100, 150, 30, WHITE);
     if (message_flag) {

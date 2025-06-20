@@ -10,10 +10,8 @@ typedef enum {
     MENU_OPTION_CREDITS,
     MENU_OPTION_EXIT,
     MENU_OPTION_COUNT
-} MenuOption;
+} MainMenuOption;
 
-void InitMenu();
-void UpdateMenu();
-void DrawMenu();
-void LoadMenuBackgroundTexture(void);
-void UnloadMenuBackgroundTexture(void);
+void InitMainMenu();
+void UpdateMainMenu();
+void DrawMainMenu();

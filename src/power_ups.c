@@ -218,7 +218,6 @@ static void DrawMultilineText(const char* text, float centerX, float y, int font
             const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
             float lineWidth = (float)MeasureText(line, fontSize);
             float x = centerX - (lineWidth / 2.0f);
-            //DrawText(line, (int)x-2, (int)y-2, fontSize, Fade(RAYWHITE, alpha - 0.5f));
             DrawText(line, (int)x, (int)y, fontSize, Fade(color, alpha));
         }
 
@@ -241,7 +240,6 @@ static void DrawPowerUpCard(PowerUpCard* card, Rectangle card_rec, bool is_selec
 
     float name_y = card_rec.y + 20.0f;
     float name_width = (float)MeasureText(card->name, name_size);
-    //DrawText(card->name, (int)(card_center_x - name_width / 2.0f) - 2, (int)name_y - 2, name_size, Fade(RAYWHITE, alpha-0.5f));
     DrawText(card->name, (int)(card_center_x - name_width / 2.0f), (int)name_y, name_size, Fade(GREEN, alpha));
 
     Texture* texture = card->texture;

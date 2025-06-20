@@ -26,7 +26,7 @@ void ChangeSceneArgs(Scene scene, int id) {
 
     switch (current_scene) {
     case START:
-        InitMenu();
+        InitMainMenu();
         break;
 
     case RANKING:
@@ -65,7 +65,7 @@ void UpdateCurrentScene(void) {
     switch (current_scene) {
 
     case START:
-        UpdateMenu();
+        UpdateMainMenu();
         break;
 
 	case RANKING:
@@ -104,7 +104,7 @@ void DrawCurrentScene(void) {
     switch (current_scene) {
 
     case START:
-        DrawMenu();
+        DrawMainMenu();
         break;
 
     case RANKING:

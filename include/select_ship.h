@@ -15,7 +15,3 @@ typedef struct SelectMenuShip {
 void InitSelectMenu(void);
 void UpdateShipSelectMenu(void);
 void DrawSelectMenu(void);
-void LoadSelectMenuTextures(void);
-void UnloadSelectMenuTextures(void);
-
-void DrawSelectMenuBackground(void);

@@ -411,3 +411,5 @@ build/build_files/obj
 build/build_files/spaceinvaders.make
 .vscode/settings.json
 build/premake5
+
+**/resources/ranking.txt

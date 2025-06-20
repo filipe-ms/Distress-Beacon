@@ -5,201 +5,110 @@
 #include "player.h"
 #include "scene_manager.h"
 #include "background.h"
+#include "scene_draw_utils.h"
 #include "raymath.h"
-
+#include "timer.h"
 #include "ship.h"
 
-// Constants
-float select_background_draw_scale = 2.0f;
-float select_transition_duration_s = 1.5f;
-Vector2 select_ship_draw_size = { DRAW_WH, DRAW_WH };
 
-// Others
-Background select_background;
+typedef struct ShipSelectMenu {
+	int option;
+    Ship ship;
+	
+    Vector2 select_pos1;
+	Vector2 select_pos2;
+	Vector2 select_pos3;
+    Vector2 select_pos4;
 
-int ship_select_menu_option;
+    bool is_ship_selected;
+} ShipSelectMenu;
 
-Ship select_ship_draw;
 
-bool select_alpha_flag;
-bool select_is_ship_selected;
-bool select_transition_complete;
-
-float select_transition_timer;
-float select_text_alpha;
-
-Vector2 select_pos1;
-Vector2 select_pos2;
-Vector2 select_pos3;
-Vector2 select_pos4;
+static ShipSelectMenu ship_menu;
 
 void InitSelectMenu() {
-    select_alpha_flag = true;
-    select_is_ship_selected = false;
-	select_transition_complete = false;
-    
-    select_transition_timer = 0.0f;
 
-    select_text_alpha = 0.0f;
+    ship_menu.option = ORION;
 
-    ship_select_menu_option = ORION;
-    
-    select_background.color = WHITE;
-    select_background.position_x = 0;
-    select_background.position_y = 0;
-    select_background.alpha = 0.0f;
+    ship_menu.select_pos1 = (Vector2){ SCREEN_WIDTH * 0.2, SCREEN_HEIGHT * 0.6 };
+    ship_menu.select_pos2 = (Vector2){ SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.4 };
+    ship_menu.select_pos3 = (Vector2){ SCREEN_WIDTH * 0.6, SCREEN_HEIGHT * 0.6 };
+    ship_menu.select_pos4 = (Vector2){ SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.4 };
 
-    select_pos1 = (Vector2){ SCREEN_WIDTH * 0.20, SCREEN_HEIGHT * 0.6 };
-    select_pos2 = (Vector2){ SCREEN_WIDTH * 0.40, SCREEN_HEIGHT * 0.4  };
-    select_pos3 = (Vector2){ SCREEN_WIDTH * 0.60, SCREEN_HEIGHT * 0.4  };
-    select_pos4 = (Vector2){ SCREEN_WIDTH * 0.80, SCREEN_HEIGHT * 0.6  };
+    ship_menu.ship.draw_size = (Vector2){ DRAW_WH, DRAW_WH };
+    ship_menu.ship.direction = CENTER;
+    ship_menu.ship.color = WHITE;
+	ship_menu.ship.alpha = 1.0f;
+	ship_menu.is_ship_selected = false;
 
-    select_ship_draw.draw_size = select_ship_draw_size;
-    select_ship_draw.direction = CENTER;
-    select_ship_draw.color = WHITE;
-    select_ship_draw.alpha = 0.0f;
+	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, 2.0f, 1.0f, 100.0f);
+	InitFadeInEffect(1.5f, BLACK, 1.0f);
 }
-
-void UpdateMenuAfterShipSelection() {
-
-    select_transition_timer += GetFrameTime();
-
-    if (ship_select_menu_option == AUREA) {
-        if (select_pos1.y >= select_ship_draw.draw_size.y * -1) {
-            select_pos1.y -= 1000 * GetFrameTime();
-        }
-    }
-    else if (ship_select_menu_option == ORION) {
-        if (select_pos2.y >= select_ship_draw.draw_size.y * -1) {
-            select_pos2.y -= 1000 * GetFrameTime();
-        }
-    }
-    else if (ship_select_menu_option == NEBULA) {
-        if (select_pos3.y >= select_ship_draw.draw_size.y * -1) {
-            select_pos3.y -= 1000 * GetFrameTime();
-        }
-    }
-    else if (ship_select_menu_option == PUDDLE_JUMPER) {
-        if (select_pos4.y >= select_ship_draw.draw_size.y * -1) {
-            select_pos4.y -= 1000 * GetFrameTime();
-        }
-    }
-
-    if (select_ship_draw.alpha > 0) {
-        select_ship_draw.alpha -= 1.0f * GetFrameTime();
-		select_text_alpha -= 1.0f * GetFrameTime();
-		select_background.alpha -= 1.0f * GetFrameTime();
-    }
-
-    if (select_transition_timer >= select_transition_duration_s) {
-		select_transition_complete = true;
-    }
-}
-
 
 void UpdateShipSelectMenu() {
+    TraceLog(LOG_INFO, "%f", GetCurrentScreenEffectAlpha());
+    UpdateBackground();
+    UpdateShip(&ship_menu.ship);
 
-    UpdateShip(&select_ship_draw);
-    select_background.position_y = (float)fmod(select_background.position_y + 100 * GetFrameTime(), select_background.texture.height * select_background_draw_scale);
-
-    if (select_transition_complete) {
-        select_transition_complete = false;
-        ChangeScene(GAME);
-        return;
+    if (ship_menu.is_ship_selected) {
+        if (GetPlayerShip()      == AUREA)         ship_menu.select_pos1.y -= 1500 * GetFrameTime();
+		else if (GetPlayerShip() == ORION)         ship_menu.select_pos2.y -= 1500 * GetFrameTime();
+		else if (GetPlayerShip() == NEBULA)        ship_menu.select_pos3.y -= 1500 * GetFrameTime();
+		else if (GetPlayerShip() == PUDDLE_JUMPER) ship_menu.select_pos4.y -= 1500 * GetFrameTime();
+        
+		if (UpdateTimer()) ChangeScene(GAME);
     }
 
-    if (select_is_ship_selected) {
-        UpdateMenuAfterShipSelection();
-        return;
+    if (!ship_menu.is_ship_selected) {
+        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) ship_menu.option = (ship_menu.option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
+        else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) ship_menu.option = (ship_menu.option + 1) % PLAYABLE_SHIPS;
+        else if (IsKeyPressed(KEY_ENTER)) {
+            ship_menu.is_ship_selected = true;
+            SetPlayerShip(ship_menu.option);
+            InitTimer(2.0f);
+			InitFadeOutEffect(2.0f, BLACK, GetCurrentScreenEffectAlpha());
+        }
     }
-
-    if (select_background.alpha < 0.8f) select_background.alpha += 0.25f * GetFrameTime();
-    if (select_ship_draw.alpha < 1) select_ship_draw.alpha += 0.75f * GetFrameTime();
-    if (select_text_alpha < 1) select_text_alpha += 0.25f * GetFrameTime();
-
-    if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) ship_select_menu_option = (ship_select_menu_option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
-    else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) ship_select_menu_option = (ship_select_menu_option + 1) % PLAYABLE_SHIPS;
-    else if (IsKeyPressed(KEY_ENTER)) {
-        select_is_ship_selected = true;
-        SetPlayerShip(ship_select_menu_option);
-    }
-}
-
-void DrawSelectMenuBackground(void) {
-    if (select_alpha_flag) {
-        select_background.alpha += 0.1f * GetFrameTime();
-        if (select_background.alpha >= 0.8f) select_alpha_flag = false;
-    }
-    else {
-        select_background.alpha -= 0.1f * GetFrameTime();
-        if (select_background.alpha <= 0.6f) select_alpha_flag = true;
-    }
-    float rotation = 0.0f;
-    Vector2 position1 = { select_background.position_x, select_background.position_y };
-    Vector2 position2 = { select_background.position_x, select_background.position_y - select_background.texture.height * select_background_draw_scale };
-    DrawTextureEx(select_background.texture, position1, rotation, select_background_draw_scale, Fade(WHITE, select_background.alpha));
-    DrawTextureEx(select_background.texture, position2, rotation, select_background_draw_scale, Fade(WHITE, select_background.alpha));
 }
 
 void DrawSelectMenu() {
     BeginDrawing();
-
     ClearBackground(BLACK);
+    DrawBackground();
 
-    DrawSelectMenuBackground();
+    Color ship_1 = (ship_menu.option == AUREA)  ? RED : GRAY;
+    Color ship_2 = (ship_menu.option == ORION)  ? RED : GRAY;
+    Color ship_3 = (ship_menu.option == NEBULA) ? RED : GRAY;
+	Color ship_4 = (ship_menu.option == PUDDLE_JUMPER) ? RED : GRAY;
 
-    Color ship_1 = (ship_select_menu_option == AUREA) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
-    Color ship_2 = (ship_select_menu_option == ORION) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
-    Color ship_3 = (ship_select_menu_option == NEBULA) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
-    Color ship_4 = (ship_select_menu_option == PUDDLE_JUMPER) ? Fade(RED, select_text_alpha) : Fade(GRAY, select_text_alpha);
+    ship_menu.ship.direction = CENTER;
     
-    select_ship_draw.direction = CENTER;
+    ship_menu.ship.id = AUREA;
+    ship_menu.ship.position = ship_menu.select_pos1;
+    DrawShip(&ship_menu.ship);
     
-    select_ship_draw.id = AUREA;
-    select_ship_draw.position = select_pos1;
-    DrawShip(&select_ship_draw);
-    
-    select_ship_draw.id = ORION;
-    select_ship_draw.position = select_pos2;
-    DrawShip(&select_ship_draw);
+    ship_menu.ship.id = ORION;
+    ship_menu.ship.position = ship_menu.select_pos2;
+    DrawShip(&ship_menu.ship);
 
-    select_ship_draw.id = NEBULA;
-    select_ship_draw.position = select_pos3;
-    DrawShip(&select_ship_draw);
+    ship_menu.ship.id = NEBULA;
+    ship_menu.ship.position = ship_menu.select_pos3;
+    DrawShip(&ship_menu.ship);
 
-    select_ship_draw.id = PUDDLE_JUMPER;
-    select_ship_draw.position = select_pos4;
-    DrawShip(&select_ship_draw);
+    ship_menu.ship.id = PUDDLE_JUMPER;
+    ship_menu.ship.position = ship_menu.select_pos4;
+    DrawShip(&ship_menu.ship);
 
     char* aurea_text = "Aurea";
     char* orion_text = "Orion";
     char* nebula_text = "Nebula";
     char* puddle_jumper_text = "Puddle Jumper";
 
-    DrawText(aurea_text,
-        (int)(select_pos1.x - MeasureText(aurea_text, 20) / 2.0f),
-        select_pos1.y + 100,
-        20, ship_1);
-    DrawText(orion_text,
-        (int)(select_pos2.x - MeasureText(orion_text, 20) / 2.0f),
-        select_pos2.y + 100,
-        20, ship_2);
-    DrawText(nebula_text,
-        (int)(select_pos3.x - MeasureText(nebula_text, 20) / 2.0f),
-        select_pos3.y + 100,
-        20, ship_3);
-    DrawText(puddle_jumper_text,
-        (int)(select_pos4.x - MeasureText(puddle_jumper_text, 20) / 2.0f),
-        select_pos4.y + 100,
-        20, ship_4);
+    DrawText(aurea_text, (int)(ship_menu.select_pos1.x - MeasureText(aurea_text, 20) / 2.0f), ship_menu.select_pos1.y + 100, 20, ship_1);
+    DrawText(orion_text, (int)(ship_menu.select_pos2.x - MeasureText(orion_text, 20) / 2.0f), ship_menu.select_pos2.y + 100, 20, ship_2);
+    DrawText(nebula_text, (int)(ship_menu.select_pos3.x - MeasureText(nebula_text, 20) / 2.0f), ship_menu.select_pos3.y + 100, 20, ship_3);
+    DrawText(puddle_jumper_text, (int)(ship_menu.select_pos4.x - MeasureText(puddle_jumper_text, 20) / 2.0f), ship_menu.select_pos4.y + 100, 20, ship_4);
 
+    UpdateAndDrawScreenEffects();
     EndDrawing();
-}
-
-void LoadSelectMenuTextures() {
-    select_background.texture = LoadTexture("shipselectbg.png");
-}
-
-void UnloadSelectMenuTextures() {
-    UnloadTexture(select_background.texture);
 }

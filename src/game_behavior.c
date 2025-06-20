@@ -11,8 +11,8 @@
 #include "raymath.h"
 
 void WallBehavior(Vector2* position) {
-    position->x = Clamp(position->x, DRAW_WH / 2, SCREEN_WIDTH - UI_WIDTH - (DRAW_WH / 2));
-    position->y = Clamp(position->y, 0, SCREEN_HEIGHT);
+    position->x = Clamp(position->x, DRAW_WH / 2, GAME_SCREEN_WIDTH - (DRAW_WH / 2));
+    position->y = Clamp(position->y, DRAW_WH / 2, SCREEN_HEIGHT + DRAW_WH / 2);
 }
 
 static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos) {
