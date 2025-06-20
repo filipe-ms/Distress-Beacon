@@ -35,11 +35,14 @@
 #include "select_ship.h"
 
 #include "tutorial.h"
-#include "game.h"
 
 #include "ship.h"
 
 #include "hit_confirmation.h"
+
+#include "list.h"
+
+#include "background.h"
 
 static Scene starting_scene = START;
 
@@ -75,25 +78,21 @@ int main(void)
 void LoadGame() {
     SearchAndSetResourceDir("resources");
 
-    LoadMenuBackgroundTexture();
-    LoadSelectMenuTextures();
     LoadEnemyTextures();
     LoadTutorialTextures();
     LoadWeaponTextures();
     LoadShipTextures();
 }
 
-
 // Unload game variables
 void UnloadGame(void)
 {
     UnloadEnemyTextures();
-    UnloadSelectMenuTextures();
-    UnloadMenuBackgroundTexture();
     UnloadTutorialTextures();
     UnloadWeaponTextures();
     UnloadPowerUpTextures();
 	UnloadShipTextures();
-    UnloadGameResources();
 	UnloadHitConfirmation();
+	List_FreeAll();
+	UnloadBackgroundTexture();
 }

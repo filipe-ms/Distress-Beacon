@@ -4,3 +4,4 @@ Filipe,Aurea,500
 dfghdfhgj,Aurea,300
 Filipe,Aurea,200
 Filipe,Orion,100
+a,Aurea,100

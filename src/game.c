@@ -6,12 +6,12 @@
 #include "power_ups.h"
 #include "scene_manager.h"
 #include "ship.h"
-#include "game_background.h"
 #include "game_behavior.h"
 #include "player.h"
 #include "enemy_wave.h"
 #include "raymath.h"
 #include "hit_confirmation.h"
+#include "background.h"
 
 
 // Waves
@@ -41,9 +41,9 @@ void InitGame(void) {
     InitPlayer();
     InitEnemies();
     InitPowerUps();
-	InitGameBackground();
     InitWaves();
 	InitHitConfirmation();
+	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), 1.0f, 1.0f, 100.0f);
 
     if (GetPlayerShip() == 0) ActivatePulse();
     else if (GetPlayerShip() == 1) ActivatePhoton();
@@ -74,7 +74,7 @@ void UpdateGame(void)
         if (level_up_flag) {
             UpdateLevelUpSelectMenu(&level_up_flag);
         } else {
-            UpdateGameBackground();
+			UpdateBackground();
             UpdateHitConfirmation();
             UpdateWaves();
             UpdateEnemies(&ship);
@@ -103,8 +103,7 @@ void DrawGame(void)
 {
     BeginDrawing();
     ClearBackground(BLACK);
-	DrawGameBackground();
-	
+    DrawBackground();
     DrawEnemies();
     DrawWeapon();
     DrawHitConfirmation();
@@ -115,16 +114,7 @@ void DrawGame(void)
     if (victory) DrawText("YOU WIN", GAME_SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", GAME_SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
     
+    
     DrawUserInterface(); // Desenha por último, está agora em outro plano
     EndDrawing();
-}
-
-//--------------------------------------------------------------
-//
-//                     LOAD | UNLOAD
-// 
-//--------------------------------------------------------------
-
-void UnloadGameResources(void) {
-	UnloadGameBackground();
 }

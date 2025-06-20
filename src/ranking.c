@@ -161,7 +161,6 @@ static Color GetShipColor(const char* shipName) {
 void DrawRanking(void) {
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawSelectMenuBackground();
 
     int col1 = SCREEN_WIDTH * 0.2;
     int col2 = SCREEN_WIDTH * 0.4;

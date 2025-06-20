@@ -136,7 +136,6 @@ static void PulseShootDraw(PulseShoot* pulse_shoot) {
     DrawTexturePro(weapon_texture, pulse.weapon.source, pulse_rect_draw, draw_origin, pulse_shoot->rotation, WHITE);
 }
 
-
 static void DrawPulseShoot() {
 	List_ForEach(pulse.pulse_shoots, (Function)PulseShootDraw);
 }

@@ -12,8 +12,8 @@
 #include "hit_confirmation.h"
 
 void WallBehavior(Vector2* position) {
-	position->x = Clamp(position->x, DRAW_WH/2, SCREEN_WIDTH - UI_WIDTH - (DRAW_WH/2) );
-	position->y = Clamp(position->y, 0, SCREEN_HEIGHT);
+	position->x = Clamp(position->x, DRAW_WH/2, GAME_SCREEN_WIDTH - (DRAW_WH/2) );
+	position->y = Clamp(position->y, DRAW_WH / 2, SCREEN_HEIGHT + DRAW_WH / 2);
 }
 
 static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos) {
@@ -53,8 +53,8 @@ static bool CheckForHits(void* context, void* data) {
 bool CheckForAllCollisions(Ship* ship) {
     for (int i = 0; i < MAX_ENEMY_NUMBER; i++) {
         if (!enemies[i].active) continue;
-        List_RemoveWithFn(pulse.pulse_shoots, &enemies[i], (MatchFunction)CheckForHits);
-        List_RemoveWithFn(photon.photon_shoots, &enemies[i], (MatchFunction)CheckForHits);
+        List_RemoveWithFn(pulse.pulse_shoots,     &enemies[i], (MatchFunction)CheckForHits);
+        List_RemoveWithFn(photon.photon_shoots,   &enemies[i], (MatchFunction)CheckForHits);
         List_RemoveWithFn(shotgun.shotgun_shoots, &enemies[i], (MatchFunction)CheckForHits);
 
         Vector2 enemy_pos_vect = { enemies[i].position.x, enemies[i].position.y };

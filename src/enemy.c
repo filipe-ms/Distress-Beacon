@@ -2,6 +2,7 @@
 #include "common.h"
 #include "behavior.h"
 #include "raylib.h"
+#include "list.h"
 
 static const float BASE_SPEED_Y = 120.0f;
 static const int SPAWN_Y_MIN = -200;
@@ -11,6 +12,8 @@ static const float ENEMY_BASE_HEIGHT = 48.0f;
 
 static Texture2D texture;
 static Rectangle source_rects[ENEMY_TYPE_COUNT];
+
+List* enemiesx;
 
 Enemy enemies[MAX_ENEMY_NUMBER];
 
@@ -45,6 +48,7 @@ void InitEnemies(void) {
         enemies[i].position.width = DRAW_WH;
         enemies[i].position.height = DRAW_WH;
     }
+	enemiesx = List_Create(sizeof(Enemy));
 }
 
 static void Spawn(int amount, int hp, EnemyType type, bool random) {
