@@ -36,7 +36,7 @@
 //
 //--------------------------------------------------------------
 
-#define BASE_EXP_TO_LEVEL 10       // EXP base necessária para o primeiro level
+#define BASE_EXP_TO_LEVEL 100       // EXP base necessária para o primeiro level
 #define EXP_TO_LEVEL_INCREMENT 10   // Incremento de EXP necessário por level subsequente
 
 #define BASE_ENEMY_SPAWN_TIMER 5.0f // Tempo base entre spawns de inimigos
