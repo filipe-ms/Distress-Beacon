@@ -324,6 +324,9 @@
     <ClCompile Include="..\..\src\weapon.c" />
     <ClCompile Include="..\..\src\winner.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.gitignore" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

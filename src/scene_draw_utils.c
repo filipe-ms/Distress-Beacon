@@ -138,7 +138,7 @@ float GetCurrentScreenEffectAlpha(void) {
 	else if (current_effect == EFFECT_FADING_OUT) {
 		return fade_out_effect.current_alpha;
 	}
-	return 1.0f;
+	return 0.0f;
 }
 
 void InitFadeInThenPulse(float fade_in_duration, Color tint, float fade_in_starting_alpha, float pulse_duration, float pulse_min_alpha, float pulse_max_alpha) {

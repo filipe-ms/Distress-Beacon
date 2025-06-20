@@ -189,4 +189,7 @@
       <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.gitignore" />
+  </ItemGroup>
 </Project>

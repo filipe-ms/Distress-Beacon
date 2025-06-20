@@ -65,8 +65,8 @@ void UpdateShipSelectMenu() {
         else if (IsKeyPressed(KEY_ENTER)) {
             ship_menu.is_ship_selected = true;
             SetPlayerShip(ship_menu.option);
-            InitTimer(1.5f);
-			InitFadeOutEffect(1.5f, BLACK, GetCurrentScreenEffectAlpha());
+            InitTimer(2.0f);
+			InitFadeOutEffect(2.0f, BLACK, GetCurrentScreenEffectAlpha());
         }
     }
 }
