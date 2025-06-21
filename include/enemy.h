@@ -10,6 +10,7 @@ typedef enum {
     ENEMY_BOOSTER,
     ENEMY_WALLER,
     ENEMY_SPINNER,
+    ENEMY_REVERSE_SPINNER,
     ENEMY_BOSS,
     ENEMY_TYPE_COUNT
 } EnemyType;
