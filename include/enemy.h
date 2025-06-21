@@ -10,8 +10,9 @@ typedef enum {
     ENEMY_BOOSTER,
     ENEMY_WALLER,
     ENEMY_SPINNER,
-	  ENEMY_STALKER,
     ENEMY_REVERSE_SPINNER,
+	ENEMY_STALKER,
+    ENEMY_GHOST,
     ENEMY_BOSS,
     ENEMY_TYPE_COUNT
 } EnemyType;
@@ -20,24 +21,34 @@ typedef enum {
     ENEMY_STATE_SPAWNING,
     ENEMY_STATE_SPINNER_TURNING,
     ENEMY_STATE_SPINNER_ACTING,
+
+    GHOST_IDLE,
+    GHOST_VISIBLE,
+    GHOST_INVISIBLE,
+    GHOST_EMP
 } EnemyState;
 
 typedef struct {
-    bool is_on_screen;
+    EnemyType type;
+
     Vector2 position;
     Vector2 size;
     Vector2 speed;
-    EnemyType type;
+    float rotation;
+	bool is_on_screen;
+
     float hp;
     float exp;
-    float move_time;
-    bool action_flag;
-    Color color;
-    float rotation;
+    float score;
 
+    float timer;
+    float elapsed_time;
+
+    bool should_perform_action;
+    Color color;
+    
     // Behavior structs
     EnemyState state;
-    float elapsed_time;
 
     // More variables for custom movements
     Vector2 vector2_aux1;
@@ -51,6 +62,7 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp);
 void SpawnEnemies(List* enemy_list);
 
 void InitEnemies(void);
+void DeInitEnemy(Enemy* enemy);
 void UpdateEnemies(Ship* ship);
 void DrawEnemies(void);
 void LoadEnemyTextures(void);

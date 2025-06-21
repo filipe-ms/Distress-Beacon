@@ -35,6 +35,8 @@ static float ApplyMultiplier(float multiplier, float variable) {
     return variable + (multiplier/100) * variable;
 }
 
+#pragma region POWER_UPS
+
 //--------------------------------------------------------------
 //
 //                         POWER UPS
@@ -50,7 +52,8 @@ float GetCooldownModifier(void) { return cooldown_modifier; }
 float GetDamageModifier(void) { return damage_modifier; }
 float GetSizeModifier(void) { return size_modifier; }
 float GetSpeedModifier(void) { return speed_modifier; }
-
+#pragma endregion POWER_UPS
+#pragma region PULSE
 //--------------------------------------------------------------
 //
 //                         PULSE
@@ -146,7 +149,8 @@ static void PulseShootDraw(PulseShoot* pulse_shoot) {
 static void DrawPulseShoot() {
 	List_ForEach(pulse.pulse_shoots, (Function)PulseShootDraw);
 }
-
+#pragma endregion PULSE
+#pragma region PHOTON
 //--------------------------------------------------------------
 //
 //                         PHOTON
@@ -225,7 +229,8 @@ static void DrawPhotonShoot(PhotonShoot* photon_shoot) {
 static void DrawPhoton(void) {
     List_ForEach(photon.photon_shoots, (Function)DrawPhotonShoot);
 }
-
+#pragma endregion PHOTON
+#pragma region HOMING
 //--------------------------------------------------------------
 //
 //                         HOMING
@@ -294,7 +299,7 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
         homing_shoot->has_locked_on_any_target = true;
     }
     
-    if (homing_shoot->target == NULL || !homing_shoot->target->is_on_screen) {   
+    if (homing_shoot->target == NULL || !homing_shoot->target->is_on_screen) {
         homing_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.y) * GetFrameTime();
         homing_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, homing_shoot->current_velocity.x) * GetFrameTime();
         return;
@@ -379,7 +384,8 @@ static void DrawHomingShoot(HomingShoot* homing_shoot) {
 static void DrawHoming(void) {
     List_ForEach(homing.homing_shoots, (Function)DrawHomingShoot);
 }
-
+#pragma endregion HOMING
+#pragma region SHOTGUN
 //--------------------------------------------------------------
 //
 //                         SHOTGUN
@@ -491,6 +497,7 @@ static void DrawShotgunShoot(ShotgunShoot* shotgun_shoot) {
 static void DrawShotgun(void) {
     List_ForEach(shotgun.shotgun_shoots, (Function)DrawShotgunShoot);
 }
+#pragma endregion SHOTGUN
 
 //--------------------------------------------------------------
 //
@@ -513,8 +520,8 @@ static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
 
         if (enemy->hp <= 0) {
             AddExperience(enemy->exp);
-            AddScore(100);
-            enemy->is_on_screen = false;
+            AddScore(enemy->score);
+			DeInitEnemy(enemy);
         }
 
         return true;
