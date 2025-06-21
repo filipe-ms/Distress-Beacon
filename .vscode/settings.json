@@ -13,6 +13,9 @@
 		"weapon.h": "c",
 		"enemy.h": "c",
 		"raylib.h": "c",
-		"source_location": "c"
+		"source_location": "c",
+		"common.h": "c",
+		"behavior.h": "c",
+		"list.h": "c"
 	}
 }

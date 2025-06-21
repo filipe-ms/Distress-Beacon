@@ -3,7 +3,6 @@
 
 #include "raylib.h"
 
-void InitWaves(void);
+void InitWaves(int level);
 void UpdateWaves(void);
-void DrawWaves(void);
 bool AreAllWavesCompleted(void);

@@ -32,3 +32,17 @@ bool CheckForEnemyCollisions(Ship* ship) {
 
     return false;
 }
+
+float ClampWithFlagsF(float value, float min, float max, bool* has_reached_min, bool* has_reached_max) {
+    if (value < min) {
+        value = min;
+        if (has_reached_min)
+            *has_reached_min = true;
+    } else if (value > max) {
+        value = max;
+        if (has_reached_max)
+            *has_reached_max = true;
+    }
+
+    return value;
+}

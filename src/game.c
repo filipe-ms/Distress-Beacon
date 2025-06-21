@@ -40,7 +40,7 @@ void InitGame(void) {
     InitPlayer();
     InitEnemies();
     InitPowerUps();
-    InitWaves();
+    InitWaves(10);
 	InitHitConfirmation();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
 
@@ -118,11 +118,10 @@ void DrawGame(void)
     DrawHitConfirmation();
     DrawShip(&ship);
     DrawLevelUpSelectMenu(level_up_flag);
-    DrawWaves();
 
     if (victory) DrawText("YOU WIN",   (int)GAME_SCREEN_CENTER - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("GAME PAUSED", (int)GAME_SCREEN_CENTER - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
 
-    DrawUserInterface(); // Desenha por último, está agora em outro plano
+    DrawUserInterface(); // Desenha por ï¿½ltimo, estï¿½ agora em outro plano
     EndDrawing();
 }
