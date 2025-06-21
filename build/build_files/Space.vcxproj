@@ -267,7 +267,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\hit_confirmation.h" />
     <ClInclude Include="..\..\include\background.h" />
-    <ClInclude Include="..\..\include\behavior.h" />
     <ClInclude Include="..\..\include\draw_utils.h" />
     <ClInclude Include="..\..\include\enemy.h" />
     <ClInclude Include="..\..\include\common.h" />
@@ -300,7 +299,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\background.c" />
     <ClCompile Include="..\..\src\hit_confirmation.c" />
-    <ClCompile Include="..\..\src\behavior.c" />
     <ClCompile Include="..\..\src\draw_utils.c" />
     <ClCompile Include="..\..\src\enemy.c" />
     <ClCompile Include="..\..\src\enemy_wave.c" />

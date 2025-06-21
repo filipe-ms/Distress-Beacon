@@ -152,15 +152,7 @@ static void CreateSingle(EnemyType type, float start_time) {
 
 #pragma endregion
 
-void InitWaves(int level) {
-    total_elapsed_time = 0.0f;
-    time_per_event = 0.0f;
-    wave_id = 0;
 
-    waves = List_Create(sizeof(Wave));
-
-    GenerateWaves(level);
-}
 
 void GenerateWaves(int level) {
     float intensity = (float)level / 2.0f;
@@ -206,6 +198,16 @@ void GenerateWaves(int level) {
 
         start_time += 8;
     }
+}
+
+void InitWaves(int level) {
+    total_elapsed_time = 0.0f;
+    time_per_event = 0.0f;
+    wave_id = 0;
+
+    waves = List_Create(sizeof(Wave));
+
+    GenerateWaves(level);
 }
 
 void UpdateWaves(void) {

@@ -81,9 +81,6 @@
     <ClInclude Include="..\..\include\list.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\behavior.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\user_interface.h">
       <Filter>Header Files\ui</Filter>
     </ClInclude>
@@ -154,9 +151,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\list.c">
       <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\behavior.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\game_behavior.c">
       <Filter>Source Files\utils</Filter>
