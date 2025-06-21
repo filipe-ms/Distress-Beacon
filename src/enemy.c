@@ -98,8 +98,6 @@ static void CheckEnemyOutOfBounds(Enemy* enemy) {
 
 void UpdateEnemies(Ship* ship) {
 
-    TraceLog(LOG_WARNING, "Enemies: %d", enemies->size);
-
     List_ForEachCtx(enemies, ship, UpdateEnemy);
 
     // Kill the enemy but do not remove it from the list yet
