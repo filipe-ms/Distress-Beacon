@@ -10,7 +10,7 @@
 
 #pragma once
 
-#define DEBUG_FLAG 0
+#define DEBUG_FLAG 1
 
 //--------------------------------------------------------------
 //
