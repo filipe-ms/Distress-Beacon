@@ -8,23 +8,29 @@
 #include <stdio.h>
 
 // Posições aqui no topo para facilitar
+
+static Vector2 GetScoreTextPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.05 };
+}
+
+static Vector2 GetScoreNumberPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT* 0.08 };
+}
+
 static Vector2 GetActiveBonusesStartingPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 250 };
-}
-static Vector2 GetExpBarPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 860 };
-}
-
-static Vector2 GetLevelTextPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 900 };
-}
-
-static Vector2 GetScorePosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 10 };
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.2 };
 }
 
 static Vector2 GetActiveWeaponsPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 75 };
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
+}
+
+static Rectangle GetExpBarPosition() {
+    return (Rectangle) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.85, 360, 20 };
+}
+
+static Vector2 GetLevelTextPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.9 };
 }
 
 static void DrawLeftUIBackground() {
@@ -51,7 +57,7 @@ static void DrawMultilineText(const char* text, float start_x, float start_y, in
             const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
             float lineWidth = (float)MeasureText(line, fontSize);
             float x = start_x;
-            DrawText(line, (int)x, (int)start_y, fontSize, Fade(color, alpha));
+            DrawText(line, (int)x + UI_WIDTH/2 - lineWidth/2, (int)start_y, fontSize, Fade(color, alpha));
         }
 
         str += len;
@@ -62,60 +68,74 @@ static void DrawMultilineText(const char* text, float start_x, float start_y, in
     }
 }
 
-
-
 static void DrawActiveWeapons() {
     Vector2 draw_pos = GetActiveWeaponsPosition();
-    DrawOutlinedText("WEAPONS", (int)draw_pos.x, (int)draw_pos.y, 20, WHITE, Fade(RAYWHITE, 0.5f));
-	DrawMultilineText(GetActiveWeaponsString(), (int)draw_pos.x, (int)draw_pos.y + 25, 20, BLUE, 1.0f);
+    int font_size = 30;
+    int text_mid = MeasureText("WEAPONS", font_size) / 2;
+    DrawOutlinedText("WEAPONS", UI_RIGHT_CENTER - text_mid, (int)draw_pos.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+	DrawMultilineText(GetActiveWeaponsString(), (int)draw_pos.x, (int)draw_pos.y + 50, font_size, BLUE, 1.0f);
 }
 
 static void DrawActiveBonuses() {
     Vector2 start_pos = GetActiveBonusesStartingPosition();
     int base_height = start_pos.y;
-    int label_x = start_pos.x;
-    int value_x = start_pos.x + 140;
+    int label_x = UI_RIGHT_CENTER - 200;
+    int value_x = UI_RIGHT_CENTER + 100;
+	int font_size = 30;
 
-    DrawOutlinedText("UPGRADES", label_x, base_height, 20, WHITE, Fade(RAYWHITE, 0.5f));
+    int upgrades_size = MeasureText("UPGRADES", font_size);
+    DrawOutlinedText("UPGRADES", UI_RIGHT_CENTER - upgrades_size/2, base_height, font_size, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawText("Damage", label_x, base_height + 20, 20, RED);
-    DrawText(TextFormat("%03.0f%%", GetDamageModifier()), value_x, base_height + 20, 20, RED);
+    DrawText("Damage", label_x, base_height + font_size *2, font_size, RED);
+    DrawText(TextFormat("%03.0f%%", GetDamageModifier()), value_x, base_height + font_size*2, font_size, RED);
 
-    DrawText("Fire rate", label_x, base_height + 40, 20, YELLOW);
-    DrawText(TextFormat("%03.0f%%", GetCooldownModifier()), value_x, base_height + 40, 20, YELLOW);
+    DrawText("Fire rate", label_x, base_height + font_size*3, font_size, YELLOW);
+    DrawText(TextFormat("%03.0f%%", GetCooldownModifier()), value_x, base_height + font_size*3, font_size, YELLOW);
 
-    DrawText("Size", label_x, base_height + 60, 20, PURPLE);
-    DrawText(TextFormat("%03.0f%%", GetSizeModifier()), value_x, base_height + 60, 20, PURPLE);
+    DrawText("Size", label_x, base_height + font_size*4, font_size, PURPLE);
+    DrawText(TextFormat("%03.0f%%", GetSizeModifier()), value_x, base_height + font_size*4, font_size, PURPLE);
 
-    DrawText("Bullet Speed", label_x, base_height + 80, 20, LIGHTGRAY);
-    DrawText(TextFormat("%03.0f%%", GetSpeedModifier()), value_x, base_height + 80, 20, LIGHTGRAY);
+    DrawText("Bullet Speed", label_x, base_height + font_size*5, font_size, LIGHTGRAY);
+    DrawText(TextFormat("%03.0f%%", GetSpeedModifier()), value_x, base_height + font_size*5, font_size, LIGHTGRAY);
 }
 
 static void DrawExpBar(void) {
-    Vector2 exp_bar_position = GetExpBarPosition();
+    Rectangle exp_bar = GetExpBarPosition();
+    Rectangle fill = exp_bar;
 
-	float exp_bar_width = 200;
-	float exp_bar_height = 20;
+    exp_bar.x = UI_RIGHT_CENTER - exp_bar.width/2;
 
-	float fill_percentage = (float)GetPlayerExperience() / GetPlayerExpToLevel();
-	int filled_width = (int)(fill_percentage * exp_bar_width);
+    float fill_percentage = (float)GetPlayerExperience() / GetPlayerExpToLevel();
+    fill.width = fill_percentage * exp_bar.width;
 
-	DrawRectangle(exp_bar_position.x, exp_bar_position.y, filled_width, exp_bar_height, Fade(PURPLE, 0.6f));
-	DrawRectangleLines(exp_bar_position.x, exp_bar_position.y, exp_bar_width, exp_bar_height, Fade(DARKGRAY, 0.6f));
+
+    DrawRectangleRounded(fill, 0.5f, 10, PURPLE);
+    DrawRectangleRoundedLines(exp_bar, 0.5f, 10, Fade(DARKGRAY, 0.6f));
+
 }
+
 
 static void DrawLevelText(void) {
-	Vector2 level_text_position = GetLevelTextPosition();
+	Vector2 level_text = GetLevelTextPosition();
 	int font_size = 30;
 
-	DrawText(TextFormat("Level %i", GetPlayerLevel()), level_text_position.x, level_text_position.y, font_size, Fade(WHITE, 0.6f));
+    int text_mid = MeasureText(TextFormat("Level %i", GetPlayerLevel()), font_size)/2;
+
+	DrawText(TextFormat("Level %i", GetPlayerLevel()), level_text.x + UI_WIDTH/2 - text_mid, level_text.y, font_size, Fade(WHITE, 1.0f));
 }
 
-static void DrawScore(void) {
-	Vector2 score_position = GetScorePosition();
+static void DrawScoreText(void) {
+	Vector2 score_position = GetScoreTextPosition();
 	int font_size = 30;
+	int text_mid = MeasureText("SCORE", font_size) / 2;
+    DrawOutlinedText("SCORE", score_position.x + UI_WIDTH / 2 - text_mid, score_position.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+}
 
-    DrawOutlinedText(TextFormat("%04i", GetPlayerScore()), score_position.x, score_position.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+static void DrawScoreNumber(void) {
+	Vector2 score_position = GetScoreNumberPosition();
+	int font_size = 30;
+    int text_mid = MeasureText(TextFormat("%08i", GetPlayerScore()), font_size) / 2;
+    DrawOutlinedText(TextFormat("%08i", GetPlayerScore()), score_position.x + UI_WIDTH/2 - text_mid, score_position.y, font_size, Fade(WHITE, 0.9f), Fade(RAYWHITE, 0.5f));
 }
 
 void DrawUserInterface(void) {
@@ -126,10 +146,11 @@ void DrawUserInterface(void) {
 
     { // Right
         DrawRightUIBackground();
-        DrawExpBar();
-        DrawLevelText();
-        DrawScore();
+        DrawScoreText();
+        DrawScoreNumber();
         DrawActiveWeapons();
         DrawActiveBonuses();
+        DrawExpBar();
+        DrawLevelText();
     }
 }

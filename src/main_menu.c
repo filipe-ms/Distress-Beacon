@@ -55,8 +55,8 @@ void UpdateMainMenu() {
 }
 
 static void DrawCenteredText(const char* text, int y, int font_size, Color color) {
-	int text_width = MeasureText(text, font_size);
-	DrawText(text, SCREEN_WIDTH / 2 - text_width / 2, y, font_size, color);
+    int text_width = MeasureText(text, font_size);
+    DrawText(text, SCREEN_WIDTH / 2 - text_width / 2, y, font_size, color);
 }
 
 void DrawMainMenu() {
@@ -82,12 +82,12 @@ void DrawMainMenu() {
 
     UpdateAndDrawScreenEffects();
 
-    DrawOutlinedText("SPACE INVADERS", SCREEN_WIDTH / 2 - MeasureText("SPACE INVADERS", 50) / 2, 300, 50, Fade(WHITE, main_menu.alpha), Fade(RAYWHITE, main_menu.alpha - 0.5f));
-	DrawCenteredText("Iniciar Jogo", 400, 30, Fade(color_game_start, main_menu.alpha));
-	DrawCenteredText("Ranking",      450, 30, Fade(color_ranking, main_menu.alpha));
-	DrawCenteredText("Créditos",     500, 30, Fade(color_credits, main_menu.alpha));
-	DrawCenteredText("Sair",         550, 30, Fade(color_exit, main_menu.alpha));
-    
+    DrawOutlinedText("DISTRESS BEACON", SCREEN_WIDTH  / 2 - MeasureText("DISTRESS BEACON", 50) / 2, SCREEN_HEIGHT * 0.35f, 50, Fade(WHITE, main_menu.alpha), Fade(RAYWHITE, main_menu.alpha - 0.5f));
 
+	DrawCenteredText("Iniciar Jogo",    SCREEN_HEIGHT * 0.45f, 30, Fade(color_game_start, main_menu.alpha));
+	DrawCenteredText("Ranking",         SCREEN_HEIGHT * 0.5f, 30, Fade(color_ranking, main_menu.alpha));
+	DrawCenteredText("Créditos",        SCREEN_HEIGHT * 0.55f, 30, Fade(color_credits, main_menu.alpha));
+	DrawCenteredText("Sair",            SCREEN_HEIGHT * 0.6f, 30, Fade(color_exit, main_menu.alpha));
+    
     EndDrawing();
 }
