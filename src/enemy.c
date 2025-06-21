@@ -123,7 +123,7 @@ static void BehaviorBooster(Rectangle* position, const struct Ship* target, floa
     }
 }
 
-static void BehaviorSpinner(Enemy* enemy) {
+static void BehaviorSpinner(Enemy* enemy, int modifier) {
     bool has_reached_max = false;
 
     if (enemy->state == ENEMY_STATE_SPAWNING) {
@@ -140,7 +140,7 @@ static void BehaviorSpinner(Enemy* enemy) {
     
     if (enemy->state == ENEMY_STATE_SPINNER_TURNING) {
         enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, 0.5, NULL, &has_reached_max);
-        enemy->rotation = (PI / 2.0f) * enemy->elapsed_time * RAD2DEG;
+        enemy->rotation = modifier * (PI / 2.0f) * enemy->elapsed_time * RAD2DEG;
 
         if (has_reached_max) {
             enemy->elapsed_time = 0;
@@ -155,7 +155,7 @@ static void BehaviorSpinner(Enemy* enemy) {
     if (enemy->state == ENEMY_STATE_SPINNER_ACTING) {
         enemy->elapsed_time += GetFrameTime();
         
-        float acceleration = Clamp(enemy->elapsed_time, 0.0f, 1.0f);       
+        float acceleration = modifier * Clamp(enemy->elapsed_time, 0.0f, 1.0f);       
         enemy->float_aux1 += (acceleration * GetFrameTime() * PI * 2.0f) / 2.0f; // 2s for a full revolution
         Vector2 rotation_vector = Vector2Rotate(enemy->vector2_aux2, enemy->float_aux1); 
                 
@@ -165,7 +165,11 @@ static void BehaviorSpinner(Enemy* enemy) {
         Vector2* pos = &enemy->position;
         *pos = Vector2Add(enemy->vector2_aux1, rotation_vector);
 
-        Vector2 angle_vector = Vector2Subtract(*pos, enemy->vector2_aux1);
+        Vector2 angle_vector = Vector2Multiply(
+                Vector2Subtract(*pos, enemy->vector2_aux1),
+                (Vector2){modifier, modifier}
+            );
+
         enemy->rotation = atan2(angle_vector.y, angle_vector.x) * RAD2DEG;
     }
 }
@@ -195,12 +199,13 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->elapsed_time;
 
     switch (type) {
-    case ENEMY_ZIGZAG:  enemy->exp = 20.0f; break;
-    case ENEMY_BOOSTER: enemy->exp = 25.0f; break;
-    case ENEMY_WALLER:  enemy->exp = 15.0f; break;
-    case ENEMY_SPINNER: enemy->exp = 15.0f; break;
+    case ENEMY_ZIGZAG:          enemy->exp = 20.0f; break;
+    case ENEMY_BOOSTER:         enemy->exp = 25.0f; break;
+    case ENEMY_WALLER:          enemy->exp = 15.0f; break;
+    case ENEMY_SPINNER:         enemy->exp = 15.0f; break;
+    case ENEMY_REVERSE_SPINNER: enemy->exp = 15.0f; break;
     case ENEMY_BASIC:
-    default:            enemy->exp = 10.0f; break;
+    default:                    enemy->exp = 10.0f; break;
     }
 }
 
@@ -231,13 +236,14 @@ static void UpdateEnemy(void* context, void* data) {
 
     switch (enemy->type) {
 
-    case ENEMY_BASIC:   BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
-    case ENEMY_ZIGZAG:  BehaviorZigZag(&enemy->position, BASE_SPEED_Y, &enemy->speed.x, &enemy->move_time, &enemy->action_flag); break;
-    case ENEMY_BOOSTER: BehaviorBooster(&enemy->position, ship, &enemy->move_time, &enemy->action_flag); break;
-    case ENEMY_WALLER:  BehaviorWaller(&enemy->position, enemy->speed.x); break;
-    case ENEMY_SPINNER: BehaviorSpinner(enemy); break;
+    case ENEMY_BASIC:           BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
+    case ENEMY_ZIGZAG:          BehaviorZigZag(&enemy->position, BASE_SPEED_Y, &enemy->speed.x, &enemy->move_time, &enemy->action_flag); break;
+    case ENEMY_BOOSTER:         BehaviorBooster(&enemy->position, ship, &enemy->move_time, &enemy->action_flag); break;
+    case ENEMY_WALLER:          BehaviorWaller(&enemy->position, enemy->speed.x); break;
+    case ENEMY_SPINNER:         BehaviorSpinner(enemy, 1); break;
+    case ENEMY_REVERSE_SPINNER: BehaviorSpinner(enemy, -1); break;
     case ENEMY_STALKER: BehaviorStalker(enemy, ship);
-    default:            BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
+    default:                    BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
     }
 
     EnemyWallBehavior(enemy);
@@ -286,13 +292,14 @@ void LoadEnemyTextures(void) {
         return;
     }
 
-    source_rects[ENEMY_BASIC] =   (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_ZIGZAG] =  (Rectangle){ 32, 24, 8, 8 };
-    source_rects[ENEMY_BOOSTER] = (Rectangle){ 48, 24, 8, 8 };
-    source_rects[ENEMY_WALLER] =  (Rectangle){ 32, 8, 8, 8 };
-    source_rects[ENEMY_SPINNER] = (Rectangle){ 40, 8, 8, 8 };
-    source_rects[ENEMY_BOSS] =    (Rectangle){ 16, 8, 8, 8 };
-	source_rects[ENEMY_STALKER] = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_BASIC]           = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_ZIGZAG]          = (Rectangle){ 32, 24, 8, 8 };
+    source_rects[ENEMY_BOOSTER]         = (Rectangle){ 48, 24, 8, 8 };
+    source_rects[ENEMY_WALLER]          = (Rectangle){ 32, 8, 8, 8 };
+    source_rects[ENEMY_SPINNER]         = (Rectangle){ 40, 8, 8, 8 };
+    source_rects[ENEMY_REVERSE_SPINNER] = (Rectangle){ 80, 0, 8, 8 };
+    source_rects[ENEMY_STALKER]         = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_BOSS]            = (Rectangle){ 16, 8, 8, 8 };
 }
 
 void UnloadEnemyTextures(void) {
