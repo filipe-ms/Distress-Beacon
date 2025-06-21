@@ -25,10 +25,12 @@
 #define UI_WIDTH 525		// screen_width - game_screen_width / 2
 
 #define GAME_SCREEN_WIDTH 870
-#define GAME_SCREEN_HEIGHT SCREEN_HEIGHT
-#define GAME_SCREEN_START UI_WIDTH	// Começa no ponto em que a UI da esquerda acaba
+#define GAME_SCREEN_HEIGHT (SCREEN_HEIGHT)
+#define GAME_SCREEN_START (UI_WIDTH)	// Começa no ponto em que a UI da esquerda acaba
 #define GAME_SCREEN_END (UI_WIDTH + GAME_SCREEN_WIDTH)
 #define GAME_SCREEN_CENTER ((GAME_SCREEN_START + GAME_SCREEN_END) /2)
+#define UI_LEFT_CENTER (525/2)
+#define UI_RIGHT_CENTER (GAME_SCREEN_END + UI_LEFT_CENTER)
 
 //--------------------------------------------------------------
 //
@@ -69,5 +71,7 @@
 #define CENTER 0
 #define LEFT 1
 #define RIGHT 2
+#define UP 3
+#define DOWN 4
 
 #define ENEMY_LINE_SPAWN_START -50

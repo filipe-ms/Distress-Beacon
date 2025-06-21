@@ -1,7 +1,5 @@
 /*******************************************************************************************
 *
-*   Space Invaders - Edição Roguelike
-*
 *   Jogo desenvolvido por Luís Filipe Macedo, Anderson Gabriel e Débora Souza
 *
 *   Esse jogo foi criado usando Raylib (www.raylib.com)
@@ -17,9 +15,6 @@
 // Raylib
 #include "raylib.h"
 #include "resource_dir.h"
-
-// Outras libs
-#include "math.h"
 
 // Nossos próprios includes
 #include "common.h"
@@ -56,19 +51,19 @@ void UnloadGame(void);
 
 int main(void)
 {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Invaders"); // Inicializa a janela do jogo
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Distress Beacon"); // Inicializa a janela do jogo
 
     SetTargetFPS(240);
 
-    LoadGame();         // Inicializa o diretório de recursos/assets e as texturas
+    LoadGame();     // Inicializa o diretório de recursos/assets e as texturas
     InitEnemies();
     InitSceneManager(starting_scene);
 
     LoopScene();
 
-    UnloadGame();           // Free
+    UnloadGame();   // Free
 
-    CloseWindow();          // Fecha a janela
+    CloseWindow();  // Fecha a janela
 
     return 0;
 }

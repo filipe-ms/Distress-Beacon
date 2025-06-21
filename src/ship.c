@@ -13,13 +13,35 @@
 Texture ships;
 Texture thrusters;
 
-static Vector2 GetInitShipSpeed(int id) {
+typedef struct Orion {
+	float dash_cooldown;
+	float dash_recharge;
+	float double_tap_timer;
+	Vector2 dash_position;
+	bool slide_flag;
+	float slide_timer;
+	int direction;
+	int last_direction_pressed;
+} Orion;
+
+Orion orion;
+
+static void InitShipSpecifics(Ship* ship, int id) {
 	switch (id) {
 	case AUREA:
 	case ORION:
+		orion.dash_cooldown = 5.0f;
+		orion.dash_recharge = 0.0f;
+		orion.double_tap_timer = 0.3f;
+		orion.slide_flag = false;
+		orion.slide_timer = 0.0f;
+		orion.dash_position = (Vector2){ 0.0f, 0.0f };
+		orion.direction = CENTER;
+		orion.last_direction_pressed = -1;
 	case NEBULA:
-	default: return (Vector2) { 360.0f, 360.0f };
+	default: break;
 	}
+	ship->speed = (Vector2){ 360.0f, 360.0f };
 }
 
 void InitShip(Ship* ship, int id) {
@@ -32,12 +54,68 @@ void InitShip(Ship* ship, int id) {
 	ship->animation_cycle = 0.0f;
 	ship->color = WHITE;
 	ship->alpha = 1.0f;
-	ship->speed = GetInitShipSpeed(id);
+	InitShipSpecifics(ship, id);
 }
 
 static void UpdateAurea() { }
 
-static void UpdateOrion() { }
+static void UpdateOrion(Ship* ship) {
+
+	// Cooldown
+	if (orion.dash_recharge > 0) {
+		orion.dash_recharge -= GetFrameTime();
+		if (orion.dash_recharge < 0) orion.dash_recharge = 0;
+	}
+
+	if (orion.double_tap_timer > 0) {
+		orion.double_tap_timer -= GetFrameTime();
+		if (orion.double_tap_timer <= 0) orion.last_direction_pressed = -1;
+	}
+
+	// Slide behavior
+	if (orion.slide_flag) {
+		orion.slide_timer -= GetFrameTime();
+		if (orion.slide_timer > 0) {
+			float slide_speed = 2000.0f;
+			switch (orion.direction) {
+			case LEFT:  orion.dash_position.x -= slide_speed * GetFrameTime(); break;
+			case RIGHT: orion.dash_position.x += slide_speed * GetFrameTime(); break;
+			case UP:    orion.dash_position.y -= slide_speed * GetFrameTime(); break;
+			case DOWN:  orion.dash_position.y += slide_speed * GetFrameTime(); break;
+			}
+			ship->position = orion.dash_position;
+			return;
+		}
+		else {
+			orion.slide_flag = false;
+			orion.dash_recharge = orion.dash_cooldown;
+			orion.slide_timer = 0;
+		}
+	}
+
+	int current_direction = -1;
+	if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) current_direction = RIGHT;
+	else if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) current_direction = LEFT;
+	else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) current_direction = UP;
+	else if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) current_direction = DOWN;
+
+	if (current_direction != -1) {
+		if (orion.double_tap_timer > 0 && 
+			orion.last_direction_pressed == current_direction &&
+			orion.dash_recharge <= 0) {
+			
+			orion.slide_flag = true;
+			orion.dash_position = ship->position;
+			orion.slide_timer = 0.1f;
+			orion.direction = current_direction;
+			orion.double_tap_timer = 0.0f;
+		}
+		else {
+			orion.last_direction_pressed = current_direction;
+			orion.double_tap_timer = 0.3f;
+		}
+	}
+}
 
 static void UpdateNebula() { }
 
@@ -71,14 +149,12 @@ void UpdateShip(Ship* ship) {
 		ship->thruster_cycle = (ship->thruster_cycle + 1) % MAX_THRUSTER_CYCLE;
 	}
 
-	WallBehavior(&ship->position);
-
 	switch(ship->id) {
 		case AUREA:
 			UpdateAurea();
 			break;
 		case ORION:
-			UpdateOrion();
+			UpdateOrion(ship);
 			break;
 		case NEBULA:
 			UpdateNebula();
@@ -89,6 +165,8 @@ void UpdateShip(Ship* ship) {
 		default:
 			return;
 	}
+
+	WallBehavior(&ship->position);
 }
 
 static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {
