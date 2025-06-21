@@ -101,8 +101,9 @@ static void DrawActiveBonuses() {
 
 static void DrawExpBar(void) {
     Rectangle exp_bar = GetExpBarPosition();
-    exp_bar.x = UI_RIGHT_CENTER - exp_bar.width/2;
     Rectangle fill = exp_bar;
+
+    exp_bar.x = UI_RIGHT_CENTER - exp_bar.width/2;
 
     float fill_percentage = (float)GetPlayerExperience() / GetPlayerExpToLevel();
     fill.width = fill_percentage * exp_bar.width;
@@ -110,6 +111,7 @@ static void DrawExpBar(void) {
 
     DrawRectangleRounded(fill, 0.5f, 10, PURPLE);
     DrawRectangleRoundedLines(exp_bar, 0.5f, 10, Fade(DARKGRAY, 0.6f));
+
 }
 
 
