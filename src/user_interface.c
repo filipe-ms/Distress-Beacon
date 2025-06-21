@@ -97,6 +97,9 @@ static void DrawActiveBonuses() {
 
     DrawText("Bullet Speed", label_x, base_height + font_size*5, font_size, LIGHTGRAY);
     DrawText(TextFormat("%03.0f%%", GetSpeedModifier()), value_x, base_height + font_size*5, font_size, LIGHTGRAY);
+
+    DrawText("Shield", label_x, base_height + font_size * 6, font_size, SKYBLUE);
+    DrawText(TextFormat("%d", GetShieldCapacity()), value_x, base_height + font_size * 6, font_size, SKYBLUE);
 }
 
 static void DrawExpBar(void) {

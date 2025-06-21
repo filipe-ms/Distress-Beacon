@@ -19,6 +19,9 @@ Texture weapon_photon;
 Texture weapon_shotgun;
 Texture weapon_homing;
 
+Texture util_shield;
+
+
 PowerUpCard active_cards[3];
 PowerUpCard power_up_type[POWERUP_COUNT];
 
@@ -35,6 +38,8 @@ void InitPowerUps(void) {
     weapon_photon = LoadTexture("powerups/photon.png");
     weapon_shotgun = LoadTexture("powerups/shotgun.png");
     weapon_homing = LoadTexture("powerups/homing.png");
+    util_shield = LoadTexture(""); // Ainda vou colocar a textura
+
 
     power_up_type[SHOOT_COOLDOWN] = (PowerUpCard){
         .type = SHOOT_COOLDOWN, 
@@ -95,6 +100,15 @@ void InitPowerUps(void) {
         .value = HOMING,
 		.texture = &weapon_homing
     };
+
+    power_up_type[SHIELD] = (PowerUpCard){
+    .name = "Shield",
+    .type = SHIELD,
+    .type_string = "ESCUDO",
+    .description = "Vc tem protecao contra 3 hits",
+    .value = SHIELD,
+    .texture = &util_shield
+    };
 }
 
 void UnloadPowerUpTextures(void) {
@@ -105,6 +119,8 @@ void UnloadPowerUpTextures(void) {
 	UnloadTexture(weapon_photon);
 	UnloadTexture(weapon_shotgun);
     UnloadTexture(weapon_homing);
+    UnloadTexture(util_shield);
+
 }
 
 void PowerRandomizer(void) {
@@ -118,6 +134,10 @@ void PowerRandomizer(void) {
     for (int i = 0; i < POWERUP_COUNT; i++) {
         PowerUpType current_type = (PowerUpType)i;
         bool is_weapon = (current_type >= WEAPON_PULSE && current_type <= WEAPON_HOMING);
+
+        if (current_type == SHIELD && IsShieldActive()) { // se ele ja tiver sido pego pelo player e ainda nao acabou as 3 charges, n vai paprecer na pool
+            continue;
+        }
 
         if (is_weapon) {
             if (!IsWeaponActive(power_up_type[current_type].value)) {
@@ -178,6 +198,9 @@ static void PickPowerUp(void) {
     case WEAPON_PHOTON:  ActivatePhoton();  break;
     case WEAPON_SHOTGUN: ActivateShotgun(); break;
     case WEAPON_HOMING:  ActivateHoming();  break;
+
+    case SHIELD: ActivateShield(); break;
+
 
     default: break;
     }
