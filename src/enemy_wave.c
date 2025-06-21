@@ -190,7 +190,7 @@ void GenerateWaves(int level) {
                 CreateCentralLine(wave_id++, ENEMY_BOOSTER, start_time, modifier, intensity);
                 break;
             default: 
-                CreateSingle(ENEMY_STALKER, start_time);
+                CreateSingle(ENEMY_BOSS_PIDGEON_OF_PREY, start_time);
                 break;
         }
 

@@ -10,16 +10,19 @@ typedef enum {
     ENEMY_BOOSTER,
     ENEMY_WALLER,
     ENEMY_SPINNER,
-	  ENEMY_STALKER,
+    ENEMY_STALKER,
     ENEMY_REVERSE_SPINNER,
-    ENEMY_BOSS,
+    ENEMY_BOSS_PIDGEON_OF_PREY,
     ENEMY_TYPE_COUNT
 } EnemyType;
 
 typedef enum {
-    ENEMY_STATE_SPAWNING,
+    ENEMY_STATE_SPINNER_SPAWNING,
     ENEMY_STATE_SPINNER_TURNING,
     ENEMY_STATE_SPINNER_ACTING,
+
+    ENEMY_BOSS_PIDGEON_OF_PREY_SPAWNING,
+
 } EnemyState;
 
 typedef struct {
@@ -34,6 +37,9 @@ typedef struct {
     bool action_flag;
     Color color;
     float rotation;
+
+    bool is_targetable;
+    bool is_collidable;
 
     // Behavior structs
     EnemyState state;

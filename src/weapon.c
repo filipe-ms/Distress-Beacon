@@ -277,6 +277,10 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
         
         for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
             Enemy* enemy = (Enemy*)enemyNode->data;
+
+            if (!enemy->is_targetable)
+                continue;
+
             Vector2 enemyPos = { enemy->position.x, enemy->position.y };
             
             float distance = Vector2Distance(enemyPos, shootPos);
@@ -507,7 +511,10 @@ static bool CheckForDeadEnemies(void* context, void* data) {
 static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
     Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
 
-    if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
+    if (!enemy->is_targetable)
+        return;
+
+    if (CheckCollisionCircles(enemy_pos, enemy->size.x / 2.0f, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
         ConfirmHit(EXPLOSION, enemy_pos);
 

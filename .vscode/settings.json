@@ -16,6 +16,7 @@
 		"source_location": "c",
 		"common.h": "c",
 		"behavior.h": "c",
-		"list.h": "c"
+		"list.h": "c",
+		"raymath.h": "c"
 	}
 }

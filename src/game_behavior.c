@@ -26,6 +26,10 @@ bool CheckForEnemyCollisions(Ship* ship) {
     int enemy_count = enemies->size;
     for (int i = 0; i < enemy_count; i++) {
         Enemy* enemy = (Enemy*)List_GetByIndex(enemies, i);
+
+        if (!enemy->is_collidable)
+            continue;
+
         Vector2 enemy_pos_vect = { enemy->position.x, enemy->position.y };
         if (CheckEnemyCollisionWithPlayer(&ship->position, &enemy_pos_vect)) return true;
     }
