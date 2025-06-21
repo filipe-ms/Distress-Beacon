@@ -6,14 +6,12 @@
 #include "power_ups.h"
 #include "scene_manager.h"
 #include "ship.h"
-#include "game_background.h"
 #include "game_behavior.h"
 #include "player.h"
 #include "enemy_wave.h"
 #include "raymath.h"
 #include "hit_confirmation.h"
-#include "list.h"
-
+#include "background.h"
 
 // Waves
 #define FIRST_WAVE 0
@@ -42,9 +40,9 @@ void InitGame(void) {
     InitPlayer();
     InitEnemies();
     InitPowerUps();
-    InitGameBackground();
     InitWaves();
-    InitHitConfirmation();
+	InitHitConfirmation();
+	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
 
     switch (GetPlayerShip()) {
         case AUREA:
@@ -85,21 +83,19 @@ void UpdateGame(void)
     {
         if (level_up_flag) {
             UpdateLevelUpSelectMenu(&level_up_flag);
-        }
-        else {
-            UpdateGameBackground();
+        } else {
+			UpdateBackground();
             UpdateHitConfirmation();
             UpdateWaves();
             UpdateEnemies(&ship);
             UpdateShip(&ship);
-            UpdateWeapon(&ship);
             int player_level = GetPlayerLevel();
+            UpdateWeapon(&ship);
             if (CheckForEnemyCollisions(&ship)) ChangeScene(GAME_OVER);
             if (GetPlayerLevel() > player_level) {
                 PowerRandomizer();
                 level_up_flag = true;
             }
-
         }
     }
 }
@@ -116,8 +112,7 @@ void DrawGame(void)
 {
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawGameBackground();
-
+    DrawBackground();
     DrawEnemies();
     DrawWeapon();
     DrawHitConfirmation();
@@ -125,19 +120,9 @@ void DrawGame(void)
     DrawLevelUpSelectMenu(level_up_flag);
     DrawWaves();
 
-    if (victory) DrawText("YOU WIN", GAME_SCREEN_WIDTH / 2 - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
-    if (pause) DrawText("GAME PAUSED", GAME_SCREEN_WIDTH / 2 - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
-    
-    DrawUserInterface(); // Desenha por Ãºltimo, estÃ¡ agora em outro plano
+    if (victory) DrawText("YOU WIN",   (int)GAME_SCREEN_CENTER - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
+    if (pause) DrawText("GAME PAUSED", (int)GAME_SCREEN_CENTER - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
+
+    DrawUserInterface(); // Desenha por último, está agora em outro plano
     EndDrawing();
-}
-
-//--------------------------------------------------------------
-//
-//                     LOAD | UNLOAD
-// 
-//--------------------------------------------------------------
-
-void UnloadGameResources(void) {
-    UnloadGameBackground();
 }

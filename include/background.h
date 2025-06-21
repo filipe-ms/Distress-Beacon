@@ -3,10 +3,21 @@
 
 #include "raylib.h"
 
-typedef struct Background {
-    Texture texture;
-    float position_x;
-    float position_y;
-    Color color;
-    float alpha;
-} Background;
+typedef enum BackgroundTexture {
+	BACKGROUND_STARS,
+	BACKGROUND_GAME,
+	BACKGROUND_SELECT_SHIP,
+	BACKGROUND_COUNT
+} BackgroundTexture;
+
+typedef enum BackgroundScaleOption {
+	STRETCH_TO_SCREEN = -1,
+} BackgroundScaleOption;
+
+void InitBackground(BackgroundTexture texture, Color tint, float scale, float alpha, float speed);
+void UnloadBackgroundTexture(void);
+void UpdateBackground(void);
+void DrawBackground(void);
+void UnloadBackgroundTexture(void);
+void SetBackgroundScrollSpeed(float speed);
+float GetBackgroundScrollSpeed(void);

@@ -4,5 +4,4 @@
 #include "ship.h"
 #include "raylib.h"
 
-void WallBehavior(Vector2* position);
 bool CheckForEnemyCollisions(Ship* ship);

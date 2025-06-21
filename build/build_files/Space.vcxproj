@@ -143,7 +143,7 @@
       <AdditionalIncludeDirectories>..\..\src;..\..\include;..\external\raylib-master\src;..\external\raylib-master\src\external;..\external\raylib-master\src\external\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -273,16 +273,17 @@
     <ClInclude Include="..\..\include\common.h" />
     <ClInclude Include="..\..\include\enemy_wave.h" />
     <ClInclude Include="..\..\include\enter_name.h" />
-    <ClInclude Include="..\..\include\game_background.h" />
     <ClInclude Include="..\..\include\game_behavior.h" />
     <ClInclude Include="..\..\include\game_over.h" />
     <ClInclude Include="..\..\include\list.h" />
     <ClInclude Include="..\..\include\main_menu.h" />
     <ClInclude Include="..\..\include\ranking.h" />
+    <ClInclude Include="..\..\include\scene_draw_utils.h" />
     <ClInclude Include="..\..\include\scene_manager.h" />
     <ClInclude Include="..\..\include\select_ship.h" />
     <ClInclude Include="..\..\include\game.h" />
     <ClInclude Include="..\..\include\ship.h" />
+    <ClInclude Include="..\..\include\timer.h" />
     <ClInclude Include="..\..\include\tutorial.h" />
     <ClInclude Include="..\..\include\user_interface.h" />
     <ClInclude Include="..\..\include\weapon.h" />
@@ -297,6 +298,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\background.c" />
     <ClCompile Include="..\..\src\hit_confirmation.c" />
     <ClCompile Include="..\..\src\behavior.c" />
     <ClCompile Include="..\..\src\draw_utils.c" />
@@ -304,7 +306,6 @@
     <ClCompile Include="..\..\src\enemy_wave.c" />
     <ClCompile Include="..\..\src\enter_name.c" />
     <ClCompile Include="..\..\src\game.c" />
-    <ClCompile Include="..\..\src\game_background.c" />
     <ClCompile Include="..\..\src\game_behavior.c" />
     <ClCompile Include="..\..\src\game_over.c" />
     <ClCompile Include="..\..\src\list.c" />
@@ -313,13 +314,18 @@
     <ClCompile Include="..\..\src\player.c" />
     <ClCompile Include="..\..\src\power_ups.c" />
     <ClCompile Include="..\..\src\ranking.c" />
+    <ClCompile Include="..\..\src\scene_draw_utils.c" />
     <ClCompile Include="..\..\src\scene_manager.c" />
     <ClCompile Include="..\..\src\select_ship.c" />
     <ClCompile Include="..\..\src\ship.c" />
+    <ClCompile Include="..\..\src\timer.c" />
     <ClCompile Include="..\..\src\tutorial.c" />
     <ClCompile Include="..\..\src\user_interface.c" />
     <ClCompile Include="..\..\src\weapon.c" />
     <ClCompile Include="..\..\src\winner.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

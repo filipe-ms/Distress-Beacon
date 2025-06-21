@@ -10,11 +10,6 @@
 #include "player.h"
 #include "raymath.h"
 
-void WallBehavior(Vector2* position) {
-    position->x = Clamp(position->x, DRAW_WH / 2, SCREEN_WIDTH - UI_WIDTH - (DRAW_WH / 2));
-    position->y = Clamp(position->y, 0, SCREEN_HEIGHT);
-}
-
 static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos) {
     float ship_radius = DRAW_WH / 2.0f;
     float enemy_radius = DRAW_WH / 2.0f;

@@ -7,6 +7,36 @@
 
 #include <stdio.h>
 
+// Posições aqui no topo para facilitar
+static Vector2 GetActiveBonusesStartingPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 250 };
+}
+static Vector2 GetExpBarPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 860 };
+}
+
+static Vector2 GetLevelTextPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 900 };
+}
+
+static Vector2 GetScorePosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 10 };
+}
+
+static Vector2 GetActiveWeaponsPosition() {
+    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, 75 };
+}
+
+static void DrawLeftUIBackground() {
+    DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
+}
+
+static void DrawRightUIBackground(void) {
+    // Posição inicial x, posição inicial y, largura, altura, cor
+    DrawRectangle(UI_WIDTH + GAME_SCREEN_WIDTH, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
+}
+
+
 static void DrawMultilineText(const char* text, float start_x, float start_y, int fontSize, Color color, float alpha) {
     const char* str = text;
     float lineHeight = (float)fontSize + 4.0f;
@@ -32,20 +62,19 @@ static void DrawMultilineText(const char* text, float start_x, float start_y, in
     }
 }
 
-static void DrawUIBackground(void) {
-	// Posição inicial x, posição inicial y, largura, altura, cor
-	DrawRectangle(GAME_SCREEN_WIDTH, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
-}
+
 
 static void DrawActiveWeapons() {
-    DrawOutlinedText("WEAPONS", GAME_SCREEN_WIDTH, 75, 20, WHITE, Fade(RAYWHITE, 0.5f));
-	DrawMultilineText(GetActiveWeaponsString(), GAME_SCREEN_WIDTH, 100, 20, BLUE, 1.0f);
+    Vector2 draw_pos = GetActiveWeaponsPosition();
+    DrawOutlinedText("WEAPONS", (int)draw_pos.x, (int)draw_pos.y, 20, WHITE, Fade(RAYWHITE, 0.5f));
+	DrawMultilineText(GetActiveWeaponsString(), (int)draw_pos.x, (int)draw_pos.y + 25, 20, BLUE, 1.0f);
 }
 
 static void DrawActiveBonuses() {
-    int base_height = 250;
-    int label_x = GAME_SCREEN_WIDTH;
-    int value_x = GAME_SCREEN_WIDTH + 140;
+    Vector2 start_pos = GetActiveBonusesStartingPosition();
+    int base_height = start_pos.y;
+    int label_x = start_pos.x;
+    int value_x = start_pos.x + 140;
 
     DrawOutlinedText("UPGRADES", label_x, base_height, 20, WHITE, Fade(RAYWHITE, 0.5f));
 
@@ -62,9 +91,8 @@ static void DrawActiveBonuses() {
     DrawText(TextFormat("%03.0f%%", GetSpeedModifier()), value_x, base_height + 80, 20, LIGHTGRAY);
 }
 
-
 static void DrawExpBar(void) {
-	Vector2 exp_bar_position = { GAME_SCREEN_WIDTH, 860 };
+    Vector2 exp_bar_position = GetExpBarPosition();
 
 	float exp_bar_width = 200;
 	float exp_bar_height = 20;
@@ -77,24 +105,31 @@ static void DrawExpBar(void) {
 }
 
 static void DrawLevelText(void) {
-	Vector2 level_text_position = { GAME_SCREEN_WIDTH, 900 };
+	Vector2 level_text_position = GetLevelTextPosition();
 	int font_size = 30;
 
 	DrawText(TextFormat("Level %i", GetPlayerLevel()), level_text_position.x, level_text_position.y, font_size, Fade(WHITE, 0.6f));
 }
 
 static void DrawScore(void) {
-	Vector2 score_position = { GAME_SCREEN_WIDTH, 10 };
+	Vector2 score_position = GetScorePosition();
 	int font_size = 30;
 
     DrawOutlinedText(TextFormat("%04i", GetPlayerScore()), score_position.x, score_position.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
 }
 
 void DrawUserInterface(void) {
-	DrawUIBackground();
-	DrawExpBar();
-	DrawLevelText();
-	DrawScore();
-	DrawActiveWeapons();
-	DrawActiveBonuses();
+
+    { // Left
+        DrawLeftUIBackground();
+    }
+
+    { // Right
+        DrawRightUIBackground();
+        DrawExpBar();
+        DrawLevelText();
+        DrawScore();
+        DrawActiveWeapons();
+        DrawActiveBonuses();
+    }
 }

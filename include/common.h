@@ -10,7 +10,7 @@
 
 #pragma once
 
-#define DEBUG_FLAG 1
+#define DEBUG_FLAG 0
 
 //--------------------------------------------------------------
 //
@@ -18,13 +18,17 @@
 //
 //--------------------------------------------------------------
 
-#define SCREEN_WIDTH 1100     // Largura
-#define SCREEN_HEIGHT 960     // Altura
+#define SCREEN_WIDTH 1920	// Largura da tela
+#define SCREEN_HEIGHT 1080	// Altura da tela
 
-#define GAME_SCREEN_WIDTH 700  // A soma disso com UI_WIDTH tem que ser igual a SCREEN_WIDTH
-#define GAME_SCREEN_HEIGHT 960 // Altura
 
-#define UI_WIDTH 400
+#define UI_WIDTH 525		// screen_width - game_screen_width / 2
+
+#define GAME_SCREEN_WIDTH 870
+#define GAME_SCREEN_HEIGHT SCREEN_HEIGHT
+#define GAME_SCREEN_START UI_WIDTH	// Começa no ponto em que a UI da esquerda acaba
+#define GAME_SCREEN_END (UI_WIDTH + GAME_SCREEN_WIDTH)
+#define GAME_SCREEN_CENTER ((GAME_SCREEN_START + GAME_SCREEN_END) /2)
 
 //--------------------------------------------------------------
 //

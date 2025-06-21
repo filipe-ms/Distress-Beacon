@@ -46,7 +46,7 @@ static void InitShipSpecifics(Ship* ship, int id) {
 
 void InitShip(Ship* ship, int id) {
 	ship->id = id;
-	ship->position.x = GAME_SCREEN_WIDTH/2;
+	ship->position.x = (GAME_SCREEN_START + GAME_SCREEN_END) / 2;
 	ship->position.y = SCREEN_HEIGHT - 100;
 	ship->draw_size = (Vector2){ DRAW_WH, DRAW_WH };
 	ship->direction = CENTER;
@@ -120,6 +120,11 @@ static void UpdateOrion(Ship* ship) {
 static void UpdateNebula() { }
 
 static void UpdatePuddleJumper() { }
+
+static void WallBehavior(Vector2* position) {
+	position->x = Clamp(position->x, GAME_SCREEN_START + DRAW_WH / 2, GAME_SCREEN_END - (DRAW_WH / 2));
+	position->y = Clamp(position->y, DRAW_WH / 2, SCREEN_HEIGHT - DRAW_WH / 2);
+}
 
 void UpdateShip(Ship* ship) {
 	float movement_x = ship->speed.x * GetFrameTime();

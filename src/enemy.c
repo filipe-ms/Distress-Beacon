@@ -2,11 +2,11 @@
 #include "common.h"
 #include "behavior.h"
 #include "raylib.h"
+#include "raymath.h"
 #include "list.h"
 
-static const float BASE_SPEED_Y = 120.0f;
 static const int SPAWN_Y_MIN = -200;
-static const int SPAWN_Y_MAX = -50;
+static const float BASE_SPEED_Y = 120.0f;
 static const float ENEMY_BASE_WIDTH = 48.0f;
 static const float ENEMY_BASE_HEIGHT = 48.0f;
 
@@ -26,8 +26,8 @@ static void ActivateEnemy(Enemy* enemy, EnemyType type, int hp) {
     enemy->position.width = ENEMY_BASE_WIDTH;
     enemy->position.height = ENEMY_BASE_HEIGHT;
 
-    enemy->position.x = (float)GetRandomValue(0, (int)(GAME_SCREEN_WIDTH - enemy->position.width));
-    enemy->position.y = (float)GetRandomValue(SPAWN_Y_MIN, SPAWN_Y_MAX);
+    enemy->position.x = (float)GetRandomValue(GAME_SCREEN_START + enemy->position.width/2, GAME_SCREEN_END - enemy->position.width / 2);
+    enemy->position.y = (float)GetRandomValue(SPAWN_Y_MIN, -1 * enemy->position.height);
 
     enemy->speed = (Vector2){ 0, BASE_SPEED_Y };
 
@@ -61,34 +61,36 @@ void SpawnRandomEnemies(int amount, int hp) {
     Spawn(amount, hp, ENEMY_BASIC, true);
 }
 
+static void EnemyWallBehavior(Enemy* enemy) {
+    int min_x = (int)(GAME_SCREEN_START + enemy->position.width / 2);
+    int max_x = (int)(GAME_SCREEN_END - enemy->position.width / 2);
+
+    if (enemy->position.x <= min_x || enemy->position.x >= max_x) {
+        Clamp(enemy->position.x, min_x, max_x);
+        if (enemy->type == ENEMY_ZIGZAG) enemy->speed.x *= -1;
+    }
+}
+
 static void UpdateEnemy(void* context, void* data) {
     Ship* ship = (Ship*)context;
-    Enemy* e = (Enemy*)data;
+    Enemy* enemy = (Enemy*)data;
 
-    switch (e->type) {
+    switch (enemy->type) {
 
-    case ENEMY_BASIC:   BehaviorBasic(&e->position, BASE_SPEED_Y); break;
-    case ENEMY_ZIGZAG:  BehaviorZigZag(&e->position, BASE_SPEED_Y, &e->speed.x, &e->move_time, &e->action_flag); break;
-    case ENEMY_BOOSTER: BehaviorBooster(&e->position, ship, &e->move_time, &e->action_flag); break;
-    case ENEMY_WALLER:  BehaviorWaller(&e->position, e->speed.x); break;
-    default:            BehaviorBasic(&e->position, BASE_SPEED_Y); break;
+    case ENEMY_BASIC:   BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
+    case ENEMY_ZIGZAG:  BehaviorZigZag(&enemy->position, BASE_SPEED_Y, &enemy->speed.x, &enemy->move_time, &enemy->action_flag); break;
+    case ENEMY_BOOSTER: BehaviorBooster(&enemy->position, ship, &enemy->move_time, &enemy->action_flag); break;
+    case ENEMY_WALLER:  BehaviorWaller(&enemy->position, enemy->speed.x); break;
+    default:            BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
 
     }
 
-    if (e->position.x <= 0) {
-        e->position.x = 0;
-        if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
-    }
-    else if (e->position.x >= GAME_SCREEN_WIDTH - e->position.width) {
-        e->position.x = GAME_SCREEN_WIDTH - e->position.width;
-        if (e->type == ENEMY_ZIGZAG) e->speed.x *= -1;
-    }
-
-    e->is_on_screen = (e->position.y > -20);
+    EnemyWallBehavior(enemy);
+    enemy->is_on_screen = (enemy->position.y > -20);
 }
 
 static void CheckEnemyOutOfBounds(Enemy* enemy) {
-    bool isOutOfBounds = enemy->position.y > GAME_SCREEN_HEIGHT + 50;
+    bool isOutOfBounds = enemy->position.y > SCREEN_HEIGHT + enemy->position.height + 10;
 
     if (isOutOfBounds) {
         enemy->hp = 0;
@@ -97,7 +99,6 @@ static void CheckEnemyOutOfBounds(Enemy* enemy) {
 }
 
 void UpdateEnemies(Ship* ship) {
-
     List_ForEachCtx(enemies, ship, UpdateEnemy);
 
     // Kill the enemy but do not remove it from the list yet

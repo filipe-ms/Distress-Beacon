@@ -151,7 +151,7 @@ void DrawWaves(void) {
     if (current_wave_index < MAX_WAVES) {
         const char* text = waves[current_wave_index].name;
         int text_width = MeasureText(text, 40);
-        DrawText(text, GAME_SCREEN_WIDTH / 2 - text_width / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, message_alpha));
+        DrawText(text, GAME_SCREEN_START / 2 - text_width / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, message_alpha));
     }
 }
 
