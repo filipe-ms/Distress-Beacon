@@ -10,6 +10,7 @@ typedef enum {
     ENEMY_BOOSTER,
     ENEMY_WALLER,
     ENEMY_SPINNER,
+	ENEMY_STALKER,
     ENEMY_BOSS,
     ENEMY_TYPE_COUNT
 } EnemyType;
@@ -22,7 +23,8 @@ typedef enum {
 
 typedef struct {
     bool is_on_screen;
-    Rectangle position;
+    Vector2 position;
+    Vector2 size;
     Vector2 speed;
     EnemyType type;
     float hp;

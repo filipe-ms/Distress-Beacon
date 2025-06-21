@@ -152,14 +152,12 @@ static void CreateSingle(EnemyType type, float start_time) {
 
 #pragma endregion
 
-
-
 void GenerateWaves(int level) {
     float intensity = (float)level / 2.0f;
     float start_time = 5;
 
     for(int i = 0; i < level + 1; i++) {
-        int wave_type = GetRandomValue(0, 8);
+        int wave_type = GetRandomValue(99, 100);
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {
@@ -192,7 +190,7 @@ void GenerateWaves(int level) {
                 CreateCentralLine(wave_id++, ENEMY_BOOSTER, start_time, modifier, intensity);
                 break;
             default: 
-                CreateSingle(ENEMY_BASIC, start_time);
+                CreateSingle(ENEMY_STALKER, start_time);
                 break;
         }
 

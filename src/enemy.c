@@ -1,8 +1,6 @@
 #include "enemy.h"
 #include "common.h"
-#include "raylib.h"
 #include "raymath.h"
-#include "list.h"
 #include "game_behavior.h"
 
 static const int SPAWN_Y_MIN = -200;
@@ -13,10 +11,62 @@ static const float ENEMY_BASE_HEIGHT = 48.0f;
 static Texture2D texture;
 static Rectangle source_rects[ENEMY_TYPE_COUNT];
 
+// Macros
+
+#define E_POSX enemy->position.x
+#define E_POSY enemy->position.y
+#define E_SIZEX enemy->size.x
+#define E_SIZEY enemy->size.y
+
 List* enemies;
+
+static Rectangle GetEnemyRectangle(Enemy* enemy) {
+	return (Rectangle) { E_POSX, E_POSY, E_SIZEX, E_SIZEY };
+}
 
 static void BehaviorBasic(Rectangle* position, float speed) {
     position->y += speed * GetFrameTime();
+}
+
+void BehaviorStalker(Enemy* enemy, Ship* target) {
+
+    float target_distance = 320.0f;
+    float attack_speed = 240.0f;
+
+    if (enemy->action_flag == true) {
+        if (!target) return;
+
+        Vector2 enemy_center = { E_POSX + E_SIZEX / 2, E_POSY + E_SIZEY / 2 };
+        Vector2 target_center = { target->position.x + target->draw_size.x / 2, target->position.y + target->draw_size.y / 2 };
+
+        Vector2 direction = Vector2Normalize(Vector2Subtract(target_center, enemy_center));
+        E_POSX += direction.x * attack_speed * GetFrameTime();
+        E_POSY += direction.y * attack_speed * GetFrameTime();
+    }
+    else {
+
+        if (target) {
+            Vector2 enemy_center =  { E_POSX + E_SIZEX / 2, E_POSY + E_SIZEY / 2 };
+            Vector2 target_center = { target->position.x + target->draw_size.x / 2, target->position.y + target->draw_size.y / 2 };
+            float distance = Vector2Distance(enemy_center, target_center);
+
+            if (distance < target_distance) {
+                enemy->action_flag = true;
+                return;
+            }
+        }
+
+        enemy->move_time += GetFrameTime();
+
+        E_POSY += enemy->speed.y * GetFrameTime();
+
+        float amplitude = 200.0f;
+        float frequency = 2.0f;
+
+        float horizontal_velocity = amplitude * cosf(enemy->move_time * frequency);
+
+        E_POSX += horizontal_velocity * GetFrameTime();
+    }
 }
 
 static void BehaviorZigZag(Rectangle* position, float speed_y, float* speed_x, float* move_time, bool* action_flag) {
@@ -78,7 +128,7 @@ static void BehaviorSpinner(Enemy* enemy) {
 
     if (enemy->state == ENEMY_STATE_SPAWNING) {
         enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, 2, NULL, &has_reached_max);
-        enemy->position.y = enemy->speed.y * enemy->elapsed_time;
+        E_POSY = enemy->speed.y * enemy->elapsed_time;
 
         if (has_reached_max) {
             enemy->elapsed_time = 0;
@@ -95,11 +145,10 @@ static void BehaviorSpinner(Enemy* enemy) {
         if (has_reached_max) {
             enemy->elapsed_time = 0;
             enemy->state = ENEMY_STATE_SPINNER_ACTING;
-            enemy->vector2_aux1 = (Vector2) { enemy->position.x, enemy->position.y - 100 };
+            enemy->vector2_aux1 = (Vector2) { E_POSX, E_POSY - 100 };
             enemy->vector2_aux2 = (Vector2) { 0, 100 };
             enemy->float_aux1 = 0.0f;
         }
-
         return;
     }
 
@@ -130,11 +179,11 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->action_flag = false;
     enemy->rotation = 0.0f;
 
-    enemy->position.width = ENEMY_BASE_WIDTH;
-    enemy->position.height = ENEMY_BASE_HEIGHT;
+    E_SIZEX = ENEMY_BASE_WIDTH;
+    E_SIZEY = ENEMY_BASE_HEIGHT;
 
-    enemy->position.x = position.x;
-    enemy->position.y = position.y;
+    E_POSX = position.x;
+    E_POSY = position.y;
 
     enemy->vector2_aux1 = (Vector2){ 0 };
     enemy->vector2_aux1 = (Vector2){ 0 };
@@ -167,11 +216,11 @@ void SpawnEnemies(List* enemy_list) {
 }
 
 static void EnemyWallBehavior(Enemy* enemy) {
-    int min_x = (int)(GAME_SCREEN_START + enemy->position.width / 2);
-    int max_x = (int)(GAME_SCREEN_END - enemy->position.width / 2);
+    int min_x = (int)(GAME_SCREEN_START + E_SIZEX / 2);
+    int max_x = (int)(GAME_SCREEN_END - E_SIZEX / 2);
 
-    if (enemy->position.x <= min_x || enemy->position.x >= max_x) {
-        Clamp(enemy->position.x, min_x, max_x);
+    if (E_POSX <= min_x || E_POSX >= max_x) {
+        Clamp(E_POSX, min_x, max_x);
         if (enemy->type == ENEMY_ZIGZAG) enemy->speed.x *= -1;
     }
 }
@@ -187,16 +236,16 @@ static void UpdateEnemy(void* context, void* data) {
     case ENEMY_BOOSTER: BehaviorBooster(&enemy->position, ship, &enemy->move_time, &enemy->action_flag); break;
     case ENEMY_WALLER:  BehaviorWaller(&enemy->position, enemy->speed.x); break;
     case ENEMY_SPINNER: BehaviorSpinner(enemy); break;
+    case ENEMY_STALKER: BehaviorStalker(enemy, ship);
     default:            BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
-
     }
 
     EnemyWallBehavior(enemy);
-    enemy->is_on_screen = (enemy->position.y > -20);
+    enemy->is_on_screen = (E_POSY > -20);
 }
 
 static void CheckEnemyOutOfBounds(Enemy* enemy) {
-    bool isOutOfBounds = enemy->position.y > SCREEN_HEIGHT + enemy->position.height + 10;
+    bool isOutOfBounds = E_POSY > SCREEN_HEIGHT + E_SIZEY + 10;
 
     if (isOutOfBounds) {
         enemy->hp = 0;
@@ -212,21 +261,16 @@ void UpdateEnemies(Ship* ship) {
 }
 
 static void DrawEnemy(void* context, void* data) {
-    Enemy* e = (Enemy*)data;
-    if (e->is_on_screen) {
+    Enemy* enemy = (Enemy*)data;
+    if (enemy->is_on_screen) {
         if (DEBUG_FLAG) {
-            Vector2 center = { e->position.x, e->position.y };
+            Vector2 center = { E_POSX, E_POSY };
             DrawCircleV(center, 20.0f, Fade(GREEN, 0.5f));
         }
 
-        Rectangle destination = {
-            e->position.x - e->position.width / 2,
-            e->position.y - e->position.height / 2,
-            e->position.width,
-            e->position.height
-        };
-
-        DrawTexturePro(texture, source_rects[e->type], destination, (Vector2) { destination.width / 2.0f, destination.height / 2.0f }, e->rotation, e->color);
+        Vector2 origin = { enemy->size.x/2, enemy->size.y / 2 };
+		Rectangle enemy_rect = GetEnemyRectangle(enemy);
+        DrawTexturePro(texture, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
     }
 }
 
@@ -242,13 +286,13 @@ void LoadEnemyTextures(void) {
         return;
     }
 
-    source_rects[ENEMY_BASIC] = (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_ZIGZAG] = (Rectangle){ 32, 24, 8, 8 };
+    source_rects[ENEMY_BASIC] =   (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_ZIGZAG] =  (Rectangle){ 32, 24, 8, 8 };
     source_rects[ENEMY_BOOSTER] = (Rectangle){ 48, 24, 8, 8 };
-    source_rects[ENEMY_WALLER] = (Rectangle){ 32, 8, 8, 8 };
+    source_rects[ENEMY_WALLER] =  (Rectangle){ 32, 8, 8, 8 };
     source_rects[ENEMY_SPINNER] = (Rectangle){ 40, 8, 8, 8 };
-    source_rects[ENEMY_BOSS] = (Rectangle){ 16, 8, 8, 8 };
-
+    source_rects[ENEMY_BOSS] =    (Rectangle){ 16, 8, 8, 8 };
+	source_rects[ENEMY_STALKER] = (Rectangle){ 32, 0, 8, 8 };
 }
 
 void UnloadEnemyTextures(void) {
