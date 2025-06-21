@@ -2,159 +2,228 @@
 #include "raylib.h"
 #include "common.h"
 #include "enemy.h"
+#include "raymath.h"
+#include <stdlib.h>
 
-int current_wave_index;
-int next_spawn_event_index;
-float wave_timer;
-float time_per_event;
-float message_alpha;
-bool message_is_fading_out;
-bool is_active;
-bool all_waves_completed;
+List* waves;
 
-typedef struct SpawnEvent {
-    int specific_enemy_type;
-    int specific_enemy_count;
-    int random_enemy_count;
-    int enemy_health;
-} SpawnEvent;
+static float total_elapsed_time;
+static float time_per_event;
+static float wave_id;
 
 typedef struct Wave {
-    const char* name;
-    float total_duration;
-    int spawn_events;
-    SpawnEvent events[10];
+    int wave_id;
+    float start_time;
+    int modifier;
+    float intensity;
+    List* spawns;
 } Wave;
 
-Wave waves[MAX_WAVES] = {
-    // Wave 0: "FIRST WAVE"
-    {
-        "FIRST WAVE",
-        60.0f,
-        4,
-        {
-            {0, 6, 0, 3},
-            {0, 5, 2, 3},
-            {1, 4, 4, 3},
-            {2, 3, 5, 3}
-        }
-    },
+#pragma region spawners
 
-    // Wave 1: "SECOND WAVE"
-    {
-        "SECOND WAVE",
-        50.0f,
-        5,
-        {
-            {1, 4, 4, 4},
-            {2, 4, 4, 4},
-            {1, 0, 8, 4},
-            {2, 0, 10, 4},
-            {2, 0, 12, 4}
-        }
-    },
+static void CreateLineAtBorders(int id, EnemyType type, float start_time, int modifier, float intensity) {
+    Wave newWave;
+    newWave.wave_id = id;
+    newWave.start_time = start_time;
+    newWave.modifier = (modifier % 2);
+    newWave.intensity = intensity;
+    newWave.spawns = List_Create(sizeof(Enemy));
 
-    // Wave 2: "THIRD WAVE"
-    {
-        "THIRD WAVE",
-        40.0f,
-        4,
-        {
-            {2, 3, 5, 5},
-            {2, 0, 8, 5},
-            {2, 0, 10, 5},
-            {2, 0, 12, 5}
-        }
-    }
-};
-
-static void StartNextWave(void) {
-    current_wave_index++;
-    if (current_wave_index >= MAX_WAVES) {
-        all_waves_completed = true;
-        is_active = false;
-        return;
+    int starting_x;
+    int step;
+    
+    if (newWave.modifier == 0) {
+        starting_x = GAME_SCREEN_START + 20;
+        step = 40;
+    } else {
+        starting_x = GAME_SCREEN_END - 20;
+        step = -40;
     }
 
-    const Wave* currentWave = &waves[current_wave_index];
-    wave_timer = currentWave->total_duration;
-    next_spawn_event_index = 0;
+    for(int i = 0; i < 5 + intensity / 2; i++) {
+        Vector2 position = { starting_x + i * step, ENEMY_LINE_SPAWN_START };
 
-    if (currentWave->spawn_events > 0) {
-        time_per_event = currentWave->total_duration / (float)currentWave->spawn_events;
-    }
-    else {
-        time_per_event = 0;
+        Enemy enemy;
+        ActivateEnemy(&enemy, position, type, 3 + intensity / 2);
+        List_Add(newWave.spawns, &enemy);
     }
 
-    message_alpha = 1.0f;
-    message_is_fading_out = true;
+    List_AddLast(waves, &newWave);
 }
 
-void InitWaves(void) {
-    current_wave_index = -1;
-    next_spawn_event_index = 0;
-    wave_timer = 0.0f;
-    time_per_event = 0.0f;
-    message_alpha = 0.0f;
-    message_is_fading_out = false;
-    is_active = true;
-    all_waves_completed = false;
+static int CreateVFormation(int id, EnemyType type, float start_time, int modifier, float intensity) {
+    Wave newWave;
+    newWave.wave_id = id;
+    newWave.start_time = start_time;
+    newWave.modifier = (modifier % 2);
+    newWave.intensity = intensity;
+    newWave.spawns = List_Create(sizeof(Enemy));
 
-    StartNextWave();
+    int enemy_count = 5 + (int)(intensity / 2.0f);
+    int rows = (int)(enemy_count / 2.0f);
+    
+    float center_x = GAME_SCREEN_CENTER;
+    float starting_y = ENEMY_LINE_SPAWN_START;
+    
+    float vertical_spacing = 50.0f;
+    float horizontal_spacing = 50.0f;
+    
+    float start_y = ENEMY_LINE_SPAWN_START;
+
+    Enemy middle_enemy;
+    ActivateEnemy(
+        &middle_enemy,
+        (Vector2){ center_x, starting_y - newWave.modifier * rows * horizontal_spacing },
+        type, 3 + intensity / 2);
+    List_Add(newWave.spawns, &middle_enemy);
+    
+    Vector2 left_pos = { center_x, starting_y - newWave.modifier * rows * horizontal_spacing };
+    Vector2 right_pos = { center_x, starting_y - newWave.modifier * rows * horizontal_spacing };
+    
+    for (int i = 0; i < rows; i++) {
+        left_pos.x -= vertical_spacing;
+        left_pos.y -= horizontal_spacing * ((modifier == 0) ? 1 : -1);
+
+        Enemy left_enemy;
+        ActivateEnemy(&left_enemy, left_pos, type, 3 + intensity / 2);
+        List_Add(newWave.spawns, &left_enemy);
+
+
+        right_pos.x += vertical_spacing;
+        right_pos.y -= horizontal_spacing * ((modifier == 0) ? 1 : -1);
+
+        Enemy right_enemy;
+        ActivateEnemy(&right_enemy, right_pos, type, 3 + intensity / 2);
+        List_Add(newWave.spawns, &right_enemy);
+    }
+    
+    List_AddLast(waves, &newWave);
+}
+
+static void CreateCentralLine(int id, EnemyType type, float start_time, int modifier, float intensity) {
+    Wave newWave;
+    newWave.wave_id = id;
+    newWave.start_time = start_time;
+    newWave.modifier = (modifier % 2);
+    newWave.intensity = intensity;
+    newWave.spawns = List_Create(sizeof(Enemy));
+
+    int starting_x;
+    int step;
+
+    int screen_area = GAME_SCREEN_END - GAME_SCREEN_START;
+    
+    for(int i = 0; i < 3 + intensity / 3; i++) {
+        Vector2 position = (modifier == 0) ?
+            (Vector2) {
+                GAME_SCREEN_CENTER,
+                ENEMY_LINE_SPAWN_START * i
+            } 
+            :
+            (Vector2) {
+                GAME_SCREEN_START + screen_area * (float)GetRandomValue(0, RAND_MAX) / (float)RAND_MAX,
+                ENEMY_LINE_SPAWN_START
+            };
+
+        Enemy enemy;
+        ActivateEnemy(&enemy, position, type, 3 + intensity / 2);
+        List_Add(newWave.spawns, &enemy);
+    }
+
+    List_AddLast(waves, &newWave);
+}
+
+static void CreateSingle(EnemyType type, float start_time) {
+    Wave newWave;
+    newWave.wave_id = 0;
+    newWave.start_time = start_time;
+    newWave.modifier = 0;
+    newWave.intensity = 0;
+    newWave.spawns = List_Create(sizeof(Enemy));
+
+    Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
+
+    Enemy enemy;
+    ActivateEnemy(&enemy, position, type, 5);
+    List_Add(newWave.spawns, &enemy);
+
+    List_AddLast(waves, &newWave);
+}
+
+#pragma endregion
+
+void InitWaves(int level) {
+    total_elapsed_time = 0.0f;
+    time_per_event = 0.0f;
+    wave_id = 0;
+
+    waves = List_Create(sizeof(Wave));
+
+    GenerateWaves(level);
+}
+
+void GenerateWaves(int level) {
+    float intensity = (float)level / 2.0f;
+    float start_time = 5;
+
+    for(int i = 0; i < level + 1; i++) {
+        int wave_type = GetRandomValue(0, 8);
+        int modifier = GetRandomValue(0, 1);
+
+        switch(wave_type) {
+            // BASIC
+            case 0:
+                CreateLineAtBorders(wave_id++, ENEMY_BASIC, start_time, modifier, intensity);
+                break;
+            case 1:
+                CreateVFormation(wave_id++, ENEMY_BASIC, start_time, modifier, intensity);
+                break;
+            // SPINNER
+            case 2:
+                CreateVFormation(wave_id++, ENEMY_SPINNER, start_time, modifier, intensity);
+                break;
+            case 3:
+                CreateCentralLine(wave_id++, ENEMY_SPINNER, start_time, modifier, intensity);
+                break;
+            // ZIG-ZAG
+            case 4:
+                CreateCentralLine(wave_id++, ENEMY_ZIGZAG, start_time, modifier, intensity);
+                break;
+            case 5:
+                CreateVFormation(wave_id++, ENEMY_ZIGZAG, start_time, modifier, intensity);
+                break;
+            // BOOSTER
+            case 6:
+                CreateVFormation(wave_id++, ENEMY_BOOSTER, start_time, modifier, intensity);
+                break;
+            case 7:
+                CreateCentralLine(wave_id++, ENEMY_BOOSTER, start_time, modifier, intensity);
+                break;
+            default: 
+                CreateSingle(ENEMY_BASIC, start_time);
+                break;
+        }
+
+        start_time += 8;
+    }
 }
 
 void UpdateWaves(void) {
-    if (!is_active) return;
-
     float dt = GetFrameTime();
-    wave_timer -= dt;
+    total_elapsed_time += dt;
 
-    const Wave* currentWave = &waves[current_wave_index];
+    if (waves != NULL && waves->size > 0) {
+        Wave wave = *(Wave*)List_GetByIndex(waves, 0);
 
-    // Lógica de Fade-out da mensagem
-    if (message_is_fading_out) {
-        if (wave_timer < currentWave->total_duration - 2.5f) {
-            message_alpha -= 0.8f * dt; // Fade-out
-            if (message_alpha < 0.0f) {
-                message_alpha = 0.0f;
-            }
+        if (wave.start_time < total_elapsed_time) {
+            SpawnEnemies(wave.spawns);
+
+            List_Destroy(wave.spawns);
+            List_RemoveFirst(waves);
         }
-    }
-
-    if (wave_timer <= 0) {
-        StartNextWave();
-        return;
-    }
-
-    if (next_spawn_event_index < currentWave->spawn_events) {
-        float next_event_trigger_time = currentWave->total_duration - ((next_spawn_event_index + 1) * time_per_event);
-
-        if (wave_timer <= next_event_trigger_time) {
-            const SpawnEvent* event = &currentWave->events[next_spawn_event_index];
-
-            if (event->specific_enemy_count > 0 && event->specific_enemy_type != -1) {
-                SpawnEnemies(event->specific_enemy_count, event->specific_enemy_type, event->enemy_health);
-            }
-            if (event->random_enemy_count > 0) {
-                SpawnRandomEnemies(event->random_enemy_count, event->enemy_health);
-            }
-
-            next_spawn_event_index++;
-        }
-    }
-}
-
-void DrawWaves(void) {
-    if (all_waves_completed || message_alpha <= 0.0f) return;
-
-    if (current_wave_index < MAX_WAVES) {
-        const char* text = waves[current_wave_index].name;
-        int text_width = MeasureText(text, 40);
-        DrawText(text, GAME_SCREEN_START / 2 - text_width / 2, SCREEN_HEIGHT / 2 - 100, 40, Fade(WHITE, message_alpha));
     }
 }
 
 bool AreAllWavesCompleted(void) {
-    return all_waves_completed;
+    return waves != NULL && waves->size == 0;
 }

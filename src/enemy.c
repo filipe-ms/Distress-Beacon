@@ -1,9 +1,9 @@
 #include "enemy.h"
 #include "common.h"
-#include "behavior.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "list.h"
+#include "game_behavior.h"
 
 static const int SPAWN_Y_MIN = -200;
 static const float BASE_SPEED_Y = 120.0f;
@@ -15,26 +15,141 @@ static Rectangle source_rects[ENEMY_TYPE_COUNT];
 
 List* enemies;
 
-static void ActivateEnemy(Enemy* enemy, EnemyType type, int hp) {
+static void BehaviorBasic(Rectangle* position, float speed) {
+    position->y += speed * GetFrameTime();
+}
+
+static void BehaviorZigZag(Rectangle* position, float speed_y, float* speed_x, float* move_time, bool* action_flag) {
+    if (*action_flag == false) {
+        *move_time = (float)GetRandomValue(1, 2);
+        *speed_x = (GetRandomValue(0, 1) == 0) ? 100 : -100;
+        *action_flag = true;
+    }
+
+    *move_time -= GetFrameTime();
+    if (*move_time <= 0) {
+        *move_time = (float)GetRandomValue(1, 2);
+        *speed_x *= -1;
+    }
+
+    float boost = (float)(GetRandomValue(1, 5));
+
+    position->y += speed_y * GetFrameTime();
+    position->x += *speed_x * boost * GetFrameTime();
+}
+
+static void BehaviorWaller(Rectangle* position, float speed_x) {
+    position->x += speed_x * GetFrameTime();
+}
+
+static void BehaviorBooster(Rectangle* position, const struct Ship* target, float* move_time, bool* action_flag) {
+    float initial_y_target = 100.0f;
+    float seek_speed = 100.0f;
+    float boost_speed = 1000.0f;
+
+    if (position->y < initial_y_target) {
+        position->y += 100 * GetFrameTime();
+    }
+    else {
+        if (*action_flag == false) {
+            *move_time = 2.0f;
+            *action_flag = true;
+        }
+
+        if (*move_time > 0) {
+            *move_time -= GetFrameTime();
+            if (position->x < target->position.x) {
+                position->x += seek_speed * GetFrameTime();
+                if (position->x > target->position.x) position->x = target->position.x;
+            }
+            else if (position->x > target->position.x) {
+                position->x -= seek_speed * GetFrameTime();
+                if (position->x < target->position.x) position->x = target->position.x;
+            }
+        }
+        else {
+            position->y += boost_speed * GetFrameTime();
+        }
+    }
+}
+
+static void BehaviorSpinner(Enemy* enemy) {
+    bool has_reached_max = false;
+
+    if (enemy->state == ENEMY_STATE_SPAWNING) {
+        enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, 2, NULL, &has_reached_max);
+        enemy->position.y = enemy->speed.y * enemy->elapsed_time;
+
+        if (has_reached_max) {
+            enemy->elapsed_time = 0;
+            enemy->state = ENEMY_STATE_SPINNER_TURNING;
+        }
+
+        return;
+    }
+    
+    if (enemy->state == ENEMY_STATE_SPINNER_TURNING) {
+        enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, 0.5, NULL, &has_reached_max);
+        enemy->rotation = (PI / 2.0f) * enemy->elapsed_time * RAD2DEG;
+
+        if (has_reached_max) {
+            enemy->elapsed_time = 0;
+            enemy->state = ENEMY_STATE_SPINNER_ACTING;
+            enemy->vector2_aux1 = (Vector2) { enemy->position.x, enemy->position.y - 100 };
+            enemy->vector2_aux2 = (Vector2) { 0, 100 };
+            enemy->float_aux1 = 0.0f;
+        }
+
+        return;
+    }
+
+    if (enemy->state == ENEMY_STATE_SPINNER_ACTING) {
+        enemy->elapsed_time += GetFrameTime();
+        
+        float acceleration = Clamp(enemy->elapsed_time, 0.0f, 1.0f);       
+        enemy->float_aux1 += (acceleration * GetFrameTime() * PI * 2.0f) / 2.0f; // 2s for a full revolution
+        Vector2 rotation_vector = Vector2Rotate(enemy->vector2_aux2, enemy->float_aux1); 
+                
+        enemy->vector2_aux1.x += enemy->speed.x * GetFrameTime();
+        enemy->vector2_aux1.y += enemy->speed.y * GetFrameTime() / 2.0f;
+
+        Vector2* pos = &enemy->position;
+        *pos = Vector2Add(enemy->vector2_aux1, rotation_vector);
+
+        Vector2 angle_vector = Vector2Subtract(*pos, enemy->vector2_aux1);
+        enemy->rotation = atan2(angle_vector.y, angle_vector.x) * RAD2DEG;
+    }
+}
+
+void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->is_on_screen = false;
     enemy->type = type;
     enemy->hp = (float)hp;
     enemy->color = WHITE;
     enemy->move_time = 0.0f;
     enemy->action_flag = false;
+    enemy->rotation = 0.0f;
 
     enemy->position.width = ENEMY_BASE_WIDTH;
     enemy->position.height = ENEMY_BASE_HEIGHT;
 
-    enemy->position.x = (float)GetRandomValue(GAME_SCREEN_START + enemy->position.width/2, GAME_SCREEN_END - enemy->position.width / 2);
-    enemy->position.y = (float)GetRandomValue(SPAWN_Y_MIN, -1 * enemy->position.height);
+    enemy->position.x = position.x;
+    enemy->position.y = position.y;
+
+    enemy->vector2_aux1 = (Vector2){ 0 };
+    enemy->vector2_aux1 = (Vector2){ 0 };
 
     enemy->speed = (Vector2){ 0, BASE_SPEED_Y };
+
+    // Complex behavioral structures needs extra variables
+    enemy->state = ENEMY_STATE_SPAWNING;
+    enemy->elapsed_time;
 
     switch (type) {
     case ENEMY_ZIGZAG:  enemy->exp = 20.0f; break;
     case ENEMY_BOOSTER: enemy->exp = 25.0f; break;
     case ENEMY_WALLER:  enemy->exp = 15.0f; break;
+    case ENEMY_SPINNER: enemy->exp = 15.0f; break;
     case ENEMY_BASIC:
     default:            enemy->exp = 10.0f; break;
     }
@@ -44,21 +159,11 @@ void InitEnemies(void) {
     enemies = List_Create(sizeof(Enemy));
 }
 
-static void Spawn(int amount, int hp, EnemyType type, bool random) {
-    for (int i = 0; i < amount; i++) {
-        Enemy new_enemy;
-        EnemyType final_type = random ? (EnemyType)GetRandomValue(ENEMY_BASIC, ENEMY_WALLER) : type;
-        ActivateEnemy(&new_enemy, final_type, hp);
-        List_AddLast(enemies, &new_enemy);
+void SpawnEnemies(List* enemy_list) {
+    for(Node* node = enemy_list->head; node != NULL; node = node->next) {
+        List_AddLast(enemies, node->data);
+        TraceLog(LOG_WARNING, "Spawn: %f %f |", ((Enemy*)node->data)->position.x, ((Enemy*)node->data)->position.y);
     }
-}
-
-void SpawnEnemies(int amount, EnemyType type, int hp) {
-    Spawn(amount, hp, type, false);
-}
-
-void SpawnRandomEnemies(int amount, int hp) {
-    Spawn(amount, hp, ENEMY_BASIC, true);
 }
 
 static void EnemyWallBehavior(Enemy* enemy) {
@@ -81,6 +186,7 @@ static void UpdateEnemy(void* context, void* data) {
     case ENEMY_ZIGZAG:  BehaviorZigZag(&enemy->position, BASE_SPEED_Y, &enemy->speed.x, &enemy->move_time, &enemy->action_flag); break;
     case ENEMY_BOOSTER: BehaviorBooster(&enemy->position, ship, &enemy->move_time, &enemy->action_flag); break;
     case ENEMY_WALLER:  BehaviorWaller(&enemy->position, enemy->speed.x); break;
+    case ENEMY_SPINNER: BehaviorSpinner(enemy); break;
     default:            BehaviorBasic(&enemy->position, BASE_SPEED_Y); break;
 
     }
@@ -120,7 +226,7 @@ static void DrawEnemy(void* context, void* data) {
             e->position.height
         };
 
-        DrawTexturePro(texture, source_rects[e->type], destination, (Vector2) { 0, 0 }, 0, e->color);
+        DrawTexturePro(texture, source_rects[e->type], destination, (Vector2) { destination.width / 2.0f, destination.height / 2.0f }, e->rotation, e->color);
     }
 }
 
@@ -140,7 +246,9 @@ void LoadEnemyTextures(void) {
     source_rects[ENEMY_ZIGZAG] = (Rectangle){ 32, 24, 8, 8 };
     source_rects[ENEMY_BOOSTER] = (Rectangle){ 48, 24, 8, 8 };
     source_rects[ENEMY_WALLER] = (Rectangle){ 32, 8, 8, 8 };
+    source_rects[ENEMY_SPINNER] = (Rectangle){ 40, 8, 8, 8 };
     source_rects[ENEMY_BOSS] = (Rectangle){ 16, 8, 8, 8 };
+
 }
 
 void UnloadEnemyTextures(void) {

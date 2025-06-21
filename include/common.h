@@ -69,3 +69,5 @@
 #define CENTER 0
 #define LEFT 1
 #define RIGHT 2
+
+#define ENEMY_LINE_SPAWN_START -50
