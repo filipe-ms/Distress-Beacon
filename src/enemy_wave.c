@@ -190,7 +190,7 @@ void GenerateWaves(int level) {
                 CreateCentralLine(wave_id++, ENEMY_BOOSTER, start_time, modifier, intensity);
                 break;
             default: 
-                CreateSingle(ENEMY_STALKER, start_time);
+                CreateSingle(ENEMY_GHOST, start_time);
                 break;
         }
 
@@ -217,7 +217,6 @@ void UpdateWaves(void) {
 
         if (wave.start_time < total_elapsed_time) {
             SpawnEnemies(wave.spawns);
-
             List_Destroy(wave.spawns);
             List_RemoveFirst(waves);
         }
