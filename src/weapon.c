@@ -494,6 +494,29 @@ static void DrawShotgun(void) {
 
 //--------------------------------------------------------------
 //
+//                         SHIELD
+// 
+//--------------------------------------------------------------
+
+Shield shield;
+bool IsShieldActive(void) { return shield.is_active; }
+
+void ActivateShield(void) {
+    shield.is_active = true;
+    shield.capacity = 3;
+
+}
+void DeactivateShield(void) {
+    shield.is_active = false;
+    shield.capacity = 0;
+}
+
+int GetShieldCapacity(void) {
+    return shield.capacity;
+}
+
+//--------------------------------------------------------------
+//
 //                         OTHERS
 // 
 //--------------------------------------------------------------

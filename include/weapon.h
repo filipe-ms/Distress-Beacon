@@ -138,6 +138,14 @@ extern Shotgun shotgun;
 bool IsShotgunActive(void);
 void ActivateShotgun(void);
 
+
+typedef struct Shield {
+    int capacity;
+    bool is_active;
+} Shield;
+
+extern Shield shield;
+
 // General
 void InitWeapon(void);
 void UpdateWeapon(Ship* ship);
@@ -157,3 +165,10 @@ void IncrementCooldownModifier(float value);
 void IncrementDamageModifier(float value);
 void IncrementSizeModifier(float value);
 void IncrementSpeedModifier(float value);
+
+// Shield Apply
+
+bool IsShieldActive(void);
+void ActivateShield(void);
+void DeactivateShield(void);
+int GetShieldCapacity(void);

@@ -337,6 +337,18 @@ void DrawShip(Ship* ship) {
 		DrawPuddleJumper(ship, destination);
 		break;
 	}
+
+	if (ship->isInvincible) {
+		ship->invincibilityTimer -= GetFrameTime();
+
+		TraceLog(LOG_INFO, "tempo que falta eh %.2f", ship->invincibilityTimer);
+
+		if (ship->invincibilityTimer <= 0) {
+			ship->isInvincible = false;
+
+			TraceLog(LOG_INFO, "vulneravel");
+		}
+	}
 }
 
 void LoadShipTextures(void) {

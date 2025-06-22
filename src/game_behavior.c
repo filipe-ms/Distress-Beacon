@@ -10,6 +10,7 @@
 #include "player.h"
 #include "raymath.h"
 
+
 static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos) {
     float ship_radius = DRAW_WH / 2.0f;
     float enemy_radius = DRAW_WH / 2.0f;
@@ -27,7 +28,31 @@ bool CheckForEnemyCollisions(Ship* ship) {
     for (int i = 0; i < enemy_count; i++) {
         Enemy* enemy = (Enemy*)List_GetByIndex(enemies, i);
         Vector2 enemy_pos_vect = { enemy->position.x, enemy->position.y };
-        if (CheckEnemyCollisionWithPlayer(&ship->position, &enemy_pos_vect)) return true;
+        if (CheckEnemyCollisionWithPlayer(&ship->position, &enemy_pos_vect)) {
+
+            // --- VERIFICA SE A NAVE ESTÁ INVENCÍVEL ---
+            if (ship->isInvincible) {
+                continue; // Se estiver, ignora a colisão e continua o loop
+            }
+
+            if (IsShieldActive()) {
+                shield.capacity--;
+                enemy->is_on_screen = false;
+
+                // --- ATIVA A INVENCIBILIDADE APÓS O HIT ---
+                ship->isInvincible = true;
+                ship->invincibilityTimer = 1.0f; // Duração de 1 segundo
+
+                if (shield.capacity <= 0) {
+                    DeactivateShield();
+                }
+
+                continue;
+            }
+            else {
+                return true;
+            }
+        }
     }
 
     return false;
