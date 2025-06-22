@@ -311,6 +311,9 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->should_perform_action = false;
     enemy->rotation = 0.0f;
 
+    enemy->is_collidable = false;
+    enemy->is_targetable = false;
+
     E_SIZEX = DRAW_WH;
     E_SIZEY = DRAW_WH;
 
@@ -385,7 +388,11 @@ static void EnemyPositionChecks(Enemy* enemy) {
         return;
     }
 
-    enemy->is_on_screen = (E_POSY > -50);
+    enemy->is_on_screen = E_POSY > -(enemy->size.y / 2.0f) - 10;
+
+    if (enemy->is_on_screen) {
+        int i = 10;
+    }
 }
 
 void UpdateEnemies(Ship* ship) {

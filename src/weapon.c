@@ -337,9 +337,12 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
 
 static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
     HomingShoot* homing_shoot = (HomingShoot*)item;
+
+    float size = (homing_shoot->shoot.size.y / 2.0f) + 10;
+
     Vector2 position = homing_shoot->shoot.position;
-    if (position.y < -80 || position.y > GAME_SCREEN_HEIGHT + 80 ||
-        position.x < -80 || position.x > GAME_SCREEN_END + 80) {
+    if (position.y < -size || position.y > GAME_SCREEN_HEIGHT + size ||
+        position.x < -size || position.x > GAME_SCREEN_END + size) {
         return 1;
     }
     return 0;
