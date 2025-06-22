@@ -21,18 +21,22 @@ typedef struct Wave {
 
 #pragma region spawners
 
-static void CreateLineAtBorders(int id, EnemyType type, float start_time, int modifier, float intensity) {
-    Wave newWave;
-    newWave.wave_id = id;
-    newWave.start_time = start_time;
-    newWave.modifier = (modifier % 2);
-    newWave.intensity = intensity;
-    newWave.spawns = List_Create(sizeof(Enemy));
+static Wave* CreateWave(Wave* wave, int id, EnemyType type, float start_time, int modifier, float intensity) {
+    wave->wave_id = id;
+    wave->start_time = start_time;
+    wave->modifier = (modifier % 2);
+    wave->intensity = intensity;
+    wave->spawns = List_Create(sizeof(Enemy));
+}
 
+static void CreateLineAtBorders(int id, EnemyType type, float start_time, int modifier, float intensity) {
+    Wave wave;
+    CreateWave(&wave, id, type, start_time, modifier, intensity);
+    
     int starting_x;
     int step;
     
-    if (newWave.modifier == 0) {
+    if (wave.modifier == 0) {
         starting_x = GAME_SCREEN_START + 20;
         step = 40;
     } else {
@@ -45,19 +49,16 @@ static void CreateLineAtBorders(int id, EnemyType type, float start_time, int mo
 
         Enemy enemy;
         ActivateEnemy(&enemy, position, type, 3 + intensity / 2);
-        List_Add(newWave.spawns, &enemy);
+        List_Add(wave.spawns, &enemy);
     }
 
-    List_AddLast(waves, &newWave);
+    List_AddLast(waves, &wave);
 }
 
 static int CreateVFormation(int id, EnemyType type, float start_time, int modifier, float intensity) {
-    Wave newWave;
-    newWave.wave_id = id;
-    newWave.start_time = start_time;
-    newWave.modifier = (modifier % 2);
-    newWave.intensity = intensity;
-    newWave.spawns = List_Create(sizeof(Enemy));
+    Wave wave;
+    CreateWave(&wave, id, type, start_time, modifier, intensity);
+    
 
     int enemy_count = 5 + (int)(intensity / 2.0f);
     int rows = (int)(enemy_count / 2.0f);
@@ -73,12 +74,12 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
     Enemy middle_enemy;
     ActivateEnemy(
         &middle_enemy,
-        (Vector2){ center_x, starting_y - newWave.modifier * rows * horizontal_spacing },
+        (Vector2){ center_x, starting_y - wave.modifier * rows * horizontal_spacing },
         type, 3 + intensity / 2);
-    List_Add(newWave.spawns, &middle_enemy);
+    List_Add(wave.spawns, &middle_enemy);
     
-    Vector2 left_pos = { center_x, starting_y - newWave.modifier * rows * horizontal_spacing };
-    Vector2 right_pos = { center_x, starting_y - newWave.modifier * rows * horizontal_spacing };
+    Vector2 left_pos = { center_x, starting_y - wave.modifier * rows * horizontal_spacing };
+    Vector2 right_pos = { center_x, starting_y - wave.modifier * rows * horizontal_spacing };
     
     for (int i = 0; i < rows; i++) {
         left_pos.x -= vertical_spacing;
@@ -86,7 +87,7 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
 
         Enemy left_enemy;
         ActivateEnemy(&left_enemy, left_pos, type, 3 + intensity / 2);
-        List_Add(newWave.spawns, &left_enemy);
+        List_Add(wave.spawns, &left_enemy);
 
 
         right_pos.x += vertical_spacing;
@@ -94,20 +95,16 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
 
         Enemy right_enemy;
         ActivateEnemy(&right_enemy, right_pos, type, 3 + intensity / 2);
-        List_Add(newWave.spawns, &right_enemy);
+        List_Add(wave.spawns, &right_enemy);
     }
     
-    List_AddLast(waves, &newWave);
+    List_AddLast(waves, &wave);
 }
 
 static void CreateCentralLine(int id, EnemyType type, float start_time, int modifier, float intensity) {
-    Wave newWave;
-    newWave.wave_id = id;
-    newWave.start_time = start_time;
-    newWave.modifier = (modifier % 2);
-    newWave.intensity = intensity;
-    newWave.spawns = List_Create(sizeof(Enemy));
-
+    Wave wave;
+    CreateWave(&wave, id, type, start_time, modifier, intensity);
+    
     int starting_x;
     int step;
 
@@ -127,27 +124,46 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
 
         Enemy enemy;
         ActivateEnemy(&enemy, position, type, 3 + intensity / 2);
-        List_Add(newWave.spawns, &enemy);
+        List_Add(wave.spawns, &enemy);
     }
 
-    List_AddLast(waves, &newWave);
+    List_AddLast(waves, &wave);
 }
 
-static void CreateSingle(EnemyType type, float start_time) {
-    Wave newWave;
-    newWave.wave_id = 0;
-    newWave.start_time = start_time;
-    newWave.modifier = 0;
-    newWave.intensity = 0;
-    newWave.spawns = List_Create(sizeof(Enemy));
-
+static Enemy* CreateSingle(int id, EnemyType type, float start_time, int modifier, float intensity) {
+    Wave wave;
+    CreateWave(&wave, id, type, start_time, modifier, intensity);
+    
     Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
 
     Enemy enemy;
     ActivateEnemy(&enemy, position, type, 5);
-    List_Add(newWave.spawns, &enemy);
+    List_Add(wave.spawns, &enemy);
 
-    List_AddLast(waves, &newWave);
+    List_AddLast(waves, &wave);
+
+    return &enemy;
+}
+
+static void CreateGhost(int id, float start_time, int modifier, float intensity) {
+    Enemy* enemy = CreateSingle(id, ENEMY_GHOST, start_time, modifier, intensity);
+    enemy->position.y = -500.0f;
+    enemy->position.x = GAME_SCREEN_CENTER;
+}
+
+static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
+    Wave wave;
+    CreateWave(&wave, 0, type, start_time, 0, 0);
+    
+    Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
+
+    Enemy enemy;
+    ActivateEnemy(&enemy, position, type, 5);
+    List_Add(wave.spawns, &enemy);
+
+    List_AddLast(waves, &wave);
+
+    return &enemy;
 }
 
 #pragma endregion
@@ -189,8 +205,12 @@ void GenerateWaves(int level) {
             case 7:
                 CreateCentralLine(wave_id++, ENEMY_BOOSTER, start_time, modifier, intensity);
                 break;
+            // GHOST
+            case 8:
+                CreateGhost(wave_id++, start_time, modifier, intensity);
+                break;
             default: 
-                CreateSingle(ENEMY_BOSS_PIDGEON_OF_PREY, start_time);
+                CreateSingleForDebug(ENEMY_BOSS_PIDGEON_OF_PREY, start_time);
                 break;
         }
 
@@ -217,7 +237,6 @@ void UpdateWaves(void) {
 
         if (wave.start_time < total_elapsed_time) {
             SpawnEnemies(wave.spawns);
-
             List_Destroy(wave.spawns);
             List_RemoveFirst(waves);
         }
