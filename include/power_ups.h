@@ -16,6 +16,11 @@ typedef enum PowerUpType {
     WEAPON_SHOTGUN,
     WEAPON_HOMING,
 
+
+    // Shield
+
+    SHIELD,
+
     // Esse aqui sempre vai ser o número total de power ups
     POWERUP_COUNT
 } PowerUpType;
