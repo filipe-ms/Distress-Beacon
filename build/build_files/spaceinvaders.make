@@ -112,6 +112,7 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/background.o
 GENERATED += $(OBJDIR)/draw_utils.o
 GENERATED += $(OBJDIR)/enemy.o
+GENERATED += $(OBJDIR)/enemy_projectile.o
 GENERATED += $(OBJDIR)/enemy_wave.o
 GENERATED += $(OBJDIR)/enter_name.o
 GENERATED += $(OBJDIR)/game.o
@@ -136,6 +137,7 @@ GENERATED += $(OBJDIR)/winner.o
 OBJECTS += $(OBJDIR)/background.o
 OBJECTS += $(OBJDIR)/draw_utils.o
 OBJECTS += $(OBJDIR)/enemy.o
+OBJECTS += $(OBJDIR)/enemy_projectile.o
 OBJECTS += $(OBJDIR)/enemy_wave.o
 OBJECTS += $(OBJDIR)/enter_name.o
 OBJECTS += $(OBJDIR)/game.o
@@ -227,6 +229,9 @@ $(OBJDIR)/draw_utils.o: ../../src/draw_utils.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/enemy.o: ../../src/enemy.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/enemy_projectile.o: ../../src/enemy_projectile.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/enemy_wave.o: ../../src/enemy_wave.c
