@@ -311,8 +311,8 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->should_perform_action = false;
     enemy->rotation = 0.0f;
 
-    enemy->is_collidable = false;
-    enemy->is_targetable = false;
+    enemy->is_collidable = true;
+    enemy->is_targetable = true;
 
     E_SIZEX = DRAW_WH;
     E_SIZEY = DRAW_WH;

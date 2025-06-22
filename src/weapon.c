@@ -545,7 +545,7 @@ static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
     Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
 
     if (!enemy->is_targetable)
-        return;
+        return false;
 
     if (CheckCollisionCircles(enemy_pos, enemy->size.x / 2.0f, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
