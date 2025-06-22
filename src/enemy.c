@@ -352,8 +352,8 @@ static void EnemyWallBehavior(Enemy* enemy) {
     int min_x = (int)(GAME_SCREEN_START + E_SIZEX / 2);
     int max_x = (int)(GAME_SCREEN_END - E_SIZEX / 2);
 
-    if (E_POSX <= min_x || E_POSX >= max_x) {
-        Clamp(E_POSX, min_x, max_x);
+    if (enemy->position.x <= min_x || enemy->position.x >= max_x) {
+        Clamp(enemy->position.x, min_x, max_x);
         if (enemy->type == ENEMY_ZIGZAG) enemy->speed.x *= -1;
     }
 }
