@@ -367,15 +367,15 @@ static void UpdateEnemy(void* context, void* data) {
     Enemy* enemy = (Enemy*)data;
 
     switch (enemy->type) {
-    case ENEMY_ZIGZAG:          BehaviorZigZag(&enemy); break;
-    case ENEMY_BOOSTER:         BehaviorBooster(&enemy, &ship); break;
+    case ENEMY_ZIGZAG:          BehaviorZigZag(enemy); break;
+    case ENEMY_BOOSTER:         BehaviorBooster(enemy, ship); break;
     case ENEMY_WALLER:          BehaviorWaller(&enemy->position, enemy->speed.x); break;
     case ENEMY_SPINNER:         BehaviorSpinner(enemy, 1); break;
     case ENEMY_REVERSE_SPINNER: BehaviorSpinner(enemy, -1); break;
     case ENEMY_STALKER:         BehaviorStalker(enemy, ship);
 	case ENEMY_GHOST:           BehaviorGhost(enemy, ship); break;
     case ENEMY_BASIC:
-    default:                    BehaviorBasic(&enemy); break;
+    default:                    BehaviorBasic(enemy); break;
     }
 
     EnemyWallBehavior(enemy);
