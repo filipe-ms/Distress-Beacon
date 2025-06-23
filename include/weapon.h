@@ -29,7 +29,7 @@ typedef struct Shoot {
 
 typedef struct Weapon {
     int id;
-    bool is_active;
+    int level;
     
     Rectangle source;
     Vector2 offset;
@@ -62,8 +62,8 @@ typedef struct Pulse {
 
 extern Pulse pulse;
 
-bool IsPulseActive(void);
-void ActivatePulse(void);
+int GetPulseLevel(void);
+void PulseLevelUp(void);
 
 //--------------------------------------------------------------
 //
@@ -83,8 +83,8 @@ typedef struct Photon {
 
 extern Photon photon;
 
-bool IsPhotonActive(void);
-void ActivatePhoton(void);
+int GetPhotonLevel(void);
+void PhotonLevelUp(void);
 
 //--------------------------------------------------------------
 //
@@ -109,8 +109,8 @@ typedef struct Homing {
 
 extern Homing homing;
 
-bool IsHomingActive(void);
-void ActivateHoming(void);
+int GetHomingLevel(void);
+void HomingLevelUp(void);
 
 //--------------------------------------------------------------
 //
@@ -129,14 +129,16 @@ typedef struct ShotgunShoot {
 
 typedef struct Shotgun {
     Weapon weapon;
+    int min_shells;
+    int max_shells;
     float arc;
     List* shotgun_shoots;
 } Shotgun;
 
 extern Shotgun shotgun;
 
-bool IsShotgunActive(void);
-void ActivateShotgun(void);
+int IsShotgunActive(void);
+void ShotgunLevelUp(void);
 
 
 typedef struct Shield {
@@ -146,13 +148,19 @@ typedef struct Shield {
 
 extern Shield shield;
 
+// Shield Apply
+bool IsShieldActive(void);
+void ActivateShield(void);
+void DeactivateShield(void);
+int GetShieldCapacity(void);
+
 // General
 void InitWeapon(void);
 void UpdateWeapon(Ship* ship);
 void DrawWeapon(void);
 void LoadWeaponTextures(void);
 void UnloadWeaponTextures(void);
-bool IsWeaponActive(int reference);
+int GetWeaponLevel(int reference);
 const char* GetActiveWeaponsString(void);
 
 // Power Modifiers
@@ -165,10 +173,3 @@ void IncrementCooldownModifier(float value);
 void IncrementDamageModifier(float value);
 void IncrementSizeModifier(float value);
 void IncrementSpeedModifier(float value);
-
-// Shield Apply
-
-bool IsShieldActive(void);
-void ActivateShield(void);
-void DeactivateShield(void);
-int GetShieldCapacity(void);

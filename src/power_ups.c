@@ -40,7 +40,6 @@ void InitPowerUps(void) {
     weapon_homing = LoadTexture("powerups/homing.png");
     util_shield = LoadTexture(""); // Ainda vou colocar a textura
 
-
     power_up_type[SHOOT_COOLDOWN] = (PowerUpCard){
         .type = SHOOT_COOLDOWN, 
         .name = "Rapid Fire",
@@ -69,7 +68,7 @@ void InitPowerUps(void) {
         .type = WEAPON_PULSE, 
         .name = "Pulse",
 		.type_string = "ARMA",
-        .description = "Pulsos difusos\nde energia",
+        .description = "Pulsos difusos\nde energia\nNível: %d",
         .value = PULSE,
 		.texture = &weapon_pulse
     };
@@ -78,7 +77,7 @@ void InitPowerUps(void) {
         .type = WEAPON_PHOTON,
         .name = "Photon",
 		.type_string = "ARMA",
-        .description = "Dispara photons\nde alto dano",
+        .description = "Dispara photons\nde alto dano\nNível: %d",
         .value = PHOTON,
 		.texture = &weapon_photon
     };
@@ -87,7 +86,7 @@ void InitPowerUps(void) {
         .type = WEAPON_SHOTGUN, 
         .name = "Shotgun",
 		.type_string = "ARMA",
-        .description = "Vários projéteis\nde curto alcance",
+        .description = "Vários projéteis\nde curto alcance\nNível: %d",
         .value = SHOTGUN,
 		.texture = &weapon_shotgun
     };
@@ -96,7 +95,7 @@ void InitPowerUps(void) {
         .type = WEAPON_HOMING, 
         .name = "Homing",
 		.type_string = "ARMA",
-        .description = "Bumerangue energético\ne teleguiado",
+        .description = "Bumerangue energético\ne teleguiado\nNível: %d",
         .value = HOMING,
 		.texture = &weapon_homing
     };
@@ -120,7 +119,6 @@ void UnloadPowerUpTextures(void) {
 	UnloadTexture(weapon_shotgun);
     UnloadTexture(weapon_homing);
     UnloadTexture(util_shield);
-
 }
 
 void PowerRandomizer(void) {
@@ -140,7 +138,7 @@ void PowerRandomizer(void) {
         }
 
         if (is_weapon) {
-            if (!IsWeaponActive(power_up_type[current_type].value)) {
+            if (GetWeaponLevel(power_up_type[current_type].value) < 3) {
                 List_Add(available_powerups, &current_type);
             }
         } else {
@@ -175,6 +173,16 @@ void PowerRandomizer(void) {
             sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
         }
+
+        case WEAPON_PULSE:
+        case WEAPON_PHOTON:
+        case WEAPON_SHOTGUN:
+        case WEAPON_HOMING: {
+            int level = GetWeaponLevel(active_cards[i].value) + 1;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, level);
+            break;
+        }
+
         default:
             sprintf(active_cards[i].description_buffer, "%s", active_cards[i].description);
             break;
@@ -194,13 +202,12 @@ static void PickPowerUp(void) {
     case SHOOT_DAMAGE:   IncrementDamageModifier(chosen_powerup.value);   break;
     case SHOOT_SIZE:     IncrementSizeModifier(chosen_powerup.value);     break;
 
-    case WEAPON_PULSE:   ActivatePulse();   break;
-    case WEAPON_PHOTON:  ActivatePhoton();  break;
-    case WEAPON_SHOTGUN: ActivateShotgun(); break;
-    case WEAPON_HOMING:  ActivateHoming();  break;
+    case WEAPON_PULSE:   PulseLevelUp();   break;
+    case WEAPON_PHOTON:  PhotonLevelUp();  break;
+    case WEAPON_SHOTGUN: ShotgunLevelUp(); break;
+    case WEAPON_HOMING:  HomingLevelUp();  break;
 
     case SHIELD: ActivateShield(); break;
-
 
     default: break;
     }
