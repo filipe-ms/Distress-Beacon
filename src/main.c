@@ -1,6 +1,6 @@
 /*******************************************************************************************
 *
-*   Jogo desenvolvido por Luís Filipe Macedo, Anderson Gabriel e Débora Souza
+*   Jogo desenvolvido por Luï¿½s Filipe Macedo, Anderson Gabriel e Dï¿½bora Souza
 *
 *   Esse jogo foi criado usando Raylib (www.raylib.com)
 *
@@ -16,7 +16,7 @@
 #include "raylib.h"
 #include "resource_dir.h"
 
-// Nossos próprios includes
+// Nossos prï¿½prios includes
 #include "common.h"
 
 #include "scene_manager.h"
@@ -37,6 +37,7 @@
 #include "list.h"
 
 #include "background.h"
+#include "enemy_projectile.h"
 
 static Scene starting_scene = START;
 
@@ -55,7 +56,7 @@ int main(void)
 
     SetTargetFPS(240);
 
-    LoadGame();     // Inicializa o diretório de recursos/assets e as texturas
+    LoadGame();     // Inicializa o diretï¿½rio de recursos/assets e as texturas
     InitEnemies();
     InitSceneManager(starting_scene);
 
@@ -75,6 +76,7 @@ void LoadGame() {
     LoadEnemyTextures();
     LoadTutorialTextures();
     LoadWeaponTextures();
+    EnemyProjectile_Load();
     LoadShipTextures();
 }
 
@@ -84,6 +86,7 @@ void UnloadGame(void)
     UnloadEnemyTextures();
     UnloadTutorialTextures();
     UnloadWeaponTextures();
+    EnemyProjectile_Unload();
     UnloadPowerUpTextures();
 	UnloadShipTextures();
 	UnloadHitConfirmation();

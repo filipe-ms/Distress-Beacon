@@ -6,12 +6,12 @@
 #include "power_ups.h"
 #include "scene_manager.h"
 #include "ship.h"
-#include "game_behavior.h"
 #include "player.h"
 #include "enemy_wave.h"
 #include "raymath.h"
 #include "hit_confirmation.h"
 #include "background.h"
+#include "enemy_projectile.h"
 
 // Waves
 #define FIRST_WAVE 0
@@ -25,8 +25,6 @@ bool pause_flag;
 bool victory;
 bool level_up_flag;
 
-Ship ship;
-
 void InitGame(void) {
     // Flags
     pause = false;
@@ -39,6 +37,7 @@ void InitGame(void) {
     InitWeapon();
     InitPlayer();
     InitEnemies();
+    EnemyProjectile_Init();
     InitPowerUps();
     InitWaves(10);
 	InitHitConfirmation();
@@ -88,10 +87,11 @@ void UpdateGame(void)
             UpdateHitConfirmation();
             UpdateWaves();
             UpdateEnemies(&ship);
+            EnemyProjectile_Update(&ship);
             UpdateShip(&ship);
             int player_level = GetPlayerLevel();
             UpdateWeapon(&ship);
-            if (CheckForEnemyCollisions(&ship)) ChangeScene(GAME_OVER);
+            if (!ship.is_alive) ChangeScene(GAME_OVER);
             if (GetPlayerLevel() > player_level) {
                 PowerRandomizer();
                 level_up_flag = true;
@@ -114,6 +114,7 @@ void DrawGame(void)
     ClearBackground(BLACK);
     DrawBackground();
     DrawEnemies();
+    EnemyProjectile_Draw();
     DrawWeapon();
     DrawHitConfirmation();
     DrawShip(&ship);

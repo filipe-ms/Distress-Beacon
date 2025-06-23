@@ -130,7 +130,7 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
     List_AddLast(waves, &wave);
 }
 
-static Enemy* CreateSingle(int id, EnemyType type, float start_time, int modifier, float intensity) {
+static void CreateSingle(int id, EnemyType type, float start_time, int modifier, float intensity, Vector2 initial_position) {
     Wave wave;
     CreateWave(&wave, id, type, start_time, modifier, intensity);
     
@@ -138,17 +138,18 @@ static Enemy* CreateSingle(int id, EnemyType type, float start_time, int modifie
 
     Enemy enemy;
     ActivateEnemy(&enemy, position, type, 5);
+    enemy.position = initial_position;
+
     List_Add(wave.spawns, &enemy);
-
     List_AddLast(waves, &wave);
-
-    return &enemy;
 }
 
 static void CreateGhost(int id, float start_time, int modifier, float intensity) {
-    Enemy* enemy = CreateSingle(id, ENEMY_GHOST, start_time, modifier, intensity);
-    enemy->position.y = -500.0f;
-    enemy->position.x = GAME_SCREEN_CENTER;
+    CreateSingle(id, ENEMY_GHOST, start_time, modifier, intensity, (Vector2) { GAME_SCREEN_CENTER, -500 });
+}
+
+static void CreatePidgeonOfPrey(int id, float start_time, int modifier, float intensity) {
+    CreateSingle(id, ENEMY_BOSS_PIDGEON_OF_PREY, start_time, modifier, intensity, (Vector2) { GAME_SCREEN_CENTER, -500 });
 }
 
 static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
@@ -209,8 +210,13 @@ void GenerateWaves(int level) {
             case 8:
                 CreateGhost(wave_id++, start_time, modifier, intensity);
                 break;
+            // PIDGEON OF PREY
+            case 9:
+                CreatePidgeonOfPrey(wave_id++, start_time, modifier, intensity);
+                break;
             default: 
-                CreateSingleForDebug(ENEMY_BOSS_PIDGEON_OF_PREY, start_time);
+            CreatePidgeonOfPrey(wave_id++, start_time, modifier, intensity);
+                //CreateSingleForDebug(ENEMY_BOSS_PIDGEON_OF_PREY, start_time);
                 break;
         }
 

@@ -22,7 +22,9 @@ typedef enum {
     ENEMY_STATE_SPINNER_TURNING,
     ENEMY_STATE_SPINNER_ACTING,
 
-    ENEMY_BOSS_PIDGEON_OF_PREY_SPAWNING,
+    ENEMY_STATE_BOSS_PIDGEON_OF_PREY_PRE_SPAWN,
+    ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SPAWNING,
+    ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SHOOTING,
 
     GHOST_IDLE,
     GHOST_VISIBLE,
@@ -60,6 +62,35 @@ typedef struct {
     Vector2 vector2_aux2;
     float float_aux1;
 } Enemy;
+
+typedef enum {
+    PROJECTILE_PIDGEON_OF_PREY_1,
+
+    PROJECTILE_COUNT,
+} ProjectileType;
+
+typedef enum {
+    PROJECTILE_STATE_SPAWNING,
+    PROJECTILE_STATE_MOVING,
+} ProjectileState;
+
+typedef struct {
+    Vector2 position;
+    Vector2 size;
+    Vector2 speed;
+    ProjectileType type;
+    
+    Color color;
+    float rotation;
+
+    float collision_size;
+
+    bool is_targetable;
+    bool is_collidable;
+
+    Enemy* owner;
+} EnemyProjectile;
+
 
 extern List* enemies;
 

@@ -11,6 +11,7 @@
 #include "hit_confirmation.h"
 
 #include "player.h"
+#include "general_utils.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -317,7 +318,7 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
 
     float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
     float current_angle = homing_shoot->calc_rotation;
-    float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
+    float angle_diff = WrapAngle(desired_angle - current_angle);
 
     float max_adjustment = 2.0f * GetFrameTime(); // Radians per frame
     float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
@@ -335,17 +336,9 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
     homing_shoot->calc_rotation = new_angle;
 }
 
-static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
+static bool CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
     HomingShoot* homing_shoot = (HomingShoot*)item;
-
-    float size = (homing_shoot->shoot.size.y / 2.0f) + 10;
-
-    Vector2 position = homing_shoot->shoot.position;
-    if (position.y < -size || position.y > GAME_SCREEN_HEIGHT + size ||
-        position.x < -size || position.x > GAME_SCREEN_END + size) {
-        return 1;
-    }
-    return 0;
+    return IsWithinScreenBounds(homing_shoot->shoot.position, homing_shoot->shoot.size);
 }
 
 static void UpdateHoming(Ship* ship) {
