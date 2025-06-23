@@ -16,6 +16,15 @@
 		"source_location": "c",
 		"common.h": "c",
 		"behavior.h": "c",
-		"list.h": "c"
+		"list.h": "c",
+		"raymath.h": "c",
+		"enemy_projectile.h": "c",
+		"array": "c",
+		"string": "c",
+		"string_view": "c",
+		"ship.h": "c",
+		"general_utils.h": "c",
+		"initializer_list": "c",
+		"*.m": "c"
 	}
 }

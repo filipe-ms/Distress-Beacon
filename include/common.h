@@ -74,4 +74,4 @@
 #define UP 3
 #define DOWN 4
 
-#define ENEMY_LINE_SPAWN_START -50
+#define ENEMY_LINE_SPAWN_START -80

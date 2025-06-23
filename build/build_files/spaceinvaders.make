@@ -112,11 +112,12 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/background.o
 GENERATED += $(OBJDIR)/draw_utils.o
 GENERATED += $(OBJDIR)/enemy.o
+GENERATED += $(OBJDIR)/enemy_projectile.o
 GENERATED += $(OBJDIR)/enemy_wave.o
 GENERATED += $(OBJDIR)/enter_name.o
 GENERATED += $(OBJDIR)/game.o
-GENERATED += $(OBJDIR)/game_behavior.o
 GENERATED += $(OBJDIR)/game_over.o
+GENERATED += $(OBJDIR)/general_utils.o
 GENERATED += $(OBJDIR)/hit_confirmation.o
 GENERATED += $(OBJDIR)/list.o
 GENERATED += $(OBJDIR)/main.o
@@ -136,11 +137,12 @@ GENERATED += $(OBJDIR)/winner.o
 OBJECTS += $(OBJDIR)/background.o
 OBJECTS += $(OBJDIR)/draw_utils.o
 OBJECTS += $(OBJDIR)/enemy.o
+OBJECTS += $(OBJDIR)/enemy_projectile.o
 OBJECTS += $(OBJDIR)/enemy_wave.o
 OBJECTS += $(OBJDIR)/enter_name.o
 OBJECTS += $(OBJDIR)/game.o
-OBJECTS += $(OBJDIR)/game_behavior.o
 OBJECTS += $(OBJDIR)/game_over.o
+OBJECTS += $(OBJDIR)/general_utils.o
 OBJECTS += $(OBJDIR)/hit_confirmation.o
 OBJECTS += $(OBJDIR)/list.o
 OBJECTS += $(OBJDIR)/main.o
@@ -229,6 +231,9 @@ $(OBJDIR)/draw_utils.o: ../../src/draw_utils.c
 $(OBJDIR)/enemy.o: ../../src/enemy.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/enemy_projectile.o: ../../src/enemy_projectile.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/enemy_wave.o: ../../src/enemy_wave.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -238,10 +243,10 @@ $(OBJDIR)/enter_name.o: ../../src/enter_name.c
 $(OBJDIR)/game.o: ../../src/game.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/game_behavior.o: ../../src/game_behavior.c
+$(OBJDIR)/game_over.o: ../../src/game_over.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/game_over.o: ../../src/game_over.c
+$(OBJDIR)/general_utils.o: ../../src/general_utils.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/hit_confirmation.o: ../../src/hit_confirmation.c

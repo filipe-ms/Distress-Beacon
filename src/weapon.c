@@ -11,6 +11,7 @@
 #include "hit_confirmation.h"
 
 #include "player.h"
+#include "general_utils.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -321,6 +322,10 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
         
         for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
             Enemy* enemy = (Enemy*)enemyNode->data;
+
+            if (!enemy->is_targetable)
+                continue;
+
             Vector2 enemyPos = { enemy->position.x, enemy->position.y };
             
             float distance = Vector2Distance(enemyPos, shootPos);
@@ -352,7 +357,7 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
 
     float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
     float current_angle = homing_shoot->calc_rotation;
-    float angle_diff = fmodf(desired_angle - current_angle + PI, 2*PI) - PI;
+    float angle_diff = WrapAngle(desired_angle - current_angle);
 
     float max_adjustment = 2.0f * GetFrameTime(); // Radians per frame
     float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
@@ -370,14 +375,9 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
     homing_shoot->calc_rotation = new_angle;
 }
 
-static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
+static bool CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
     HomingShoot* homing_shoot = (HomingShoot*)item;
-    Vector2 position = homing_shoot->shoot.position;
-    if (position.y < -80 || position.y > GAME_SCREEN_HEIGHT + 80 ||
-        position.x < -80 || position.x > GAME_SCREEN_END + 80) {
-        return 1;
-    }
-    return 0;
+    return IsWithinScreenBounds(homing_shoot->shoot.position, homing_shoot->shoot.size);
 }
 
 static void UpdateHoming(Ship* ship) {
@@ -582,7 +582,10 @@ static bool CheckForDeadEnemies(void* context, void* data) {
 static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
     Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
 
-    if (CheckCollisionCircles(enemy_pos, 20, shoot->position, shoot->size.x / 2.0f)) {
+    if (!enemy->is_targetable)
+        return false;
+
+    if (CheckCollisionCircles(enemy_pos, enemy->size.x / 2.0f, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
         ConfirmHit(EXPLOSION, enemy_pos);
 

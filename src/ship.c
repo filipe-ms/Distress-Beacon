@@ -4,11 +4,12 @@
 #include "raymath.h"
 #include "common.h"
 #include "weapon.h"
-#include "game_behavior.h"
 
 #define SOURCE_WH 8
 
 #define MAX_THRUSTER_CYCLE 4
+
+Ship ship;
 
 Texture ships;
 Texture thrusters;
@@ -54,6 +55,7 @@ void InitShip(Ship* ship, int id) {
 	ship->animation_cycle = 0.0f;
 	ship->color = WHITE;
 	ship->alpha = 1.0f;
+	ship->is_alive = true;
 	InitShipSpecifics(ship, id);
 }
 
@@ -167,6 +169,30 @@ void UpdateShip(Ship* ship) {
 	}
 
 	WallBehavior(&ship->position);
+}
+
+void Ship_TakeDamage(Ship *ship)
+{
+	// --- VERIFICA SE A NAVE EST� INVENC�VEL ---
+	if (ship->isInvincible) {
+		return; // Se estiver, ignora a colis�o e continua o loop
+	}
+
+	if (IsShieldActive())
+	{
+		shield.capacity--;
+		
+		// --- ATIVA A INVENCIBILIDADE AP�S O HIT ---
+		ship->isInvincible = true;
+		ship->invincibilityTimer = 1.0f; // Dura��o de 1 segundo
+	
+		if (shield.capacity <= 0) {
+			DeactivateShield();
+			return;
+		}
+	}
+	
+	ship->is_alive = false;
 }
 
 static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {

@@ -1,7 +1,8 @@
 #include "enemy.h"
 #include "common.h"
 #include "raymath.h"
-#include "game_behavior.h"
+#include "enemy_projectile.h"
+#include "general_utils.h"
 
 static const int SPAWN_Y_MIN = -200;
 
@@ -34,16 +35,10 @@ static Vector2 GetPositionNearPlayer(Ship* ship, int rangexy) {
     return position;
 }
 
-int LerpInt(int start, int end, float elapsed_time, float duration) {
-    if (duration <= 0) return end;
-    float t = elapsed_time / duration;
-    if (t > 1.0f) t = 1.0f;
-    return start + (int)(t * (end - start));
-}
-
 static void BehaviorBasic(Enemy* enemy) {
     E_POSY += enemy->speed.y * GetFrameTime();
 }
+
 static void BehaviorStalker(Enemy* enemy, Ship* target) {
 
     float target_distance = 320.0f;
@@ -84,6 +79,7 @@ static void BehaviorStalker(Enemy* enemy, Ship* target) {
         E_POSX += horizontal_velocity * GetFrameTime();
     }
 }
+
 static void BehaviorZigZag(Enemy* enemy) {
     if (enemy->should_perform_action == false) {
         enemy->timer = (float)GetRandomValue(1, 2);
@@ -102,9 +98,11 @@ static void BehaviorZigZag(Enemy* enemy) {
     E_POSY += enemy->speed.y * GetFrameTime();
     E_POSX += enemy->speed.x * boost * GetFrameTime();
 }
+
 static void BehaviorWaller(Rectangle* position, float speed_x) {
     position->x += speed_x * GetFrameTime();
 }
+
 static void BehaviorBooster(Enemy* enemy, Ship* ship) {
     float target_y = 100.0f; // O Y da tela quando ele para de entrar e começa o lock-on
     float boost_multiplier = 1000.0f;
@@ -128,10 +126,11 @@ static void BehaviorBooster(Enemy* enemy, Ship* ship) {
     if (E_POSX < ship->position.x) E_POSX += E_SPEEDX * GetFrameTime();
     else if (E_POSX > ship->position.x) E_POSX -= E_SPEEDX * GetFrameTime();
 }
+
 static void BehaviorSpinner(Enemy* enemy, int modifier) {
     bool has_reached_max = false;
 
-    if (enemy->state == ENEMY_STATE_SPAWNING) {
+    if (enemy->state == ENEMY_STATE_SPINNER_SPAWNING) {
         enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, 2, NULL, &has_reached_max);
         E_POSY = enemy->speed.y * enemy->elapsed_time;
 
@@ -178,6 +177,7 @@ static void BehaviorSpinner(Enemy* enemy, int modifier) {
         enemy->rotation = atan2(angle_vector.y, angle_vector.x) * RAD2DEG;
     }
 }
+
 static void BehaviorGhost(Enemy* enemy, Ship* ship) {
     float fade_duration = 0.2f;
     TraceLog(LOG_INFO, "GHOST STATE: %d", enemy->state);
@@ -236,6 +236,70 @@ static void BehaviorGhost(Enemy* enemy, Ship* ship) {
     }
 }
 
+static void BehaviorPidgeonOfPrey(Enemy* enemy, Ship* ship) {
+    static float total_spawning_time = 2.0f;
+    static float pi_over_two = PI / 2.0f;
+    static float time_per_shoot = 1.5f;
+    static Vector2 projectile_offset = { 0, 50 };
+
+    bool has_reached_max = false;
+
+    if (enemy->state == ENEMY_STATE_BOSS_PIDGEON_OF_PREY_PRE_SPAWN) {
+        enemy->elapsed_time = 0;
+        enemy->float_aux1 = 0;
+        enemy->vector2_aux1 = enemy->position;
+        enemy->vector2_aux2 = (Vector2) { enemy->position.x, GAME_SCREEN_HEIGHT / 2.0f };
+        enemy->state = ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SPAWNING;
+
+        return;
+    }
+
+    if (enemy->state == ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SPAWNING) {
+        enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, total_spawning_time, NULL, &has_reached_max);
+        enemy->float_aux1 = enemy->elapsed_time / total_spawning_time;
+        enemy->position.y = enemy->vector2_aux1.y + (enemy->vector2_aux2.y - enemy->vector2_aux1.y) * sinf(enemy->float_aux1 * pi_over_two);
+
+        if (has_reached_max) {
+            enemy->state = ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SHOOTING;
+            enemy->elapsed_time = 0;
+            enemy->float_aux1 = 0;
+        }
+
+        return;
+    }
+
+    if (enemy->state == ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SHOOTING) {
+        float desired_rotation = CalculateFacingAngle(ship->position, enemy->position);
+        float current_rotation = (enemy->rotation + 90.0f) * DEG2RAD;  // Account for render offset
+        
+        // Calculate the smallest angle difference (-PI to PI range)
+        float angle_diff = atan2f(sinf(desired_rotation - current_rotation), 
+                                 cosf(desired_rotation - current_rotation));
+        
+        // Apply rotation with smoothing
+        float rotation_speed = 2.0f;  // Adjust this value for desired rotation speed
+        float new_rotation = angle_diff * rotation_speed * GetFrameTime();
+        
+        enemy->rotation += new_rotation * RAD2DEG;
+        
+        enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 
+                                            0, time_per_shoot, NULL, &has_reached_max);
+    
+        if (has_reached_max) {
+            enemy->elapsed_time = 0;
+
+            float ship_base_rotation = enemy->rotation * DEG2RAD;
+            float cannon_offset = 30 * DEG2RAD;
+
+            Vector2 left_proj = Vector2Add(enemy->position, Vector2Rotate(projectile_offset, ship_base_rotation + cannon_offset));
+            Vector2 right_proj = Vector2Add(enemy->position, Vector2Rotate(projectile_offset, ship_base_rotation - cannon_offset));
+
+            EnemyProjectile_SpawnPosition(enemy, PROJECTILE_PIDGEON_OF_PREY_1, left_proj);
+            EnemyProjectile_SpawnPosition(enemy, PROJECTILE_PIDGEON_OF_PREY_1, right_proj);
+        }
+    }
+}
+
 #pragma endregion ENEMY_BEHAVIORS
 
 static Rectangle GetEnemyRectangle(Enemy* enemy) {
@@ -254,10 +318,6 @@ static void InitGhost(Enemy* enemy) {
     enemy->exp = 25.0f;
     enemy->score = 250.0f;
     enemy->speed = (Vector2){ 0, 0 };
-    
-    enemy->position.y = -500.0f;
-    enemy->position.x = GAME_SCREEN_CENTER;
-
     enemy->timer = 5.0f; // Tempo entre ciclos
     enemy->elapsed_time = enemy->timer;
     enemy->should_perform_action = false;
@@ -289,6 +349,7 @@ static void InitEnemySpecifics(Enemy* enemy) {
 		break;
     case ENEMY_SPINNER:
     case ENEMY_REVERSE_SPINNER:
+        enemy->state = ENEMY_STATE_SPINNER_SPAWNING;
         enemy->exp = 15.0f;
 		enemy->score = 100.0f;
 		enemy->speed = (Vector2){ 0, 120.0f };
@@ -296,6 +357,13 @@ static void InitEnemySpecifics(Enemy* enemy) {
     case ENEMY_GHOST:
 		InitGhost(enemy);
 		break;
+    case ENEMY_BOSS_PIDGEON_OF_PREY:
+        enemy->exp = 100.0f;
+        enemy->score = 1000.0f;
+        enemy->speed = (Vector2) { 0, 1000.0f };
+        enemy->size = (Vector2) { 96, 96 };
+        enemy->state = ENEMY_STATE_BOSS_PIDGEON_OF_PREY_PRE_SPAWN;
+        break;
     case ENEMY_BASIC:
     default:
         enemy->exp = 10.0f;
@@ -313,6 +381,9 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->should_perform_action = false;
     enemy->rotation = 0.0f;
 
+    enemy->is_collidable = true;
+    enemy->is_targetable = true;
+
     E_SIZEX = DRAW_WH;
     E_SIZEY = DRAW_WH;
 
@@ -322,7 +393,6 @@ void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->vector2_aux1 = (Vector2){ 0 };
     enemy->vector2_aux1 = (Vector2){ 0 };
 
-    enemy->state = ENEMY_STATE_SPAWNING;
     enemy->elapsed_time = 0;
 
     InitEnemySpecifics(enemy);
@@ -355,15 +425,43 @@ static void EnemyWallBehavior(Enemy* enemy) {
     int min_x = (int)(GAME_SCREEN_START + E_SIZEX / 2);
     int max_x = (int)(GAME_SCREEN_END - E_SIZEX / 2);
 
-    if (E_POSX <= min_x || E_POSX >= max_x) {
-        Clamp(E_POSX, min_x, max_x);
+    if (enemy->position.x <= min_x || enemy->position.x >= max_x) {
+        Clamp(enemy->position.x, min_x, max_x);
         if (enemy->type == ENEMY_ZIGZAG) enemy->speed.x *= -1;
     }
 }
 
-static void UpdateEnemy(void* context, void* data) {
-    Ship* ship = (Ship*)context;
-    Enemy* enemy = (Enemy*)data;
+static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos) {
+    float ship_radius = DRAW_WH / 2.0f;
+    float enemy_radius = DRAW_WH / 2.0f;
+
+    if (DEBUG_FLAG) {
+        DrawCircleV(*ship_pos, ship_radius, Fade(RED, 0.5f));
+        DrawCircleV(*enemy_pos, ship_radius, Fade(RED, 0.5f));
+    }
+
+    return CheckCollisionCircles(*ship_pos, ship_radius, *enemy_pos, enemy_radius);
+}
+
+bool CheckForEnemyCollisions(Ship* ship) {
+    int enemy_count = enemies->size;
+    for (int i = 0; i < enemy_count; i++) {
+        Enemy* enemy = (Enemy*)List_GetByIndex(enemies, i);
+
+        if (!enemy->is_collidable)
+            continue;
+
+        Vector2 enemy_pos_vect = { enemy->position.x, enemy->position.y };
+        if (CheckEnemyCollisionWithPlayer(&ship->position, &enemy_pos_vect)) {
+            Ship_TakeDamage(ship);
+        }
+    }
+
+    return false;
+}
+
+
+static void UpdateEnemy(Ship* ship, Enemy* enemy) {
 
     switch (enemy->type) {
     case ENEMY_ZIGZAG:          BehaviorZigZag(enemy); break;
@@ -373,10 +471,14 @@ static void UpdateEnemy(void* context, void* data) {
     case ENEMY_REVERSE_SPINNER: BehaviorSpinner(enemy, -1); break;
     case ENEMY_STALKER:         BehaviorStalker(enemy, ship);
 	case ENEMY_GHOST:           BehaviorGhost(enemy, ship); break;
+    case ENEMY_BOSS_PIDGEON_OF_PREY:
+        BehaviorPidgeonOfPrey(enemy, ship);
+        break;
     case ENEMY_BASIC:
     default:                    BehaviorBasic(enemy); break;
     }
 
+    CheckForEnemyCollisions(ship);
     EnemyWallBehavior(enemy);
 }
 
@@ -388,7 +490,11 @@ static void EnemyPositionChecks(Enemy* enemy) {
         return;
     }
 
-    enemy->is_on_screen = (E_POSY > -50);
+    enemy->is_on_screen = E_POSY > -(enemy->size.y / 2.0f) - 10;
+
+    if (enemy->is_on_screen) {
+        int i = 10;
+    }
 }
 
 void UpdateEnemies(Ship* ship) {
@@ -438,15 +544,15 @@ void LoadEnemyTextures(void) {
         return;
     }
 
-    source_rects[ENEMY_BASIC]           = (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_ZIGZAG]          = (Rectangle){ 32, 24, 8, 8 };
-    source_rects[ENEMY_BOOSTER]         = (Rectangle){ 48, 24, 8, 8 };
-    source_rects[ENEMY_WALLER]          = (Rectangle){ 32, 8, 8, 8 };
-    source_rects[ENEMY_SPINNER]         = (Rectangle){ 40, 8, 8, 8 };
-    source_rects[ENEMY_REVERSE_SPINNER] = (Rectangle){ 80, 0, 8, 8 };
-    source_rects[ENEMY_STALKER]         = (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_GHOST]           = (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_BOSS]            = (Rectangle){ 16, 8, 8, 8 };
+    source_rects[ENEMY_BASIC]                = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_ZIGZAG]               = (Rectangle){ 32, 24, 8, 8 };
+    source_rects[ENEMY_BOOSTER]              = (Rectangle){ 48, 24, 8, 8 };
+    source_rects[ENEMY_WALLER]               = (Rectangle){ 32, 8, 8, 8 };
+    source_rects[ENEMY_SPINNER]              = (Rectangle){ 40, 8, 8, 8 };
+    source_rects[ENEMY_REVERSE_SPINNER]      = (Rectangle){ 80, 0, 8, 8 };
+    source_rects[ENEMY_STALKER]              = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_GHOST]                = (Rectangle){ 32, 0, 8, 8 };
+    source_rects[ENEMY_BOSS_PIDGEON_OF_PREY] = (Rectangle){ 8 * 8, 8 * 8, 16, 16 };
 }
 
 void UnloadEnemyTextures(void) {
