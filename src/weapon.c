@@ -62,12 +62,25 @@ float GetSpeedModifier(void) { return speed_modifier; }
 
 Pulse pulse;
 
-bool IsPulseActive(void) { return pulse.weapon.is_active; }
-void ActivatePulse(void) { pulse.weapon.is_active = true; }
+int GetPulseLevel(void) { return pulse.weapon.level; }
+
+void PulseLevelUp(void)  { 
+    pulse.weapon.level += 1;
+    if (pulse.weapon.level == 2) {
+        pulse.shoot_cycle = -1;
+        pulse.weapon.cooldown_time = 0.4f;
+        pulse.weapon.cooldown_charge = 0.4f;
+	}
+	else if (pulse.weapon.level == 3) {
+		pulse.shoot_cycle = 0;
+		pulse.weapon.cooldown_time = 0.3f;
+		pulse.weapon.cooldown_charge = 0.3f;
+	}
+}
 
 static void InitPulse(void) {
     pulse.weapon.id = PULSE;
-    pulse.weapon.is_active = false;
+    pulse.weapon.level = 0;
 
     pulse.weapon.source = (Rectangle){ 40, 0, 8, 8 };
 	pulse.weapon.offset = (Vector2){ 0, 0 };
@@ -91,14 +104,18 @@ static void InitPulseShoot(Ship* ship) {
 
     Vector2 shoot_spawn_position = {
         ship->position.x,
-        ship->position.y - DRAW_WH*0.75
+        ship->position.y - DRAW_WH * 0.75
     };
 
     new_pulse_shoot.shoot.position = shoot_spawn_position;
     new_pulse_shoot.rotation = pulse.shoot_cycle * 15.0f;
 
-    pulse.shoot_cycle++;
-    if (pulse.shoot_cycle > 1) pulse.shoot_cycle = -1;
+    if (pulse.weapon.level == 1) { pulse.shoot_cycle = 0; }
+	else if (pulse.weapon.level == 2) { pulse.shoot_cycle *= -1; }
+	else if (pulse.weapon.level == 3) {	
+        pulse.shoot_cycle++;
+        if (pulse.shoot_cycle > 1) pulse.shoot_cycle = -1;
+	}
 
     List_AddLast(pulse.pulse_shoots, &new_pulse_shoot);
 }
@@ -117,7 +134,7 @@ static int CheckIfOutOfBonds(void* context, PulseShoot* pulse_shoot) {
 }
 
 static void UpdatePulse(Ship* ship) {
-    if (!pulse.weapon.is_active) return;
+    if (!pulse.weapon.level) return;
 	pulse.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
     if (pulse.weapon.cooldown_charge <= 0) {
@@ -159,12 +176,14 @@ static void DrawPulseShoot() {
 
 Photon photon;
 
-bool IsPhotonActive(void) { return photon.weapon.is_active; }
-void ActivatePhoton(void) { photon.weapon.is_active = true; }
+int GetPhotonLevel(void) { return photon.weapon.level; }
+void PhotonLevelUp(void) {
+    photon.weapon.level += 1;
+}
 
 static void InitPhoton(void) {
     photon.weapon.id = PHOTON;
-    photon.weapon.is_active = false;
+    photon.weapon.level = 0;
     photon.weapon.source = (Rectangle){ 0, 8, 8, 8 };
     photon.weapon.offset = (Vector2){ 0, 0 };
     photon.weapon.damage = 1.0f;
@@ -180,8 +199,25 @@ static void InitPhotonShoot(Ship* ship) {
     PhotonShoot new_photon_shoot = { 0 };
     new_photon_shoot.shoot.damage = ApplyMultiplier(damage_modifier, photon.weapon.damage);
     new_photon_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 36.0f), ApplyMultiplier(size_modifier, 36.0f) };
-    new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
-    List_AddLast(photon.photon_shoots, &new_photon_shoot);
+    if (photon.weapon.level == 1) {
+        new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
+        List_AddLast(photon.photon_shoots, &new_photon_shoot);
+        
+    }
+    else if (photon.weapon.level == 2) {
+        new_photon_shoot.shoot.position = (Vector2){ ship->position.x + new_photon_shoot.shoot.size.x / 2, ship->position.y };
+        List_AddLast(photon.photon_shoots, &new_photon_shoot);
+        new_photon_shoot.shoot.position = (Vector2){ ship->position.x - new_photon_shoot.shoot.size.x / 2, ship->position.y };
+        List_AddLast(photon.photon_shoots, &new_photon_shoot);
+    }
+    else if (photon.weapon.level == 3) {
+        new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y + new_photon_shoot.shoot.size.y };
+        List_AddLast(photon.photon_shoots, &new_photon_shoot);
+		new_photon_shoot.shoot.position = (Vector2){ ship->position.x + new_photon_shoot.shoot.size.x, ship->position.y };
+		List_AddLast(photon.photon_shoots, &new_photon_shoot);
+		new_photon_shoot.shoot.position = (Vector2){ ship->position.x - new_photon_shoot.shoot.size.x, ship->position.y };
+		List_AddLast(photon.photon_shoots, &new_photon_shoot);
+    }
 }
 
 static void PhotonShootPositionUpdate(PhotonShoot* photon_shoot) {
@@ -197,7 +233,7 @@ static int CheckPhotonShootOutOfBounds(void* context, PhotonShoot* item) {
 }
 
 static void UpdatePhoton(Ship* ship) {
-    if (!photon.weapon.is_active) return;
+    if (!photon.weapon.level) return;
 
     photon.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
@@ -241,12 +277,15 @@ Homing homing;
 
 const Vector2 homing_shoot_speed_base = { .x = 0, .y = -300 };
 
-bool IsHomingActive(void) { return homing.weapon.is_active; }
-void ActivateHoming(void) { homing.weapon.is_active = true; }
+int GetHomingLevel(void) { return homing.weapon.level; }
+void HomingLevelUp(void) { 
+    homing.weapon.level += 1;
+    homing.weapon.damage += 0.25f;
+}
 
 static void InitHoming(void) {
     homing.weapon.id = HOMING;
-    homing.weapon.is_active = false;
+    homing.weapon.level = 0;
     homing.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
     homing.weapon.offset = (Vector2){ 0, 0 };
     homing.weapon.damage = 0.5f;
@@ -342,7 +381,7 @@ static int CheckHomingShootOutOfBounds(void* context, HomingShoot* item) {
 }
 
 static void UpdateHoming(Ship* ship) {
-    if (!homing.weapon.is_active) return;
+    if (!homing.weapon.level) return;
 
     homing.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
@@ -394,13 +433,19 @@ static void DrawHoming(void) {
 
 Shotgun shotgun;
 
-bool IsShotgunActive(void) { return shotgun.weapon.is_active; }
+int IsShotgunActive(void) { return shotgun.weapon.level; }
 
-void ActivateShotgun(void) { shotgun.weapon.is_active = true; }
+void ShotgunLevelUp(void) { 
+    shotgun.weapon.level += 1;
+    shotgun.min_shells += 1;
+    shotgun.arc -= 5.0f;
+}
 
 static void InitShotgun(void) {
     shotgun.weapon.id = SHOTGUN;
-    shotgun.weapon.is_active = false;
+    shotgun.weapon.level = 0;
+	shotgun.min_shells = 3;
+	shotgun.max_shells = 6;
     shotgun.weapon.offset = (Vector2){ DRAW_WH/2, DRAW_WH * 1.25 };
     shotgun.weapon.color = WHITE;
     shotgun.weapon.damage = 0.5f;
@@ -412,7 +457,7 @@ static void InitShotgun(void) {
 }
 
 static void InitShotgunShoot(Ship* ship) {
-    int shells = GetRandomValue(3, 6);
+    int shells = GetRandomValue(shotgun.min_shells, shotgun.max_shells);
     for (int i = 0; i < shells; i++) {
         ShotgunShoot new_shotgun_shoot = { 0 };
         new_shotgun_shoot.shoot.damage = ApplyMultiplier(damage_modifier, shotgun.weapon.damage);
@@ -460,7 +505,7 @@ static int CheckShotgunShootExpired(void* context, ShotgunShoot* item) {
 }
 
 static void UpdateShotgun(Ship* ship) {
-    if (!shotgun.weapon.is_active) return;
+    if (!shotgun.weapon.level) return;
 
     shotgun.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
@@ -590,12 +635,12 @@ bool CheckForProjectileCollisions(Ship* ship) {
     return false;
 }
 
-bool IsWeaponActive(int reference) {
+int GetWeaponLevel(int reference) {
     switch (reference) {
-    case PULSE:   return IsPulseActive();
-    case PHOTON:  return IsPhotonActive();
+    case PULSE:   return GetPulseLevel();
+    case PHOTON:  return GetPhotonLevel();
     case SHOTGUN: return IsShotgunActive();
-    case HOMING:  return IsHomingActive();
+    case HOMING:  return GetHomingLevel();
     default:      return false;
     }
 }
@@ -604,10 +649,10 @@ const char* GetActiveWeaponsString(void) {
     static char active_weapons[256];  // Buffer p/ não precisar mallocar e dar free depois
     active_weapons[0] = '\0';
 
-    if (IsPulseActive())   strcat(active_weapons, "Pulse\n");
-    if (IsPhotonActive())  strcat(active_weapons, "Photon\n");
+    if (GetPulseLevel())   strcat(active_weapons, "Pulse\n");
+    if (GetPhotonLevel())  strcat(active_weapons, "Photon\n");
     if (IsShotgunActive()) strcat(active_weapons, "Shotgun\n");
-    if (IsHomingActive())  strcat(active_weapons, "Homing\n");
+    if (GetHomingLevel())  strcat(active_weapons, "Homing\n");
 
     if (strlen(active_weapons) == 0) {
         strcpy(active_weapons, "None");

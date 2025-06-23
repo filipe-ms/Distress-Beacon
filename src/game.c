@@ -40,22 +40,22 @@ void InitGame(void) {
     InitPlayer();
     InitEnemies();
     InitPowerUps();
-    InitWaves(10);
+    InitWaves(50);
 	InitHitConfirmation();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
 
     switch (GetPlayerShip()) {
         case AUREA:
-            ActivatePulse();
+            PulseLevelUp();
             break;
         case ORION:
-            ActivatePhoton();
+            PhotonLevelUp();
             break;
         case NEBULA:
-            ActivateShotgun();
+            ShotgunLevelUp();
             break;
         case PUDDLE_JUMPER:
-            ActivateHoming();
+            HomingLevelUp();
             break;
     }
 }
