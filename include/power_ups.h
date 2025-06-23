@@ -10,15 +10,13 @@ typedef enum PowerUpType {
     SHOOT_DAMAGE,
     SHOOT_SIZE,
 
-    // Novas Armas
+    // Armas
     WEAPON_PULSE,
     WEAPON_PHOTON,
     WEAPON_SHOTGUN,
     WEAPON_HOMING,
 
-
     // Shield
-
     SHIELD,
 
     // Esse aqui sempre vai ser o número total de power ups

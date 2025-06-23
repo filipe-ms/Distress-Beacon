@@ -17,7 +17,6 @@ static Rectangle source_rects[ENEMY_TYPE_COUNT];
 #define E_SPEEDX enemy->speed.x
 #define E_SPEEDY enemy->speed.y
 
-
 List* enemies;
 
 #pragma region ENEMY_BEHAVIORS
@@ -407,7 +406,6 @@ static void DrawGhostShade(Enemy* enemy) {
         Rectangle rec = { ghost_indicator.x - rec_w/2, ghost_indicator.y-20, rec_w, 25 };
         DrawRectangleRounded(rec, 20, 20, Fade(RED, 0.5f));
         DrawCircle(ghost_indicator.x, ghost_indicator.y+14, 4, Fade(RED, 0.5f));
-
     }
 }
 
