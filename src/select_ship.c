@@ -30,13 +30,14 @@ void InitSelectMenu() {
 
     ship_menu.option = ORION;
 
-    ship_menu.select_pos2 = (Vector2){ GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.4 };
+    ship_menu.select_pos1 = (Vector2){ GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.4 };
 
-    ship_menu.select_pos1 = (Vector2){ GAME_SCREEN_CENTER - 0.4 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
-    ship_menu.select_pos3 = (Vector2){ GAME_SCREEN_CENTER - 0.2 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.6 };
+    ship_menu.select_pos2 = (Vector2){ GAME_SCREEN_CENTER - 0.2 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.6 };
+    ship_menu.select_pos3 = (Vector2){ GAME_SCREEN_CENTER + 0.2 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.6 };
 
     ship_menu.select_pos4 = (Vector2){ GAME_SCREEN_CENTER + 0.4 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
-    ship_menu.select_pos5 = (Vector2){ GAME_SCREEN_CENTER + 0.2 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.6 };
+    ship_menu.select_pos5 = (Vector2){ GAME_SCREEN_CENTER - 0.4 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
+    
 
     ship_menu.ship.draw_size = (Vector2){ DRAW_WH, DRAW_WH };
     ship_menu.ship.direction = CENTER;
@@ -53,8 +54,8 @@ void UpdateShipSelectMenu() {
     UpdateShip(&ship_menu.ship);
 
     if (ship_menu.is_ship_selected) {
-        if (GetPlayerShip()      == AUREA)         ship_menu.select_pos1.y -= 1500 * GetFrameTime();
-		else if (GetPlayerShip() == ORION)         ship_menu.select_pos2.y -= 1500 * GetFrameTime();
+        if (GetPlayerShip()      == ORION)         ship_menu.select_pos1.y -= 1500 * GetFrameTime();
+		else if (GetPlayerShip() == AUREA)         ship_menu.select_pos2.y -= 1500 * GetFrameTime();
 		else if (GetPlayerShip() == NEBULA)        ship_menu.select_pos3.y -= 1500 * GetFrameTime();
 		else if (GetPlayerShip() == PUDDLE_JUMPER) ship_menu.select_pos4.y -= 1500 * GetFrameTime();
         else if (GetPlayerShip() == VOID)          ship_menu.select_pos5.y -= 1500 * GetFrameTime();
@@ -89,19 +90,19 @@ void DrawSelectMenu() {
     ClearBackground(BLACK);
     DrawBackground();
 
-    Color ship_1 = (ship_menu.option == AUREA)  ? RED : GRAY;
-    Color ship_2 = (ship_menu.option == ORION)  ? RED : GRAY;
+    Color ship_1 = (ship_menu.option == ORION)  ? RED : GRAY;
+    Color ship_2 = (ship_menu.option == AUREA)  ? RED : GRAY;
     Color ship_3 = (ship_menu.option == NEBULA) ? RED : GRAY;
 	Color ship_4 = (ship_menu.option == PUDDLE_JUMPER) ? RED : GRAY;
     Color ship_5 = (ship_menu.option == VOID) ? RED : GRAY;
 
     ship_menu.ship.direction = CENTER;
     
-    ship_menu.ship.id = AUREA;
+    ship_menu.ship.id = ORION;
     ship_menu.ship.position = ship_menu.select_pos1;
     DrawShip(&ship_menu.ship);
     
-    ship_menu.ship.id = ORION;
+    ship_menu.ship.id = AUREA;
     ship_menu.ship.position = ship_menu.select_pos2;
     DrawShip(&ship_menu.ship);
 
@@ -123,8 +124,8 @@ void DrawSelectMenu() {
     char* puddle_jumper_text = "Puddle Jumper";
     char* void_text = "Void";
 
-    DrawText(aurea_text, (int)(ship_menu.select_pos1.x - MeasureText(aurea_text, 20) / 2.0f), ship_menu.select_pos1.y + 100, 20, ship_1);
-    DrawText(orion_text, (int)(ship_menu.select_pos2.x - MeasureText(orion_text, 20) / 2.0f), ship_menu.select_pos2.y + 100, 20, ship_2);
+    DrawText(orion_text, (int)(ship_menu.select_pos1.x - MeasureText(orion_text, 20) / 2.0f), ship_menu.select_pos1.y + 100, 20, ship_1);
+    DrawText(aurea_text, (int)(ship_menu.select_pos2.x - MeasureText(aurea_text, 20) / 2.0f), ship_menu.select_pos2.y + 100, 20, ship_2);
     DrawText(nebula_text, (int)(ship_menu.select_pos3.x - MeasureText(nebula_text, 20) / 2.0f), ship_menu.select_pos3.y + 100, 20, ship_3);
     DrawText(puddle_jumper_text, (int)(ship_menu.select_pos4.x - MeasureText(puddle_jumper_text, 20) / 2.0f), ship_menu.select_pos4.y + 100, 20, ship_4);
     DrawText(void_text, (int)(ship_menu.select_pos5.x - MeasureText(void_text, 20) / 2.0f), ship_menu.select_pos5.y + 100, 20, ship_5);
