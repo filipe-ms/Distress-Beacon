@@ -28,5 +28,3 @@ void InitShip(Ship* ship, int id);
 void UpdateShip(Ship* ship);
 void Ship_TakeDamage(Ship* ship);
 void DrawShip(Ship* ship);
-void LoadShipTextures(void);
-void UnloadShipTextures(void);

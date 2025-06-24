@@ -265,6 +265,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\enemy_projectile.h" />
+    <ClInclude Include="..\..\include\general_utils.h" />
     <ClInclude Include="..\..\include\hit_confirmation.h" />
     <ClInclude Include="..\..\include\background.h" />
     <ClInclude Include="..\..\include\draw_utils.h" />
@@ -272,7 +274,6 @@
     <ClInclude Include="..\..\include\common.h" />
     <ClInclude Include="..\..\include\enemy_wave.h" />
     <ClInclude Include="..\..\include\enter_name.h" />
-    <ClInclude Include="..\..\include\game_behavior.h" />
     <ClInclude Include="..\..\include\game_over.h" />
     <ClInclude Include="..\..\include\list.h" />
     <ClInclude Include="..\..\include\main_menu.h" />
@@ -282,6 +283,7 @@
     <ClInclude Include="..\..\include\select_ship.h" />
     <ClInclude Include="..\..\include\game.h" />
     <ClInclude Include="..\..\include\ship.h" />
+    <ClInclude Include="..\..\include\texture_manager.h" />
     <ClInclude Include="..\..\include\timer.h" />
     <ClInclude Include="..\..\include\tutorial.h" />
     <ClInclude Include="..\..\include\user_interface.h" />
@@ -298,13 +300,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\background.c" />
+    <ClCompile Include="..\..\src\enemy_projectile.c" />
+    <ClCompile Include="..\..\src\general_utils.c" />
     <ClCompile Include="..\..\src\hit_confirmation.c" />
     <ClCompile Include="..\..\src\draw_utils.c" />
     <ClCompile Include="..\..\src\enemy.c" />
     <ClCompile Include="..\..\src\enemy_wave.c" />
     <ClCompile Include="..\..\src\enter_name.c" />
     <ClCompile Include="..\..\src\game.c" />
-    <ClCompile Include="..\..\src\game_behavior.c" />
     <ClCompile Include="..\..\src\game_over.c" />
     <ClCompile Include="..\..\src\list.c" />
     <ClCompile Include="..\..\src\main.c" />
@@ -316,6 +319,7 @@
     <ClCompile Include="..\..\src\scene_manager.c" />
     <ClCompile Include="..\..\src\select_ship.c" />
     <ClCompile Include="..\..\src\ship.c" />
+    <ClCompile Include="..\..\src\texture_manager.c" />
     <ClCompile Include="..\..\src\timer.c" />
     <ClCompile Include="..\..\src\tutorial.c" />
     <ClCompile Include="..\..\src\user_interface.c" />

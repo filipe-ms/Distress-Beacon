@@ -41,6 +41,7 @@ void InitGame(void) {
     InitPowerUps();
     InitWaves(50);
 	InitHitConfirmation();
+	InitEnemySourceRects();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
 
     switch (GetPlayerShip()) {
@@ -65,7 +66,6 @@ void InitGame(void) {
 //                         UPDATE
 // 
 //--------------------------------------------------------------
-
 
 
 void UpdateGame(void)

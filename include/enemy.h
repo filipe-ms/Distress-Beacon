@@ -101,5 +101,5 @@ void InitEnemies(void);
 void DeInitEnemy(Enemy* enemy);
 void UpdateEnemies(Ship* ship);
 void DrawEnemies(void);
-void LoadEnemyTextures(void);
-void UnloadEnemyTextures(void);
+void InitEnemySourceRects(void);
+void UnloadEnemyList(void);

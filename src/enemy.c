@@ -3,10 +3,10 @@
 #include "raymath.h"
 #include "enemy_projectile.h"
 #include "general_utils.h"
+#include "texture_manager.h"
 
 static const int SPAWN_Y_MIN = -200;
 
-static Texture2D texture;
 static Rectangle source_rects[ENEMY_TYPE_COUNT];
 
 // Macros
@@ -526,7 +526,7 @@ static void DrawEnemy(void* context, void* data) {
 
         Vector2 origin = { E_SIZEX / 2, E_SIZEY / 2 };
 		Rectangle enemy_rect = GetEnemyRectangle(enemy);
-        DrawTexturePro(texture, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
+        DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
     }
 
 	if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
@@ -536,14 +536,7 @@ void DrawEnemies(void) {
     List_ForEachCtx(enemies, NULL, DrawEnemy);
 }
 
-void LoadEnemyTextures(void) {
-
-    texture = LoadTexture("ships.png");
-    if (texture.id <= 0) {
-        TraceLog(LOG_WARNING, "Textura de inimigos (ships.png) não encontrada.");
-        return;
-    }
-
+void InitEnemySourceRects(void) {
     source_rects[ENEMY_BASIC]                = (Rectangle){ 32, 0, 8, 8 };
     source_rects[ENEMY_ZIGZAG]               = (Rectangle){ 32, 24, 8, 8 };
     source_rects[ENEMY_BOOSTER]              = (Rectangle){ 48, 24, 8, 8 };
@@ -555,7 +548,6 @@ void LoadEnemyTextures(void) {
     source_rects[ENEMY_BOSS_PIDGEON_OF_PREY] = (Rectangle){ 8 * 8, 8 * 8, 16, 16 };
 }
 
-void UnloadEnemyTextures(void) {
-    UnloadTexture(texture);
+void UnloadEnemyList(void) {
     List_Destroy(enemies);
 }

@@ -1,8 +1,7 @@
 // animations.c
 #include "hit_confirmation.h"
 #include "list.h"
-
-Texture hit_textures;
+#include "texture_manager.h"
 
 #define HIT_ANIM_FRAMES 4
 
@@ -47,11 +46,11 @@ typedef struct HitConfirmation {
 List* hit_confirmations;
 
 void InitHitConfirmation(void) {
-	hit_textures = LoadTexture("playerassets.png");
+	texture_ship_assets = LoadTexture("playerassets.png");
 	hit_confirmations = List_Create(sizeof(HitConfirmation));
 }
 void UnloadHitConfirmation(void) {
-	UnloadTexture(hit_textures);
+	UnloadTexture(texture_ship_assets);
 }
 static Rectangle GetShockwaveSource(int frame) {
 	if (frame >= 1 && frame <= HIT_ANIM_FRAMES) {
@@ -200,7 +199,7 @@ static void DrawAnimation(HitConfirmation* hit) {
 		hit->size.x,
 		hit->size.y
 	};
-	DrawTexturePro(hit_textures, hit->source, dest, (Vector2) { 0 }, 0.0f, Fade(WHITE, 0.5f));
+	DrawTexturePro(texture_ship_assets, hit->source, dest, (Vector2) { 0 }, 0.0f, Fade(WHITE, 0.5f));
 }
 
 void DrawHitConfirmation(void) {

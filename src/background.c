@@ -2,8 +2,10 @@
 #include "background.h"
 #include "common.h"
 #include "raymath.h"
+#include "texture_manager.h"
 
 typedef struct Background {
+	Texture* texture;
     float position_x;
     float position_y;
     Color color;
@@ -12,39 +14,30 @@ typedef struct Background {
 	float speed;
 } Background;
 
-Texture texture;
 Background background;
 
 static void LoadSelectedTexture(BackgroundTexture background_texture) {
-	if (texture.id != 0) UnloadTexture(texture);
 	switch (background_texture) {
 	case BACKGROUND_STARS:
-		texture = LoadTexture("background/stars.png");
+		background.texture = &background_stars;
 		break;
 	case BACKGROUND_GAME:
-		texture = LoadTexture("background/dark_space.png");
+		background.texture = &background_dark_space;
 		break;
 	case BACKGROUND_SELECT_SHIP:
-		texture = LoadTexture("background/stars_and_dust.png");
+		background.texture = &background_stars_and_dust;
 		break;
 	default:
-		texture = LoadTexture("background/menubg.png");
+		background.texture = &background_menubg;
 		break;
-	}
-}
-
-void UnloadBackgroundTexture(void) {
-	if (texture.id != 0) {
-		UnloadTexture(texture);
 	}
 }
 
 static float GetStretchScale(void) {
-	float width_scale = (float)SCREEN_WIDTH / texture.width;
-	float height_scale = (float)SCREEN_HEIGHT / texture.height;
+	float width_scale = (float)SCREEN_WIDTH / background.texture->width;
+	float height_scale = (float)SCREEN_HEIGHT / background.texture->height;
 	return fmaxf(width_scale, height_scale);
 }
-
 
 void InitBackground(BackgroundTexture bg_texture, Color tint, float scale, float alpha, float speed) {
 	LoadSelectedTexture(bg_texture);
@@ -68,13 +61,13 @@ float GetBackgroundScrollSpeed(void) {
 }
 
 void UpdateBackground() {
-	background.position_y = fmodf(background.position_y + background.speed * GetFrameTime(), texture.height * background.scale);
+	background.position_y = fmodf(background.position_y + background.speed * GetFrameTime(), background.texture->height * background.scale);
 }
 
 void DrawBackground() {
 	Color color = Fade(background.color, background.alpha);
 	Vector2 position1 = { background.position_x, background.position_y };
-	Vector2 position2 = { background.position_x, background.position_y - texture.height * background.scale };
-	DrawTextureEx(texture, position1, 0.0f, background.scale, color);
-	DrawTextureEx(texture, position2, 0.0f, background.scale, color);
+	Vector2 position2 = { background.position_x, background.position_y - background.texture->height * background.scale };
+	DrawTextureEx(*background.texture, position1, 0.0f, background.scale, color);
+	DrawTextureEx(*background.texture, position2, 0.0f, background.scale, color);
 }

@@ -158,8 +158,6 @@ int GetShieldCapacity(void);
 void InitWeapon(void);
 void UpdateWeapon(Ship* ship);
 void DrawWeapon(void);
-void LoadWeaponTextures(void);
-void UnloadWeaponTextures(void);
 int GetWeaponLevel(int reference);
 const char* GetActiveWeaponsString(void);
 
