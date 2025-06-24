@@ -12,12 +12,10 @@
 
 #include "player.h"
 #include "general_utils.h"
+#include "texture_manager.h"
 
 #include <string.h>
 #include <stdlib.h>
-
-// Power up textures
-Texture weapon_texture;
 
 // Weapon power-up values
 float cooldown_modifier;
@@ -161,7 +159,7 @@ static void PulseShootDraw(PulseShoot* pulse_shoot) {
         DrawCircleV(pulse_shoot->shoot.position, 20, Fade(RED, 0.5f));
     }
 
-    DrawTexturePro(weapon_texture, pulse.weapon.source, pulse_rect_draw, draw_origin, pulse_shoot->rotation, WHITE);
+    DrawTexturePro(texture_projectiles, pulse.weapon.source, pulse_rect_draw, draw_origin, pulse_shoot->rotation, WHITE);
 }
 
 static void DrawPulseShoot() {
@@ -260,7 +258,7 @@ static void DrawPhotonShoot(PhotonShoot* photon_shoot) {
         DrawCircleV(center, 20, Fade(RED, 0.5f));
     }	
 
-    DrawTexturePro(weapon_texture, photon.weapon.source, destRec, origin, 0, WHITE);
+    DrawTexturePro(texture_projectiles, photon.weapon.source, destRec, origin, 0, WHITE);
 }
 
 static void DrawPhoton(void) {
@@ -417,7 +415,7 @@ static void DrawHomingShoot(HomingShoot* homing_shoot) {
             RED);
     }
 
-    DrawTexturePro(weapon_texture, homing.weapon.source, destRec, origin, homing_shoot->visual_rotation, WHITE);
+    DrawTexturePro(texture_projectiles, homing.weapon.source, destRec, origin, homing_shoot->visual_rotation, WHITE);
 }
 
 static void DrawHoming(void) {
@@ -536,7 +534,7 @@ static void DrawShotgunShoot(ShotgunShoot* shotgun_shoot) {
 		DrawCircleV(center, 20, Fade(RED, 0.5f));
 	}
 
-    DrawTexturePro(weapon_texture, shotgun_shoot->source, destRec, origin, shotgun_shoot->orientation, Fade(WHITE, shotgun_shoot->alpha));
+    DrawTexturePro(texture_projectiles, shotgun_shoot->source, destRec, origin, shotgun_shoot->orientation, Fade(WHITE, shotgun_shoot->alpha));
 }
 
 static void DrawShotgun(void) {
@@ -694,12 +692,4 @@ void DrawWeapon(void) {
     DrawPhoton();
     DrawShotgun();
     DrawHoming();
-}
-
-void LoadWeaponTextures(void) {
-    weapon_texture = LoadTexture("weapons.png");
-}
-
-void UnloadWeaponTextures(void) {
-    UnloadTexture(weapon_texture);
 }

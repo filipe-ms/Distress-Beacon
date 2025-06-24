@@ -14,4 +14,3 @@ void EnemyProjectile_SpawnPosition(Enemy* enemy, ProjectileType type, Vector2 po
 void EnemyProjectile_Update(Ship* ship);
 void EnemyProjectile_Draw(void);
 void EnemyProjectile_Load(void);
-void EnemyProjectile_Unload(void);

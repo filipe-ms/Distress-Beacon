@@ -31,6 +31,12 @@
     <Filter Include="Header Files\game">
       <UniqueIdentifier>{1999ad60-17d1-4170-a0d3-e3f182c49a82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\resources">
+      <UniqueIdentifier>{77f11bf6-6688-441b-b1c8-b1cf9907c9bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\resources">
+      <UniqueIdentifier>{5b236572-6c79-41dc-b3bf-4ec7844676e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\resource_dir.h">
@@ -75,9 +81,6 @@
     <ClInclude Include="..\..\include\common.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\game_behavior.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\list.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
@@ -106,6 +109,15 @@
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\timer.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\enemy_projectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\texture_manager.h">
+      <Filter>Header Files\resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\general_utils.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
@@ -152,9 +164,6 @@
     <ClCompile Include="..\..\src\list.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\game_behavior.c">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\game.c">
       <Filter>Source Files\game</Filter>
     </ClCompile>
@@ -180,6 +189,15 @@
       <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\background.c">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\enemy_projectile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\texture_manager.c">
+      <Filter>Source Files\resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\general_utils.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>

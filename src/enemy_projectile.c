@@ -5,10 +5,21 @@
 #include "ship.h"
 #include "enemy.h"
 #include "general_utils.h"
+#include "texture_manager.h"
 
 List* enemy_projectiles = NULL;
-
-static Texture texture;
+static void InitializeEnemyProjectileSpecifics(EnemyProjectile* enemy_projectile) {  
+   switch(enemy_projectile->type) {  
+       case PROJECTILE_PIDGEON_OF_PREY_1: {
+           float rotation = enemy_projectile->owner->rotation;  
+           Vector2 speed_vector = Vector2Rotate(enemy_projectile->speed, rotation * DEG2RAD);  
+           enemy_projectile->speed = speed_vector;  
+           enemy_projectile->size = (Vector2) { 8 * 10, 8 * 10 };  
+           enemy_projectile->collision_size = 8 * 2;  
+           break;
+       }  
+   }  
+}
 static Rectangle source_rects[PROJECTILE_COUNT];
 
 void EnemyProjectile_Init() {
@@ -22,25 +33,7 @@ void EnemyProjectile_Init() {
 
 void EnemyProjectile_Load(void)
 {
-    texture = LoadTexture("weapons.png");
-    if (texture.id <= 0) {
-        TraceLog(LOG_WARNING, "Textura de inimigos (weapons.png) não encontrada.");
-        return;
-    }
-
     source_rects[PROJECTILE_PIDGEON_OF_PREY_1] = (Rectangle){ 8 * 1, 8 * 1, 8, 8 };
-}
-
-static void InitializeEnemyProjectileSpecifics(EnemyProjectile* enemy_projectile) {
-    switch(enemy_projectile->type) {
-        case PROJECTILE_PIDGEON_OF_PREY_1:
-            float rotation = enemy_projectile->owner->rotation;
-            Vector2 speed_vector = Vector2Rotate(enemy_projectile->speed, rotation * DEG2RAD);
-            enemy_projectile->speed = speed_vector;
-            enemy_projectile->size = (Vector2) { 8 * 10, 8 * 10 };
-            enemy_projectile->collision_size = 8 * 2;
-            break;
-    }
 }
 
 void EnemyProjectile_Activate(EnemyProjectile* enemy_projectile, Enemy *enemy, ProjectileType type)
@@ -82,8 +75,7 @@ static void CheckCollision(Ship* ship, EnemyProjectile* enemy_projectile) {
         ship->position, ship->draw_size.x / 2.0f,
         enemy_projectile->position, enemy_projectile->collision_size);
 
-    if (!has_collided)
-        return;
+    if (!has_collided) return;
 
     Ship_TakeDamage(ship);
 }
@@ -139,18 +131,11 @@ static void Draw(EnemyProjectile* enemy_projectile) {
     Vector2 origin = Vector2DivideScalarF(enemy_projectile->size, 2);
     Rectangle enemy_rect = GetEnemyRectangle(enemy_projectile);
 
-    DrawTexturePro(texture, source_rects[enemy_projectile->type], enemy_rect, origin, enemy_projectile->rotation, enemy_projectile->color);
+    DrawTexturePro(texture_projectiles, source_rects[enemy_projectile->type], enemy_rect, origin, enemy_projectile->rotation, enemy_projectile->color);
 }
 
 void EnemyProjectile_Draw(void)
 {
     List_ForEach(enemy_projectiles, Draw);
-}
-#pragma endregion
-
-#pragma region UNLOAD
-void EnemyProjectile_Unload(void)
-{
-    UnloadTexture(texture);
 }
 #pragma endregion

@@ -4,15 +4,14 @@
 #include "raymath.h"
 #include "common.h"
 #include "weapon.h"
+#include "texture_manager.h"
 
 #define SOURCE_WH 8
 
 #define MAX_THRUSTER_CYCLE 4
 
 Ship ship;
-
-Texture ships;
-Texture thrusters;
+Texture texture_ship_assets;
 
 typedef struct Orion {
 	float dash_cooldown;
@@ -229,9 +228,9 @@ static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {
 	Vector2 origin = { 0 };
 	float rotation = 0.0f;
 
-	DrawTexturePro(ships, puddle_jumper_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ships, puddle_jumper_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
 
 	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 }
@@ -270,9 +269,9 @@ static void DrawAurea(Ship* ship, Rectangle draw_pos) {
 	Vector2 origin = { 0 };
 	float rotation = 0.0f;
 
-	DrawTexturePro(ships, aurea_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ships, aurea_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
 
 	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 }
@@ -297,8 +296,8 @@ static void DrawOrion(Ship* ship, Rectangle draw_pos) {
 	Vector2 origin = { 0 };
 	float rotation = 0.0f;
 
-	DrawTexturePro(ships, orion_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, thruster_sprite, thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ships, orion_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, thruster_sprite, thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
 
 	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 }
@@ -332,10 +331,10 @@ static void DrawNebula(Ship* ship, Rectangle draw_pos) {
 	Vector2 origin = { 0 };
 	float rotation = 0.0f;
 
-	DrawTexturePro(ships, nebula_sprite, draw_pos, origin, 0.0f, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, center_thruster_sprite, center_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
-	DrawTexturePro(thrusters, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ships, nebula_sprite, draw_pos, origin, 0.0f, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, left_thruster_sprite, left_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, center_thruster_sprite, center_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
+	DrawTexturePro(texture_ship_assets, right_thruster_sprite, right_thruster_position, origin, rotation, Fade(ship->color, ship->alpha));
 
 	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
 
@@ -375,14 +374,4 @@ void DrawShip(Ship* ship) {
 			TraceLog(LOG_INFO, "vulneravel");
 		}
 	}
-}
-
-void LoadShipTextures(void) {
-    ships = LoadTexture("ships.png");
-    thrusters = LoadTexture("playerassets.png");
-}
-
-void UnloadShipTextures(void) {
-    UnloadTexture(ships);
-    UnloadTexture(thrusters);
 }

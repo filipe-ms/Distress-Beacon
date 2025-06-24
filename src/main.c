@@ -31,13 +31,13 @@
 
 #include "tutorial.h"
 
-#include "ship.h"
-
 #include "hit_confirmation.h"
 #include "list.h"
 
 #include "background.h"
 #include "enemy_projectile.h"
+
+#include "texture_manager.h"
 
 static Scene starting_scene = START;
 
@@ -72,24 +72,19 @@ int main(void)
 // Inicializa as texturas no jogo
 void LoadGame() {
     SearchAndSetResourceDir("resources");
-
-    LoadEnemyTextures();
+    LoadAllTextures();
+    InitEnemySourceRects();
     LoadTutorialTextures();
-    LoadWeaponTextures();
     EnemyProjectile_Load();
-    LoadShipTextures();
 }
 
 // Unload game variables
 void UnloadGame(void)
 {
-    UnloadEnemyTextures();
+    LoadAllTextures();
+    UnloadEnemyList();
     UnloadTutorialTextures();
-    UnloadWeaponTextures();
-    EnemyProjectile_Unload();
     UnloadPowerUpTextures();
-	UnloadShipTextures();
 	UnloadHitConfirmation();
 	List_FreeAll();
-	UnloadBackgroundTexture();
 }

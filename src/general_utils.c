@@ -1,11 +1,5 @@
-#pragma once
-
+// general_utils.c
 #include "general_utils.h"
-
-#include "stdio.h"
-#include "raylib.h"
-#include "common.h"
-#include "raymath.h"
 
 float ClampWithFlagsF(float value, float min, float max, bool* has_reached_min, bool* has_reached_max) {
     if (value < min) {
@@ -28,23 +22,23 @@ int LerpInt(int start, int end, float elapsed_time, float duration) {
     return start + (int)(t * (end - start));
 }
 
-Vector2 inline Vector2DivideScalarF(Vector2 vector, float scalar) {
+Vector2 Vector2DivideScalarF(Vector2 vector, float scalar) {
     return (Vector2) { vector.x / scalar, vector.y / scalar };
 }
 
-Vector2 inline Vector2AddScalarF(Vector2 vector, float scalar) {
+Vector2 Vector2AddScalarF(Vector2 vector, float scalar) {
     return (Vector2) { vector.x + scalar, vector.y + scalar };
 }
 
-Vector2 inline Vector2MultiplyScalarF(Vector2 vector, float scalar) {
+Vector2 Vector2MultiplyScalarF(Vector2 vector, float scalar) {
     return (Vector2) { vector.x * scalar, vector.y * scalar };
 }
 
-Vector2 inline Vector2SubtractScalarF(Vector2 vector, float scalar) {
+Vector2 Vector2SubtractScalarF(Vector2 vector, float scalar) {
     return (Vector2) { vector.x - scalar, vector.y - scalar };
 }
 
-bool inline IsWithinScreenBounds(Vector2 position, Vector2 size) {
+bool IsWithinScreenBounds(Vector2 position, Vector2 size) {
     // Adds 10 more pixels just to be extra sure it is true when it is being rendered.
     static const Vector2 vector_ten = { 10, 10 };
     
@@ -56,11 +50,11 @@ bool inline IsWithinScreenBounds(Vector2 position, Vector2 size) {
         position.x > (GAME_SCREEN_END + half_size.y);
 }
 
-float inline WrapAngle(float angle) {
+float WrapAngle(float angle) {
     return fmodf(angle + PI, 2*PI) - PI;
 }
 
-float inline CalculateFacingAngle(Vector2 from, Vector2 to)
+float CalculateFacingAngle(Vector2 from, Vector2 to)
 {
     Vector2 vect = Vector2Subtract(from, to);
     return atan2f(vect.y, vect.x);
