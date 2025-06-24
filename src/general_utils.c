@@ -7,12 +7,30 @@
 float ClampWithFlagsF(float value, float min, float max, bool* has_reached_min, bool* has_reached_max) {
     if (value < min) {
         value = min;
-        if (has_reached_min)
+        
+        if (has_reached_min) {
             *has_reached_min = true;
+        }
+        
+        if (has_reached_max) {
+            *has_reached_max = false;
+        }
     } else if (value > max) {
         value = max;
-        if (has_reached_max)
+
+        if (has_reached_min) {
+            *has_reached_min = false;
+        }
+
+        if (has_reached_max) {
             *has_reached_max = true;
+        }
+    } else {
+        if (has_reached_min)
+            *has_reached_min = false;
+
+        if (has_reached_max)
+            *has_reached_max = false;
     }
 
     return value;

@@ -94,7 +94,7 @@ typedef struct {
 
 extern List* enemies;
 
-void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp);
+void InitEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp);
 void SpawnEnemies(List* enemy_list);
 
 void InitEnemies(void);
