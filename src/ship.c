@@ -11,7 +11,6 @@
 #define MAX_THRUSTER_CYCLE 4
 
 Ship ship;
-Texture texture_ship_assets;
 
 typedef struct Orion {
 	float dash_cooldown;

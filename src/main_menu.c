@@ -5,7 +5,7 @@
 #include "scene_manager.h"
 #include "background.h"
 #include "draw_utils.h"
-#include "scene_draw_utils.h"
+#include "scene_draw_effects.h"
 #include "timer.h"
 
 #include "raymath.h"
@@ -48,7 +48,7 @@ void UpdateMainMenu() {
             else if (main_menu.option == MENU_OPTION_EXIT)    main_menu.next_scene = EXIT;
 		    // TODO: Implementar agradecimentos
 		    main_menu.option_picked = true;
-			InitFadeOutEffect(2.0f, BLACK, GetCurrentScreenEffectAlpha());
+			InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
             InitTimer(2.0f);
         }
     }

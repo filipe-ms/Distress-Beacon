@@ -105,7 +105,7 @@
     <ClInclude Include="..\..\include\hit_confirmation.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\scene_draw_utils.h">
+    <ClInclude Include="..\..\include\scene_draw_effects.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\timer.h">

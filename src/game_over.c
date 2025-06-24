@@ -6,7 +6,7 @@
 #include "player.h"
 #include "ranking.h"
 #include "draw_utils.h"
-#include "scene_draw_utils.h"
+#include "scene_draw_effects.h"
 #include "timer.h"
 
 static bool enter_pressed;
@@ -21,7 +21,7 @@ void UpdateGameOver(void) {
     if (IsKeyPressed(KEY_ENTER)) {
         enter_pressed = true;
         InitTimer(2.0f);
-        InitFadeOutEffect(2.0f, BLACK, GetCurrentScreenEffectAlpha());
+        InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
     }
 
     if (enter_pressed && UpdateTimer()) {

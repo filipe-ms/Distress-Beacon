@@ -5,7 +5,7 @@
 #include "player.h"
 #include "scene_manager.h"
 #include "background.h"
-#include "scene_draw_utils.h"
+#include "scene_draw_effects.h"
 #include "raymath.h"
 #include "timer.h"
 #include "ship.h"
@@ -64,7 +64,7 @@ void UpdateShipSelectMenu() {
             ship_menu.is_ship_selected = true;
             SetPlayerShip(ship_menu.option);
             InitTimer(2.0f);
-			InitFadeOutEffect(2.0f, BLACK, GetCurrentScreenEffectAlpha());
+			InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }
     }
 }

@@ -50,7 +50,7 @@ static void CreateLineAtBorders(int id, EnemyType type, float start_time, int mo
         Vector2 position = { starting_x + i * step, ENEMY_LINE_SPAWN_START };
 
         Enemy enemy;
-        ActivateEnemy(&enemy, position, type, 3 + intensity / 2);
+        InitEnemy(&enemy, position, type, 3 + intensity / 2);
         List_Add(wave.spawns, &enemy);
     }
 
@@ -74,7 +74,7 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
 
     Enemy middle_enemy;
 
-    ActivateEnemy(
+    InitEnemy(
         &middle_enemy,
         (Vector2){ center_x, starting_y - wave.modifier * rows * horizontal_spacing },
         type, enemy_hp_base * intensity);
@@ -89,7 +89,7 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
         left_pos.y -= horizontal_spacing * ((modifier == 0) ? 1 : -1);
 
         Enemy left_enemy;
-        ActivateEnemy(&left_enemy, left_pos, type, enemy_hp_base * intensity);
+        InitEnemy(&left_enemy, left_pos, type, enemy_hp_base * intensity);
         List_Add(wave.spawns, &left_enemy);
 
 
@@ -97,7 +97,7 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
         right_pos.y -= horizontal_spacing * ((modifier == 0) ? 1 : -1);
 
         Enemy right_enemy;
-        ActivateEnemy(&right_enemy, right_pos, type, enemy_hp_base * intensity);
+        InitEnemy(&right_enemy, right_pos, type, enemy_hp_base * intensity);
         List_Add(wave.spawns, &right_enemy);
     }
     
@@ -126,7 +126,7 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
             };
 
         Enemy enemy;
-        ActivateEnemy(&enemy, position, type, enemy_hp_base * intensity);
+        InitEnemy(&enemy, position, type, enemy_hp_base * intensity);
         List_Add(wave.spawns, &enemy);
     }
 
@@ -140,7 +140,7 @@ static void CreateSingle(int id, EnemyType type, float start_time, Vector2 initi
     Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
 
     Enemy enemy;
-    ActivateEnemy(&enemy, position, type, 5);
+    InitEnemy(&enemy, position, type, 5);
     enemy.position = initial_position;
 
     List_Add(wave.spawns, &enemy);
@@ -162,7 +162,7 @@ static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
     Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
 
     Enemy enemy;
-    ActivateEnemy(&enemy, position, type, 5);
+    InitEnemy(&enemy, position, type, 5);
     List_Add(wave.spawns, &enemy);
 
     List_AddLast(waves, &wave);
@@ -176,7 +176,7 @@ void GenerateWaves(int level) {
     float start_time = 5;
 
     for(int i = 0; i < level + 1; i++) {
-        int wave_type = GetRandomValue(99, 99);
+        int wave_type = GetRandomValue(8, 8);
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {

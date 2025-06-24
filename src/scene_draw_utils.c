@@ -1,5 +1,5 @@
 // scene_draw_utils.c
-#include "scene_draw_utils.h"
+#include "scene_draw_effects.h"
 #include "common.h"
 #include "raymath.h"
 

@@ -6,6 +6,7 @@
 extern Texture texture_ships;
 extern Texture texture_projectiles;
 extern Texture texture_ship_assets;
+extern Texture texture_custom_ships;
 
 extern Texture background_stars;
 extern Texture background_dark_space;
