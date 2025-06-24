@@ -182,7 +182,7 @@
     <ClCompile Include="..\..\src\hit_confirmation.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\scene_draw_utils.c">
+    <ClCompile Include="..\..\src\scene_draw_effects.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\timer.c">

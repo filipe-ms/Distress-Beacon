@@ -315,7 +315,7 @@
     <ClCompile Include="..\..\src\player.c" />
     <ClCompile Include="..\..\src\power_ups.c" />
     <ClCompile Include="..\..\src\ranking.c" />
-    <ClCompile Include="..\..\src\scene_draw_utils.c" />
+    <ClCompile Include="..\..\src\scene_draw_effects.c" />
     <ClCompile Include="..\..\src\scene_manager.c" />
     <ClCompile Include="..\..\src\select_ship.c" />
     <ClCompile Include="..\..\src\ship.c" />

@@ -192,6 +192,8 @@ static void UpdatePuddleJumper() {
 	}
 }
 
+static void UpdateVoid() {}
+
 static void WallBehavior(Vector2* position) {
 	position->x = Clamp(position->x, GAME_SCREEN_START + DRAW_WH / 2, GAME_SCREEN_END - (DRAW_WH / 2));
 	position->y = Clamp(position->y, DRAW_WH / 2, SCREEN_HEIGHT - DRAW_WH / 2);
@@ -232,6 +234,9 @@ void UpdateShip(Ship* ship) {
 			break;
 		case PUDDLE_JUMPER:
 			UpdatePuddleJumper();
+			break;
+		case VOID:
+			UpdateVoid();
 			break;
 		default:
 			return;
@@ -410,6 +415,24 @@ static void DrawNebula(Ship* ship, Rectangle draw_pos) {
 
 }
 
+static void DrawVoid(Ship* ship, Rectangle draw_pos) {
+	Rectangle void_sprite = { 8, 32, SOURCE_WH, SOURCE_WH };
+
+	if (ship->direction == LEFT) {
+		void_sprite.x -= SOURCE_WH;
+	}
+	else if (ship->direction == RIGHT) {
+		void_sprite.x += SOURCE_WH;
+	}
+
+	Vector2 origin = { 0 };
+	float rotation = 0.0f;
+
+	DrawTexturePro(texture_ships, void_sprite, draw_pos, origin, rotation, Fade(ship->color, ship->alpha));
+
+	if (DEBUG_FLAG) DrawCircleV(ship->position, 20, Fade(BLUE, 0.5f));
+}
+
 void DrawShip(Ship* ship) {
 	Rectangle destination = {
 		ship->position.x - DRAW_WH / 2,
@@ -430,6 +453,9 @@ void DrawShip(Ship* ship) {
 		break;
 	case PUDDLE_JUMPER:
 		DrawPuddleJumper(ship, destination);
+		break;
+	case VOID:
+		DrawVoid(ship, destination);
 		break;
 	}
 

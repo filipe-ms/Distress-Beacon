@@ -65,8 +65,9 @@
 #define ORION 1
 #define NEBULA 2
 #define PUDDLE_JUMPER 3
+#define VOID 4
 
-#define PLAYABLE_SHIPS 4
+#define PLAYABLE_SHIPS 5
 
 #define CENTER 0
 #define LEFT 1
