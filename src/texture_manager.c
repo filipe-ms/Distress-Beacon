@@ -3,6 +3,7 @@
 Texture texture_ships;
 Texture texture_projectiles;
 Texture texture_ship_assets;
+Texture texture_custom_ships;
 
 Texture background_stars;
 Texture background_dark_space;
@@ -11,6 +12,7 @@ Texture background_menubg;
 
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
+	texture_custom_ships = LoadTexture("custom_ships.png");
 	texture_projectiles = LoadTexture("weapons.png");
 	texture_ship_assets = LoadTexture("playerassets.png");
 
@@ -23,4 +25,10 @@ void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
 	UnloadTexture(texture_projectiles);
 	UnloadTexture(texture_ship_assets);
+	UnloadTexture(texture_custom_ships);
+
+	UnloadTexture(background_stars);
+	UnloadTexture(background_dark_space);
+	UnloadTexture(background_stars_and_dust);
+	UnloadTexture(background_menubg);
 }

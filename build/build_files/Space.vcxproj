@@ -278,7 +278,7 @@
     <ClInclude Include="..\..\include\list.h" />
     <ClInclude Include="..\..\include\main_menu.h" />
     <ClInclude Include="..\..\include\ranking.h" />
-    <ClInclude Include="..\..\include\scene_draw_utils.h" />
+    <ClInclude Include="..\..\include\scene_draw_effects.h" />
     <ClInclude Include="..\..\include\scene_manager.h" />
     <ClInclude Include="..\..\include\select_ship.h" />
     <ClInclude Include="..\..\include\game.h" />

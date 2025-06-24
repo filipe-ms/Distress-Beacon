@@ -10,7 +10,7 @@
 
 #pragma once
 
-#define DEBUG_FLAG 1
+#define DEBUG_FLAG 0 // Hitboxes e outras coisas
 
 //--------------------------------------------------------------
 //
@@ -75,3 +75,12 @@
 #define DOWN 4
 
 #define ENEMY_LINE_SPAWN_START -80
+
+
+//--------------------------------------------------------------
+//
+//                        BALANCEAMENTO
+//
+//--------------------------------------------------------------
+
+#define GHOST_INVIS_TIMER 3.0f

@@ -180,8 +180,7 @@ static void BehaviorSpinner(Enemy* enemy, int modifier) {
 
 static void BehaviorGhost(Enemy* enemy, Ship* ship) {
     float fade_duration = 0.2f;
-    TraceLog(LOG_INFO, "GHOST STATE: %d", enemy->state);
-    // Na primeira execução, define a posição onde o GHOST vai aparecer.
+    // Na primeira execução, define a posição onde o ghost vai aparecer.
     if (!enemy->should_perform_action) {
         enemy->vector2_aux1 = GetPositionNearPlayer(ship, 200);
         enemy->should_perform_action = true;
@@ -229,7 +228,7 @@ static void BehaviorGhost(Enemy* enemy, Ship* ship) {
             enemy->position.y = -500.0f;
             enemy->position.x = GAME_SCREEN_CENTER;
             enemy->is_on_screen = false;
-            enemy->elapsed_time = enemy->timer;
+            enemy->elapsed_time = GHOST_INVIS_TIMER;
             enemy->state = GHOST_IDLE;
         }
         break;
@@ -526,10 +525,12 @@ static void DrawEnemy(void* context, void* data) {
 
         Vector2 origin = { E_SIZEX / 2, E_SIZEY / 2 };
 		Rectangle enemy_rect = GetEnemyRectangle(enemy);
-        DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
+
+        if(enemy->type < ENEMY_GHOST) DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
+        else DrawTexturePro(texture_custom_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
     }
 
-	if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
+    if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
 }
 
 void DrawEnemies(void) {
@@ -537,6 +538,8 @@ void DrawEnemies(void) {
 }
 
 void InitEnemySourceRects(void) {
+    
+    // Inimigos comuns (textura
     source_rects[ENEMY_BASIC]                = (Rectangle){ 32, 0, 8, 8 };
     source_rects[ENEMY_ZIGZAG]               = (Rectangle){ 32, 24, 8, 8 };
     source_rects[ENEMY_BOOSTER]              = (Rectangle){ 48, 24, 8, 8 };
@@ -544,8 +547,12 @@ void InitEnemySourceRects(void) {
     source_rects[ENEMY_SPINNER]              = (Rectangle){ 40, 8, 8, 8 };
     source_rects[ENEMY_REVERSE_SPINNER]      = (Rectangle){ 80, 0, 8, 8 };
     source_rects[ENEMY_STALKER]              = (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_GHOST]                = (Rectangle){ 32, 0, 8, 8 };
+    
+    // Bosses
     source_rects[ENEMY_BOSS_PIDGEON_OF_PREY] = (Rectangle){ 8 * 8, 8 * 8, 16, 16 };
+
+    // Outro arquivo de textura
+    source_rects[ENEMY_GHOST] = (Rectangle){ 0, 0, 8, 8 };
 }
 
 void UnloadEnemyList(void) {

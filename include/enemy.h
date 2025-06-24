@@ -5,6 +5,7 @@
 #include "list.h"
 
 typedef enum {
+    // Base texture
     ENEMY_BASIC,
     ENEMY_ZIGZAG,
     ENEMY_BOOSTER,
@@ -12,8 +13,11 @@ typedef enum {
     ENEMY_SPINNER,
     ENEMY_STALKER,
     ENEMY_REVERSE_SPINNER,
-    ENEMY_GHOST,
     ENEMY_BOSS_PIDGEON_OF_PREY,
+
+    // Custom texture
+    ENEMY_GHOST,
+    
     ENEMY_TYPE_COUNT
 } EnemyType;
 
