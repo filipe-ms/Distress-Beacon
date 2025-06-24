@@ -1,5 +1,8 @@
 // general_utils.c
 #include "general_utils.h"
+#include "common.h"
+#include "raymath.h"
+#include <stdio.h>
 
 float ClampWithFlagsF(float value, float min, float max, bool* has_reached_min, bool* has_reached_max) {
     if (value < min) {

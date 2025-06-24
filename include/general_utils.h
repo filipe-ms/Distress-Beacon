@@ -1,10 +1,6 @@
 #pragma once
 
 #include "raylib.h"
-#include "common.h"
-#include "raymath.h"
-
-#include <stdio.h>
 
 float ClampWithFlagsF(float value, float min, float max, bool* has_reached_min, bool* has_reached_max);
 int LerpInt(int start, int end, float elapsed_time, float duration);

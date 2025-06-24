@@ -373,7 +373,7 @@ static void InitEnemySpecifics(Enemy* enemy) {
     }
 }
 
-void ActivateEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
+void InitEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->type = type;
     enemy->hp = (float)hp;
     enemy->color = WHITE;
