@@ -116,6 +116,7 @@ GENERATED += $(OBJDIR)/enemy_projectile.o
 GENERATED += $(OBJDIR)/enemy_wave.o
 GENERATED += $(OBJDIR)/enter_name.o
 GENERATED += $(OBJDIR)/game.o
+GENERATED += $(OBJDIR)/game_behavior.o
 GENERATED += $(OBJDIR)/game_over.o
 GENERATED += $(OBJDIR)/general_utils.o
 GENERATED += $(OBJDIR)/hit_confirmation.o
@@ -129,6 +130,7 @@ GENERATED += $(OBJDIR)/scene_draw_utils.o
 GENERATED += $(OBJDIR)/scene_manager.o
 GENERATED += $(OBJDIR)/select_ship.o
 GENERATED += $(OBJDIR)/ship.o
+GENERATED += $(OBJDIR)/texture_manager.o
 GENERATED += $(OBJDIR)/timer.o
 GENERATED += $(OBJDIR)/tutorial.o
 GENERATED += $(OBJDIR)/user_interface.o
@@ -141,6 +143,7 @@ OBJECTS += $(OBJDIR)/enemy_projectile.o
 OBJECTS += $(OBJDIR)/enemy_wave.o
 OBJECTS += $(OBJDIR)/enter_name.o
 OBJECTS += $(OBJDIR)/game.o
+OBJECTS += $(OBJDIR)/game_behavior.o
 OBJECTS += $(OBJDIR)/game_over.o
 OBJECTS += $(OBJDIR)/general_utils.o
 OBJECTS += $(OBJDIR)/hit_confirmation.o
@@ -154,6 +157,7 @@ OBJECTS += $(OBJDIR)/scene_draw_utils.o
 OBJECTS += $(OBJDIR)/scene_manager.o
 OBJECTS += $(OBJDIR)/select_ship.o
 OBJECTS += $(OBJDIR)/ship.o
+OBJECTS += $(OBJDIR)/texture_manager.o
 OBJECTS += $(OBJDIR)/timer.o
 OBJECTS += $(OBJDIR)/tutorial.o
 OBJECTS += $(OBJDIR)/user_interface.o
@@ -243,6 +247,9 @@ $(OBJDIR)/enter_name.o: ../../src/enter_name.c
 $(OBJDIR)/game.o: ../../src/game.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/game_behavior.o: ../../src/game_behavior.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/game_over.o: ../../src/game_over.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -280,6 +287,9 @@ $(OBJDIR)/select_ship.o: ../../src/select_ship.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ship.o: ../../src/ship.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/texture_manager.o: ../../src/texture_manager.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/timer.o: ../../src/timer.c

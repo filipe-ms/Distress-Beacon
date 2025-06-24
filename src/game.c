@@ -113,11 +113,13 @@ void DrawGame(void)
     BeginDrawing();
     ClearBackground(BLACK);
     DrawBackground();
+    DrawHitConfirmation(RENDERING_ORDER_BEFORE_ENEMY);
     DrawEnemies();
     EnemyProjectile_Draw();
     DrawWeapon();
-    DrawHitConfirmation();
+    DrawHitConfirmation(RENDERING_ORDER_BEFORE_SHIP);
     DrawShip(&ship);
+    DrawHitConfirmation(RENDERING_ORDER_AFTER_SHIP);
     DrawLevelUpSelectMenu(level_up_flag);
 
     if (IsShieldActive()) {

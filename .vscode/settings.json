@@ -25,6 +25,9 @@
 		"ship.h": "c",
 		"general_utils.h": "c",
 		"initializer_list": "c",
-		"*.m": "c"
+		"*.m": "c",
+		"math.h": "c",
+		"texture_manager.h": "c",
+		"hit_confirmation.h": "c"
 	}
 }

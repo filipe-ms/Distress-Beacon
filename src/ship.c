@@ -5,13 +5,14 @@
 #include "common.h"
 #include "weapon.h"
 #include "texture_manager.h"
+#include "general_utils.h"
+#include "hit_confirmation.h"
 
 #define SOURCE_WH 8
 
 #define MAX_THRUSTER_CYCLE 4
 
 Ship ship;
-Texture texture_ship_assets;
 
 typedef struct Orion {
 	float dash_cooldown;
@@ -26,6 +27,20 @@ typedef struct Orion {
 
 Orion orion;
 
+typedef struct PuddleJumper {
+	float wormhole_cooldown;
+	Vector2 wormhole_portal_offset;
+	float wormhole_duration;
+
+	float wormhole_current_cooldown;
+	float wormhole_current_duration;
+	Vector2 wormhole_in_position;
+	Vector2 wormhole_out_position;
+	bool wormhole_is_recharged;
+} PuddleJumper;
+
+PuddleJumper puddle_jumper;
+
 static void InitShipSpecifics(Ship* ship, int id) {
 	switch (id) {
 	case AUREA:
@@ -39,6 +54,13 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		orion.direction = CENTER;
 		orion.last_direction_pressed = -1;
 	case NEBULA:
+	case PUDDLE_JUMPER:
+		puddle_jumper.wormhole_cooldown = 10.0f;
+		puddle_jumper.wormhole_portal_offset = (Vector2) { 0, -400 };
+		puddle_jumper.wormhole_duration = 5.0f;
+		puddle_jumper.wormhole_current_duration = 0.0f;
+		puddle_jumper.wormhole_current_cooldown = 10.0f;
+		puddle_jumper.wormhole_is_recharged = true;
 	default: break;
 	}
 	ship->speed = (Vector2){ 360.0f, 360.0f };
@@ -120,7 +142,55 @@ static void UpdateOrion(Ship* ship) {
 
 static void UpdateNebula() { }
 
-static void UpdatePuddleJumper() { }
+static void UpdatePuddleJumper() {
+	bool is_ability_ready = false;
+
+	puddle_jumper.wormhole_current_cooldown = ClampWithFlagsF(
+		puddle_jumper.wormhole_current_cooldown + GetFrameTime(),
+		0, puddle_jumper.wormhole_cooldown,
+		NULL, &is_ability_ready);
+
+	if (is_ability_ready){
+		puddle_jumper.wormhole_is_recharged = true;
+	}
+
+	bool is_duration_expired = false;
+	puddle_jumper.wormhole_current_duration = ClampWithFlagsF(puddle_jumper.wormhole_current_duration + GetFrameTime(), 0, puddle_jumper.wormhole_duration, NULL, &is_duration_expired);
+
+	if (IsKeyPressed(KEY_Z)) {
+		if (puddle_jumper.wormhole_is_recharged) {
+			puddle_jumper.wormhole_in_position = ship.position;
+			puddle_jumper.wormhole_out_position = Vector2Add(ship.position, puddle_jumper.wormhole_portal_offset);	
+			puddle_jumper.wormhole_current_duration = 0;
+			puddle_jumper.wormhole_current_cooldown = 0;
+			puddle_jumper.wormhole_is_recharged = false;
+
+			if (puddle_jumper.wormhole_out_position.y <= 0) {
+				puddle_jumper.wormhole_out_position.y = ship.position.y - puddle_jumper.wormhole_portal_offset.y;
+			}
+
+			
+			CreateEffect(WORMHOLE, puddle_jumper.wormhole_in_position, puddle_jumper.wormhole_duration);
+			CreateEffect(WORMHOLE, puddle_jumper.wormhole_out_position, puddle_jumper.wormhole_duration);
+			return;
+		}
+		
+		if (!is_duration_expired) {
+			bool is_intersecting_portal_in = CheckCollisionCircles(ship.position, ship.draw_size.x, puddle_jumper.wormhole_in_position, 40);
+			bool is_intersecting_portal_out = CheckCollisionCircles(ship.position, ship.draw_size.x, puddle_jumper.wormhole_out_position, 40);
+		
+			if (is_intersecting_portal_in) {
+				ship.position = puddle_jumper.wormhole_out_position;
+				CreateEffect(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_out_position, 0.5f);
+			}
+	
+			if (is_intersecting_portal_out) {
+				ship.position = puddle_jumper.wormhole_in_position;
+				CreateEffect(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_in_position, 0.5f);
+			}
+		}
+	}
+}
 
 static void WallBehavior(Vector2* position) {
 	position->x = Clamp(position->x, GAME_SCREEN_START + DRAW_WH / 2, GAME_SCREEN_END - (DRAW_WH / 2));
