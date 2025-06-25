@@ -526,11 +526,15 @@ static void DrawEnemy(void* context, void* data) {
         Vector2 origin = { E_SIZEX / 2, E_SIZEY / 2 };
 		Rectangle enemy_rect = GetEnemyRectangle(enemy);
 
-        if(enemy->type < ENEMY_GHOST) DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
-        else DrawTexturePro(texture_custom_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
-    }
+        if (enemy->type > -1 && enemy->type < ENEMY_GHOST) {
+            DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
+            return;
+        } else  if (enemy->type >= ENEMY_GHOST && enemy->type < ENEMY_TYPE_COUNT) {
+            DrawTexturePro(texture_custom_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
 
-    if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
+            if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
+        }
+    }
 }
 
 void DrawEnemies(void) {
@@ -541,7 +545,7 @@ void InitEnemySourceRects(void) {
     
     // Inimigos comuns (textura
     source_rects[ENEMY_BASIC]                = (Rectangle){ 32, 0, 8, 8 };
-    source_rects[ENEMY_ZIGZAG]               = (Rectangle){ 32, 24, 8, 8 };
+    source_rects[ENEMY_ZIGZAG]               = (Rectangle){ 72, 0, 8, 8 };
     source_rects[ENEMY_BOOSTER]              = (Rectangle){ 48, 24, 8, 8 };
     source_rects[ENEMY_WALLER]               = (Rectangle){ 32, 8, 8, 8 };
     source_rects[ENEMY_SPINNER]              = (Rectangle){ 40, 8, 8, 8 };

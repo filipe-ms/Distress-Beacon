@@ -277,12 +277,14 @@
     <ClInclude Include="..\..\include\game_over.h" />
     <ClInclude Include="..\..\include\list.h" />
     <ClInclude Include="..\..\include\main_menu.h" />
+    <ClInclude Include="..\..\include\pilot.h" />
     <ClInclude Include="..\..\include\ranking.h" />
     <ClInclude Include="..\..\include\scene_draw_effects.h" />
     <ClInclude Include="..\..\include\scene_manager.h" />
     <ClInclude Include="..\..\include\select_ship.h" />
     <ClInclude Include="..\..\include\game.h" />
     <ClInclude Include="..\..\include\ship.h" />
+    <ClInclude Include="..\..\include\ship_references.h" />
     <ClInclude Include="..\..\include\texture_manager.h" />
     <ClInclude Include="..\..\include\timer.h" />
     <ClInclude Include="..\..\include\tutorial.h" />
@@ -312,6 +314,7 @@
     <ClCompile Include="..\..\src\list.c" />
     <ClCompile Include="..\..\src\main.c" />
     <ClCompile Include="..\..\src\main_menu.c" />
+    <ClCompile Include="..\..\src\pilot.c" />
     <ClCompile Include="..\..\src\player.c" />
     <ClCompile Include="..\..\src\power_ups.c" />
     <ClCompile Include="..\..\src\ranking.c" />
@@ -319,6 +322,7 @@
     <ClCompile Include="..\..\src\scene_manager.c" />
     <ClCompile Include="..\..\src\select_ship.c" />
     <ClCompile Include="..\..\src\ship.c" />
+    <ClCompile Include="..\..\src\ship_references.c" />
     <ClCompile Include="..\..\src\texture_manager.c" />
     <ClCompile Include="..\..\src\timer.c" />
     <ClCompile Include="..\..\src\tutorial.c" />

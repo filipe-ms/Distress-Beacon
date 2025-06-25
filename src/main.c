@@ -1,6 +1,6 @@
 /*******************************************************************************************
 *
-*   Jogo desenvolvido por Lu�s Filipe Macedo, Anderson Gabriel e D�bora Souza
+*   Jogo desenvolvido por Luís Filipe Macedo, Anderson Gabriel e Débora Souza
 *
 *   Esse jogo foi criado usando Raylib (www.raylib.com)
 *
@@ -16,7 +16,7 @@
 #include "raylib.h"
 #include "resource_dir.h"
 
-// Nossos pr�prios includes
+// Nossos próprios includes
 #include "common.h"
 
 #include "scene_manager.h"
@@ -56,7 +56,7 @@ int main(void)
 
     SetTargetFPS(240);
 
-    LoadGame();     // Inicializa o diret�rio de recursos/assets e as texturas
+    LoadGame();     // Inicializa o diretório de recursos/assets e as texturas
     InitEnemies();
     InitSceneManager(starting_scene);
 

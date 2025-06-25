@@ -5,6 +5,7 @@
 #include "common.h"
 #include "player.h"
 #include "draw_utils.h"
+#include "ship_references.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -21,15 +22,6 @@ bool leave_transition = false;
 
 float rec_alpha = 1.0f;
 
-const char* GetShipName(int shipType) {
-    switch (shipType) {
-    case 0: return "Aurea";
-    case 1: return "Orion";
-    case 2: return "Nebula";
-    case 3: return "Puddle Jumper";
-    default: return "Unknown";
-    }
-}
 void LoadRanking(void) {
     FILE* file = fopen("ranking.txt", "r");
     if (!file) {

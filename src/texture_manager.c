@@ -10,6 +10,8 @@ Texture background_dark_space;
 Texture background_stars_and_dust;
 Texture background_menubg;
 
+Texture texture_pilots;
+
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
 	texture_custom_ships = LoadTexture("custom_ships.png");
@@ -20,6 +22,8 @@ void LoadAllTextures(void) {
 	background_dark_space = LoadTexture("background/dark_space.png");
 	background_stars_and_dust = LoadTexture("background/stars_and_dust.png");
 	background_menubg = LoadTexture("background/menubg.png");
+
+	texture_pilots = LoadTexture("pilots.png");
 }
 void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
@@ -31,4 +35,6 @@ void UnloadAllTextures(void) {
 	UnloadTexture(background_dark_space);
 	UnloadTexture(background_stars_and_dust);
 	UnloadTexture(background_menubg);
+
+	UnloadTexture(texture_pilots);
 }

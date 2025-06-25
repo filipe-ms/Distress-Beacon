@@ -1,4 +1,4 @@
-// select_ship.c
+﻿// select_ship.c
 
 #include "select_ship.h"
 #include "common.h"
@@ -9,7 +9,9 @@
 #include "raymath.h"
 #include "timer.h"
 #include "ship.h"
-
+#include "pilot.h"
+#include "draw_utils.h"
+#include "ship_references.h"
 
 typedef struct ShipSelectMenu {
 	int option;
@@ -75,15 +77,53 @@ void UpdateShipSelectMenu() {
     }
 }
 
-void DrawLeftSideInfo() {
-	DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
+#pragma region LEFT_SIDE_INFO
+
+static void DrawPilotHead(int pos_x, int pos_y) {
+    int scale = 16;
+    float res_scale = 8 * scale;
+    DrawRectangle(UI_LEFT_CENTER - res_scale / 2.0f, SCREEN_HEIGHT * 0.2f - res_scale / 2, res_scale, res_scale, BLACK);
+    DrawPilotDuringSpeech(ship_menu.option, pos_x, pos_y, scale, WHITE);
 }
 
-void DrawRightSideInfo() {
-	DrawRectangle(GAME_SCREEN_END, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
-	DrawText("Pressione ENTER para selecionar a nave", UI_RIGHT_CENTER - MeasureText("Pressione ENTER para selecionar a nave", 20) / 2, 50, 20, WHITE);
-	DrawText("Use as setas ou A/D para navegar entre as naves", UI_RIGHT_CENTER - MeasureText("Use as setas ou A/D para navegar entre as naves", 20) / 2, 100, 20, WHITE);
+static void DrawLeftSideInfo() {
+
+    Color top = { 89, 129, 117, 255 };
+    Color bottom = { 21, 39, 60, 255 };
+    DrawRectangleGradientV(0, 0, UI_WIDTH, SCREEN_HEIGHT, top, bottom);
+
+    DrawCenteredOutlinedText(GetPilotName(ship_menu.option), UI_LEFT_CENTER, (int)(SCREEN_HEIGHT * 0.10f), 40, GOLD, Fade(GOLD, 0.3f));
+
+    DrawPilotHead(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.2);
+
+    DrawRectangle(25, SCREEN_HEIGHT * 0.3, 475, SCREEN_HEIGHT * 0.2, BLACK);
+
+    DrawCenteredMultilineText(GetPilotPresentation(ship_menu.option), UI_LEFT_CENTER, SCREEN_HEIGHT * 0.4, 30, WHITE);
 }
+
+#pragma endregion LEFT_SIDE_INFO
+
+#pragma region RIGHT_SIDE_INFO
+static void DrawRightSideInfo() {
+    Color top = { 89, 129, 117, 255 };
+    Color bottom = { 21, 39, 60, 255 };
+    DrawRectangleGradientV(GAME_SCREEN_END, 0, UI_WIDTH, SCREEN_HEIGHT, top, bottom);
+
+    DrawCenteredOutlinedText("Nave", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.1f, 40, WHITE, Fade(RAYWHITE, 0.5f));
+
+    DrawCenteredText(GetShipName(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.15f, 40, GetShipColor(ship_menu.option));
+
+    DrawCenteredOutlinedText("Abilidade especial", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.3f, 40, WHITE, Fade(RAYWHITE, 0.5f));
+
+    DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.34, UI_WIDTH * 0.8, SCREEN_HEIGHT*0.05f, Fade(WHITE, 0.2f));
+    DrawCenteredText(GetShipSpecial(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.35f, 35, WHITE);
+
+    DrawCenteredOutlinedText("Descrição", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.45, 40, WHITE, Fade(RAYWHITE, 0.5f));
+
+    DrawCenteredMultilineText(GetShipSpecialDescription(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.55f, 30, WHITE);
+}
+
+#pragma endregion RIGHT_SIDE_INFO
 
 void DrawSelectMenu() {
     BeginDrawing();
@@ -118,20 +158,17 @@ void DrawSelectMenu() {
 	ship_menu.ship.position = ship_menu.select_pos5;
 	DrawShip(&ship_menu.ship);
 
-    char* aurea_text = "Aurea";
-    char* orion_text = "Orion";
-    char* nebula_text = "Nebula";
-    char* puddle_jumper_text = "Puddle Jumper";
-    char* void_text = "Void";
+    DrawCenteredText(GetShipName(ORION), ship_menu.select_pos1.x, ship_menu.select_pos1.y + 100, 20, ship_1);
+    DrawCenteredText(GetShipName(AUREA), ship_menu.select_pos2.x, ship_menu.select_pos2.y + 100, 20, ship_2);
+    DrawCenteredText(GetShipName(NEBULA), ship_menu.select_pos3.x, ship_menu.select_pos3.y + 100, 20, ship_3);
+    DrawCenteredText(GetShipName(PUDDLE_JUMPER), ship_menu.select_pos4.x, ship_menu.select_pos4.y + 100, 20, ship_4);
+    DrawCenteredText(GetShipName(VOID), ship_menu.select_pos5.x, ship_menu.select_pos5.y + 100, 20, ship_5);
 
-    DrawText(orion_text, (int)(ship_menu.select_pos1.x - MeasureText(orion_text, 20) / 2.0f), ship_menu.select_pos1.y + 100, 20, ship_1);
-    DrawText(aurea_text, (int)(ship_menu.select_pos2.x - MeasureText(aurea_text, 20) / 2.0f), ship_menu.select_pos2.y + 100, 20, ship_2);
-    DrawText(nebula_text, (int)(ship_menu.select_pos3.x - MeasureText(nebula_text, 20) / 2.0f), ship_menu.select_pos3.y + 100, 20, ship_3);
-    DrawText(puddle_jumper_text, (int)(ship_menu.select_pos4.x - MeasureText(puddle_jumper_text, 20) / 2.0f), ship_menu.select_pos4.y + 100, 20, ship_4);
-    DrawText(void_text, (int)(ship_menu.select_pos5.x - MeasureText(void_text, 20) / 2.0f), ship_menu.select_pos5.y + 100, 20, ship_5);
+    DrawLeftSideInfo();
+
+    DrawRightSideInfo();
 
     UpdateAndDrawScreenEffects();
-    DrawLeftSideInfo();
-    DrawRightSideInfo();
+
     EndDrawing();
 }
