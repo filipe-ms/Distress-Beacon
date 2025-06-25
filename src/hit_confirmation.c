@@ -36,29 +36,23 @@ const Rectangle CHAOS_FRAME[] = {
 	{64, 48, 8, 8}    // Frame 4
 };
 
-typedef struct HitConfirmation {
-	HitType type;
-	Rectangle source;
-	Vector2 position;
-	Vector2 original_size;
-	Vector2 size;
-	float rotation;
-	float duration;
-	float max_duration;
-	int current_frame;
-	int ending_frame;
-	Color color;
-	Texture2D* texture;
-	ParticleRenderingOrder order;
-} HitConfirmation;
+const Rectangle DRONE_THRUSTER_FRAME[] = {
+	{ 8 * 5, 8 * 1, 8, 8 },
+	{ 8 * 6, 8 * 1, 8, 8 },
+	{ 8 * 7, 8 * 1, 8, 8 },
+	{ 8 * 8, 8 * 1, 8, 8 },
+};
 
-List* hit_confirmations;
+List* managed_effects;
 
-void InitHitConfirmation(void) {
+List* unmanaged_effects;
+
+void InitEffects(void) {
 	texture_ship_assets = LoadTexture("playerassets.png");
-	hit_confirmations = List_Create(sizeof(HitConfirmation));
+	managed_effects = List_Create(sizeof(SpecialEffect));
+	unmanaged_effects = List_Create(sizeof(SpecialEffect));
 }
-void UnloadHitConfirmation(void) {
+void UnloadEffects(void) {
 	UnloadTexture(texture_ship_assets);
 }
 static Rectangle GetShockwaveSource(int frame) {
@@ -67,7 +61,7 @@ static Rectangle GetShockwaveSource(int frame) {
 	}
 	return (Rectangle) { 0 };
 }
-static void UpdateShockwaveFrameTime(HitConfirmation* hit) {
+static void UpdateShockwaveFrameTime(SpecialEffect* hit) {
 	hit->duration -= GetFrameTime();
 	if (hit->duration <= 0.0f) {
 		hit->duration = 0.01f * hit->current_frame;
@@ -75,8 +69,8 @@ static void UpdateShockwaveFrameTime(HitConfirmation* hit) {
 		hit->source = GetShockwaveSource(hit->current_frame);
 	}
 }
-static HitConfirmation InitShockwaveHitConfirmation(Vector2 position) {
-	HitConfirmation hit = { 0 };
+static SpecialEffect InitShockwaveHitConfirmation(Vector2 position) {
+	SpecialEffect hit = { 0 };
 	hit.type = SHOCKWAVE;
 	hit.source = SHOCKWAVE_FRAME[0];
 	hit.position = position;
@@ -98,7 +92,7 @@ static Rectangle GetExplosionSource(int frame) {
 	return (Rectangle) { 0 };
 }
 
-static void UpdateExplosionFrameTime(HitConfirmation* hit) {
+static void UpdateExplosionFrameTime(SpecialEffect* hit) {
 	hit->duration -= GetFrameTime();
 	if (hit->duration <= 0.0f) {
 		hit->duration = 0.02f * hit->current_frame;
@@ -107,8 +101,8 @@ static void UpdateExplosionFrameTime(HitConfirmation* hit) {
 	}
 }
 
-static HitConfirmation InitExplosionHitConfirmation(Vector2 position) {
-	HitConfirmation hit = { 0 };
+static SpecialEffect InitExplosionHitConfirmation(Vector2 position) {
+	SpecialEffect hit = { 0 };
 	hit.type = EXPLOSION;
 	hit.source = EXPLOSION_FRAME[0];
 	hit.position = position;
@@ -130,7 +124,7 @@ static Rectangle GetEnergySource(int frame) {
 	return (Rectangle) { 0 };
 }
 
-static void UpdateEnergyFrameTime(HitConfirmation* hit) {
+static void UpdateEnergyFrameTime(SpecialEffect* hit) {
 	hit->duration -= GetFrameTime();
 	if (hit->duration <= 0.0f) {
 		hit->duration = 0.02f * hit->current_frame;
@@ -139,8 +133,8 @@ static void UpdateEnergyFrameTime(HitConfirmation* hit) {
 	}
 }
 
-static HitConfirmation InitEnergyHitConfirmation(Vector2 position) {
-	HitConfirmation hit = { 0 };
+static SpecialEffect InitEnergyHitConfirmation(Vector2 position) {
+	SpecialEffect hit = { 0 };
 	hit.type = ENERGY;
 	hit.source = ENERGY_FRAME[0];
 	hit.position = position;
@@ -162,7 +156,7 @@ static Rectangle GetChaosSource(int frame) {
 	return (Rectangle) { 0 };
 }
 
-static void UpdateChaosFrameTime(HitConfirmation* hit) {
+static void UpdateChaosFrameTime(SpecialEffect* hit) {
 	hit->duration -= GetFrameTime();
 	if (hit->duration <= 0.0f) {
 		hit->duration = 0.02f * hit->current_frame;
@@ -171,8 +165,8 @@ static void UpdateChaosFrameTime(HitConfirmation* hit) {
 	}
 }
 
-static HitConfirmation InitChaosHitConfirmation(Vector2 position) {
-	HitConfirmation hit = { 0 };
+static SpecialEffect InitChaosHitConfirmation(Vector2 position) {
+	SpecialEffect hit = { 0 };
 	hit.type = CHAOS;
 	hit.source = CHAOS_FRAME[0];
 	hit.position = position;
@@ -187,7 +181,7 @@ static HitConfirmation InitChaosHitConfirmation(Vector2 position) {
 	return hit;
 }
 
-static void UpdateWormhole(HitConfirmation* hit) {
+static void UpdateWormholeAnimation(SpecialEffect* hit) {
 	hit->duration += GetFrameTime();
 
 	//during the first second, expand
@@ -202,8 +196,8 @@ static void UpdateWormhole(HitConfirmation* hit) {
 	hit->rotation += RAD2DEG * 2 * PI * GetFrameTime();
 }
 
-static HitConfirmation InitWormhole(Vector2 position, float duration) {
-	HitConfirmation hit = { 0 };
+static SpecialEffect InitWormhole(Vector2 position, float duration) {
+	SpecialEffect hit = { 0 };
 	hit.type = WORMHOLE;
 	hit.source = (Rectangle) { 24, 8, 8, 8 };
 	hit.position = position;
@@ -220,15 +214,15 @@ static HitConfirmation InitWormhole(Vector2 position, float duration) {
 	return hit;
 }
 
-static void UpdateWormholeTeleportAnimation(HitConfirmation* hit) {
+static void UpdateWormholeTeleportAnimation(SpecialEffect* hit) {
 	hit->duration += GetFrameTime();
 	hit->rotation += PI * GetFrameTime();
 	hit->size = Vector2MultiplyScalarF(hit->original_size, sinf((hit->duration / hit->max_duration) * PI));
 	hit->color = Fade(WHITE, 1 - (hit->duration / hit->max_duration));
 }
 
-static HitConfirmation InitWormholeTeleportAnimation(Vector2 position, float duration) {
-	HitConfirmation hit = { 0 };
+static SpecialEffect InitWormholeTeleportAnimation(Vector2 position, float duration) {
+	SpecialEffect hit = { 0 };
 	hit.type = WORMHOLE_TELEPORT_ANIMATION;
 	hit.source = (Rectangle) { 16, 8, 8, 8 };
 	hit.position = position;
@@ -245,56 +239,109 @@ static HitConfirmation InitWormholeTeleportAnimation(Vector2 position, float dur
 	return hit;
 }
 
-static bool IsHitConfirmationFinished(void* context, HitConfirmation* hit) {
+static bool IsHitConfirmationFinished(void* context, SpecialEffect* hit) {
 	bool has_ended = hit->current_frame > hit->ending_frame ||
 		hit->current_frame == hit->ending_frame && hit->duration >= hit->max_duration;
 
 	return has_ended;
 }
 
-void CreateEffect(HitType type, Vector2 position, float duration) {
-	HitConfirmation hit;
-	switch (type) {
-		case WORMHOLE:
-			hit = InitWormhole(position, duration);
-			break;
-		case WORMHOLE_TELEPORT_ANIMATION:
-			hit = InitWormholeTeleportAnimation(position, duration);
-			break;
-	}
-	List_Add(hit_confirmations, &hit);
+static SpecialEffect InitDrone(Vector2 position, float duration) {
+	SpecialEffect hit = { 0 };
+	hit.type = DRONE;
+	hit.source = (Rectangle) { 8 * 7, 8 * 1, 8, 8 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 8 * 5, 8 * 5 };
+	hit.duration = 0;
+	hit.max_duration = duration;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 180;
+	hit.texture = &texture_ships;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_SHIP;
+	return hit;
 }
 
-void ConfirmHit(HitType type, Vector2 position) {
-	HitConfirmation hit;
+static SpecialEffect InitDroneThruster(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = DRONE_THRUSTER;
+	hit.source = DRONE_THRUSTER_FRAME[0];
+	hit.position = position;
+	hit.size = (Vector2){ 32, 32 };
+	hit.duration = 0.02f;
+	hit.current_frame = 0;
+	hit.texture = &texture_ship_assets;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	return hit;
+}
+
+static void UpdateThrusterAnimation(SpecialEffect* hit) {
+	hit->duration += GetFrameTime();
+	hit->current_frame = (int)(fmodf(hit->duration, 0.8f) / 0.2f);
+	hit->source = DRONE_THRUSTER_FRAME[hit->current_frame];
+}
+
+void DestroyEffect(SpecialEffect* effect) {
+	List_Remove(unmanaged_effects, effect);
+}
+
+SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, float duration) {
+	SpecialEffect effect;
+	switch (type) {
+		case WORMHOLE:                    effect = InitWormhole(position, duration); break;
+		case WORMHOLE_TELEPORT_ANIMATION: effect = InitWormholeTeleportAnimation(position, duration); break;
+	}
+	List_Add(managed_effects, &effect);
+	return (SpecialEffect*)List_GetByIndex(managed_effects, 0);
+}
+
+SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration) {
+	SpecialEffect effect;
+	switch (type) {
+		case DRONE:							effect = InitDrone(position, duration); break;
+		case DRONE_THRUSTER: 				effect = InitDroneThruster(position); break;
+	}
+	List_Add(unmanaged_effects, &effect);
+	return (SpecialEffect*)List_GetByIndex(unmanaged_effects, 0);
+}
+
+void CreateManagedEffect(EffectType type, Vector2 position) {
+	SpecialEffect hit;
 	switch (type) {
 	case SHOCKWAVE:			hit = InitShockwaveHitConfirmation(position); break;
 	case EXPLOSION:			hit = InitExplosionHitConfirmation(position); break;
 	case ENERGY:			hit = InitEnergyHitConfirmation(position); break;
 	case CHAOS:				hit = InitChaosHitConfirmation(position); break;
+	case DRONE_EXPLOSION:   hit = InitExplosionHitConfirmation(position); hit.color = WHITE; break;
 	default:				hit = InitShockwaveHitConfirmation(position); break;
 	}
-	List_Add(hit_confirmations, &hit);
+	List_Add(managed_effects, &hit);
 }
 
-void UpdateFrameTime(HitConfirmation* hit) {
+void UpdateFrameTime(SpecialEffect* hit) {
 	switch (hit->type) {
 	case SHOCKWAVE:						UpdateShockwaveFrameTime(hit); break;
 	case EXPLOSION:						UpdateExplosionFrameTime(hit); break;
 	case ENERGY:						UpdateEnergyFrameTime(hit); break;
 	case CHAOS:							UpdateChaosFrameTime(hit); break;
-	case WORMHOLE:						UpdateWormhole(hit); break;
+	case WORMHOLE:						UpdateWormholeAnimation(hit); break;
 	case WORMHOLE_TELEPORT_ANIMATION:	UpdateWormholeTeleportAnimation(hit); break;
-	default:							UpdateShockwaveFrameTime(hit); break;
+	case DRONE_THRUSTER:				UpdateThrusterAnimation(hit); break;
+	default:
+		break;
 	}
 }
 
-void UpdateHitConfirmation(void) {
-	List_ForEach(hit_confirmations, (Function)UpdateFrameTime);
-	List_RemoveWithFn(hit_confirmations, NULL, (MatchFunction)IsHitConfirmationFinished);
+void UpdateEffects(void) {
+	List_ForEach(managed_effects, (Function)UpdateFrameTime);
+	List_RemoveWithFn(managed_effects, NULL, (MatchFunction)IsHitConfirmationFinished);
+
+	List_ForEach(unmanaged_effects, (Function)UpdateFrameTime);
 }
 
-static void DrawAnimation(ParticleRenderingOrder* order, HitConfirmation* hit) {
+static void DrawAnimation(ParticleRenderingOrder* order, SpecialEffect* hit) {
 	if (hit->order != *order) {
 		return;
 	}
@@ -311,7 +358,8 @@ static void DrawAnimation(ParticleRenderingOrder* order, HitConfirmation* hit) {
 	DrawTexturePro(*hit->texture, hit->source, dest, origin, hit->rotation, hit->color);
 }
 
-void DrawHitConfirmation(ParticleRenderingOrder order) {
-	List_ForEachCtx(hit_confirmations, &order, (Function)DrawAnimation);
+void DrawEffects(ParticleRenderingOrder order) {
+	List_ForEachCtx(managed_effects, &order, (Function)DrawAnimation);
+	List_ForEachCtx(unmanaged_effects, &order, (Function)DrawAnimation);
 }
 

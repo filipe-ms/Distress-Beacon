@@ -52,6 +52,7 @@ typedef struct PulseShoot {
 	Shoot shoot;
     float rotation;
 	int shoot_cycle;
+    Vector2 shoot_speed;
 } PulseShoot;
 
 typedef struct Pulse {
@@ -64,6 +65,7 @@ extern Pulse pulse;
 
 int GetPulseLevel(void);
 void PulseLevelUp(void);
+void InitPulseShootAtCoords(Ship* ship, Vector2 position, float angle_in_deg);
 
 //--------------------------------------------------------------
 //

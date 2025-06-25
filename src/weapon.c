@@ -96,6 +96,18 @@ static void InitPulse(void) {
 	pulse.pulse_shoots = List_Create(sizeof(PulseShoot));
 }
 
+void InitPulseShootAtCoords(Ship* ship, Vector2 position, float angle_in_deg) {
+    PulseShoot shot = { 0 };
+    shot.shoot.damage = ApplyMultiplier(damage_modifier, pulse.weapon.damage);
+    shot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 48.0f), ApplyMultiplier(size_modifier, 48.0f) };
+
+    shot.shoot.position = position;
+    shot.rotation = angle_in_deg;
+    shot.shoot_speed = Vector2Rotate(pulse.weapon.shoot_speed, angle_in_deg * DEG2RAD);
+
+    List_AddLast(pulse.pulse_shoots, &shot);
+}
+
 static void InitPulseShoot(Ship* ship) {
     PulseShoot new_pulse_shoot = { 0 };
     new_pulse_shoot.shoot.damage = ApplyMultiplier(damage_modifier, pulse.weapon.damage);
@@ -108,6 +120,7 @@ static void InitPulseShoot(Ship* ship) {
 
     new_pulse_shoot.shoot.position = shoot_spawn_position;
     new_pulse_shoot.rotation = pulse.shoot_cycle * 15.0f;
+    new_pulse_shoot.shoot_speed = Vector2Rotate(pulse.weapon.shoot_speed, new_pulse_shoot.rotation * DEG2RAD);
 
     if (pulse.weapon.level == 1) { pulse.shoot_cycle = 0; }
 	else if (pulse.weapon.level == 2) { pulse.shoot_cycle *= -1; }
@@ -120,9 +133,8 @@ static void InitPulseShoot(Ship* ship) {
 }
 
 static void PulseShootPositionUpdate(PulseShoot* pulse_shoot) {
-    Vector2 resulting_speed = Vector2Rotate(pulse.weapon.shoot_speed, pulse_shoot->rotation * DEG2RAD);
-	pulse_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, resulting_speed.x) * GetFrameTime();
-	pulse_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, resulting_speed.y) * GetFrameTime();
+	pulse_shoot->shoot.position.x += ApplyMultiplier(speed_modifier, pulse_shoot->shoot_speed.x) * GetFrameTime();
+	pulse_shoot->shoot.position.y += ApplyMultiplier(speed_modifier, pulse_shoot->shoot_speed.y) * GetFrameTime();
 }
 
 static int CheckIfOutOfBonds(void* context, PulseShoot* pulse_shoot) {
@@ -585,7 +597,7 @@ static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
 
     if (CheckCollisionCircles(enemy_pos, enemy->size.x / 2.0f, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
-        ConfirmHit(EXPLOSION, enemy_pos);
+        CreateManagedEffect(EXPLOSION, enemy_pos);
 
         if (enemy->hp <= 0) {
             AddExperience(enemy->exp);
