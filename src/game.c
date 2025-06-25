@@ -12,6 +12,7 @@
 #include "hit_confirmation.h"
 #include "background.h"
 #include "enemy_projectile.h"
+#include "timer.h"
 
 // Waves
 #define FIRST_WAVE 0
@@ -97,6 +98,16 @@ void UpdateGame(void)
                 level_up_flag = true;
             }
         }
+    }
+
+	if (AreAllWavesCompleted() && !victory) {
+		victory = true;
+		ChangeSceneArgs(WINNER, GetPlayerScore());
+        InitTimer(10.0f);
+	}
+
+    if (victory && UpdateTimer()) {
+        ChangeScene(WINNER);
     }
 }
 

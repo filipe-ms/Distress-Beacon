@@ -240,7 +240,7 @@ void InitWaves(bool is_endless_mode) {
     wave_id = 0;
     enemy_hp_base = 1.0f;
     intensity = 1.0f;
-    intensity_growth_factor = 1 / 15.0f;
+    intensity_growth_factor = 1.0f;
 
     current_wave_number = 0;
     endless_mode = is_endless_mode;
@@ -264,6 +264,7 @@ void UpdateWaves(void) {
 
 			current_wave_number++;
             intensity = 1.0f + current_wave_number * intensity_growth_factor;
+			TraceLog(LOG_INFO, "Wave [%d] completed. \nCurrent Intensity: [%.2f].", GetCurrentWaveNumber(), intensity);
         }
     }
 
