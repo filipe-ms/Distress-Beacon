@@ -15,6 +15,15 @@ static float enemy_hp_base;
 static float intensity;
 float intensity_growth_factor;
 
+static int current_wave_number;
+static bool endless_mode;
+static float next_wave_start_time;
+
+int GetCurrentWaveNumber(void) {
+	return current_wave_number;
+}
+
+
 typedef struct Wave {
     int wave_id;
     float start_time;
@@ -172,60 +181,60 @@ static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
 
 #pragma endregion
 
-void GenerateWaves(int level) {
-    float start_time = 5;
+void GenerateWaves(bool is_endless_mode) {
+    int waves_to_create = is_endless_mode ? 10 : MAX_WAVES;
 
-    for(int i = 0; i < level + 1; i++) {
-        int wave_type = GetRandomValue(99, 99);
+    for(int i = 0; i < waves_to_create + 1; i++) {
+        int wave_type = GetRandomValue(0, 9);
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {
             // BASIC
             case 0:
-                CreateLineAtBorders(wave_id++, ENEMY_BASIC, start_time, modifier);
+                CreateLineAtBorders(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
                 break;
             case 1:
-                CreateVFormation(wave_id++, ENEMY_BASIC, start_time, modifier);
+                CreateVFormation(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
                 break;
             // SPINNER
             case 2:
-                CreateVFormation(wave_id++, ENEMY_SPINNER, start_time, modifier);
+                CreateVFormation(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
                 break;
             case 3:
-                CreateCentralLine(wave_id++, ENEMY_SPINNER, start_time, modifier);
+                CreateCentralLine(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
                 break;
             // ZIG-ZAG
             case 4:
-                CreateCentralLine(wave_id++, ENEMY_ZIGZAG, start_time, modifier);
+                CreateCentralLine(wave_id++, ENEMY_ZIGZAG, next_wave_start_time, modifier);
                 break;
             case 5:
-                CreateVFormation(wave_id++, ENEMY_ZIGZAG, start_time, modifier);
+                CreateVFormation(wave_id++, ENEMY_ZIGZAG, next_wave_start_time, modifier);
                 break;
             // BOOSTER
             case 6:
-                CreateVFormation(wave_id++, ENEMY_BOOSTER, start_time, modifier);
+                CreateVFormation(wave_id++, ENEMY_BOOSTER, next_wave_start_time, modifier);
                 break;
             case 7:
-                CreateCentralLine(wave_id++, ENEMY_BOOSTER, start_time, modifier);
+                CreateCentralLine(wave_id++, ENEMY_BOOSTER, next_wave_start_time, modifier);
                 break;
             // GHOST
             case 8:
-                CreateGhost(wave_id++, start_time, modifier, intensity);
+                CreateGhost(wave_id++, next_wave_start_time, modifier, intensity);
                 break;
             // PIDGEON OF PREY
             case 9:
-                CreatePidgeonOfPrey(wave_id++, start_time, modifier, intensity);
+                CreatePidgeonOfPrey(wave_id++, next_wave_start_time, modifier, intensity);
                 break;
             default: 
-                CreateSingleForDebug(ENEMY_BOSS_PIDGEON_OF_PREY, start_time);
+                CreateSingleForDebug(ENEMY_BOSS_PIDGEON_OF_PREY, next_wave_start_time);
                 break;
         }
 
-        start_time += 3;
+        next_wave_start_time += 3;
     }
 }
 
-void InitWaves(int level) {
+void InitWaves(bool is_endless_mode) {
     total_elapsed_time = 0.0f;
     time_per_event = 0.0f;
     wave_id = 0;
@@ -233,15 +242,17 @@ void InitWaves(int level) {
     intensity = 1.0f;
     intensity_growth_factor = 1 / 15.0f;
 
+    current_wave_number = 0;
+    endless_mode = is_endless_mode;
+    next_wave_start_time = 5.0f;
+
     waves = List_Create(sizeof(Wave));
 
-    GenerateWaves(level);
+    GenerateWaves(is_endless_mode);
 }
 
 void UpdateWaves(void) {
-	intensity += intensity_growth_factor * GetFrameTime();
-    float dt = GetFrameTime();
-    total_elapsed_time += dt;
+    total_elapsed_time += GetFrameTime();
 
     if (waves != NULL && waves->size > 0) {
         Wave wave = *(Wave*)List_GetByIndex(waves, 0);
@@ -250,10 +261,20 @@ void UpdateWaves(void) {
             SpawnEnemies(wave.spawns);
             List_Destroy(wave.spawns);
             List_RemoveFirst(waves);
+
+			current_wave_number++;
+            intensity = 1.0f + current_wave_number * intensity_growth_factor;
         }
+    }
+
+    if (endless_mode && waves != NULL && waves->size < 5) {
+        GenerateWaves(true);
     }
 }
 
 bool AreAllWavesCompleted(void) {
+    if (endless_mode) {
+        return false;
+    }
     return waves != NULL && waves->size == 0;
 }

@@ -39,7 +39,7 @@ void InitGame(void) {
     InitEnemies();
     EnemyProjectile_Init();
     InitPowerUps();
-    InitWaves(50);
+    InitWaves(false);
 	InitEffects();
 	InitEnemySourceRects();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);

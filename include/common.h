@@ -45,7 +45,7 @@
 #define BASE_WAVE_DURATION 60.0f    // Duração base de cada wave em segundos
 
 #define MAX_ENEMY_NUMBER 100        // Número máximo de inimigos
-#define MAX_WAVES 3                 // Número máximo de waves
+#define MAX_WAVES 50                // Número máximo de waves
 
 //--------------------------------------------------------------
 //
