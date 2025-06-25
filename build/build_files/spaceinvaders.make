@@ -126,7 +126,7 @@ GENERATED += $(OBJDIR)/main_menu.o
 GENERATED += $(OBJDIR)/player.o
 GENERATED += $(OBJDIR)/power_ups.o
 GENERATED += $(OBJDIR)/ranking.o
-GENERATED += $(OBJDIR)/scene_draw_utils.o
+GENERATED += $(OBJDIR)/scene_draw_effects.o
 GENERATED += $(OBJDIR)/scene_manager.o
 GENERATED += $(OBJDIR)/select_ship.o
 GENERATED += $(OBJDIR)/ship.o
@@ -153,7 +153,7 @@ OBJECTS += $(OBJDIR)/main_menu.o
 OBJECTS += $(OBJDIR)/player.o
 OBJECTS += $(OBJDIR)/power_ups.o
 OBJECTS += $(OBJDIR)/ranking.o
-OBJECTS += $(OBJDIR)/scene_draw_utils.o
+OBJECTS += $(OBJDIR)/scene_draw_effects.o
 OBJECTS += $(OBJDIR)/scene_manager.o
 OBJECTS += $(OBJDIR)/select_ship.o
 OBJECTS += $(OBJDIR)/ship.o
@@ -277,7 +277,7 @@ $(OBJDIR)/power_ups.o: ../../src/power_ups.c
 $(OBJDIR)/ranking.o: ../../src/ranking.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/scene_draw_utils.o: ../../src/scene_draw_utils.c
+$(OBJDIR)/scene_draw_effects.o: ../../src/scene_draw_effects.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/scene_manager.o: ../../src/scene_manager.c

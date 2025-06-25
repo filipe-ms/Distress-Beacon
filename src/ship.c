@@ -28,22 +28,65 @@ typedef struct Orion {
 Orion orion;
 
 typedef struct PuddleJumper {
-	float wormhole_cooldown;
 	Vector2 wormhole_portal_offset;
+	float wormhole_cooldown;
 	float wormhole_duration;
 
 	float wormhole_current_cooldown;
 	float wormhole_current_duration;
+
 	Vector2 wormhole_in_position;
 	Vector2 wormhole_out_position;
+
 	bool wormhole_is_recharged;
 } PuddleJumper;
 
 PuddleJumper puddle_jumper;
 
+typedef enum AureaDroneState {
+	DRONE_INITIALIZED,
+	DRONE_DISPATCHED,
+	DRONE_ROTATING,
+	DRONE_FIRING,
+	DRONE_FINALIZING,
+} AureaDroneState;
+
+typedef struct Aurea {
+	int drone_shots; 
+
+	float drone_cooldown;
+	float drone_firing_duration;
+	float drone_dispatch_duration;
+	Vector2 drone_max_range;
+	
+	float drone_current_cooldown;
+	float drone_firing_current_duration;
+	float drone_dispatch_current_duration;
+	int drone_fired_shots;
+
+	Vector2 drone_left_cast_position;
+	Vector2 drone_right_cast_position;
+
+	SpecialEffect* drone_left;
+	SpecialEffect* drone_right;
+
+	SpecialEffect* drone_left_thruster;
+	SpecialEffect* drone_right_thruster;
+
+	AureaDroneState state;
+} Aurea;
+
+Aurea aurea;
+
 static void InitShipSpecifics(Ship* ship, int id) {
 	switch (id) {
 	case AUREA:
+		aurea.drone_shots = 5;
+		aurea.drone_cooldown = aurea.drone_current_cooldown = 10.0f;
+		aurea.drone_firing_duration = 5.0f;
+		aurea.drone_dispatch_duration = 2.0f;
+		aurea.drone_max_range = (Vector2) { 0, -200 };
+		aurea.state = DRONE_INITIALIZED;
 	case ORION:
 		orion.dash_cooldown = 5.0f;
 		orion.dash_recharge = 0.0f;
@@ -80,7 +123,111 @@ void InitShip(Ship* ship, int id) {
 	InitShipSpecifics(ship, id);
 }
 
-static void UpdateAurea() { }
+static void UpdateAurea() { 
+	bool is_ability_ready = false;
+
+	aurea.drone_cooldown = ClampWithFlagsF(
+		aurea.drone_current_cooldown + GetFrameTime(),
+		0, aurea.drone_cooldown,
+		NULL, &is_ability_ready);
+
+	// Drone animations
+	switch(aurea.state) {
+		case DRONE_INITIALIZED:
+			if (!IsKeyPressed(KEY_Z) || !is_ability_ready)
+				break;
+			// When it activates
+			Vector2 left_offset = (Vector2) { -20, 0 };
+			Vector2 right_offset = (Vector2) { 20, 0 };
+	
+			aurea.drone_left_cast_position = Vector2Add(ship.position, left_offset);
+			aurea.drone_right_cast_position = Vector2Add(ship.position, right_offset);
+	
+			aurea.drone_left = CreateUnmanagedEffect(DRONE, aurea.drone_left_cast_position, aurea.drone_dispatch_duration);
+			aurea.drone_right = CreateUnmanagedEffect(DRONE, aurea.drone_right_cast_position, aurea.drone_dispatch_duration);
+	
+			aurea.drone_left_thruster = CreateUnmanagedEffect(DRONE_THRUSTER, aurea.drone_left_cast_position, 0);
+			aurea.drone_right_thruster = CreateUnmanagedEffect(DRONE_THRUSTER, aurea.drone_right_cast_position, 0);
+
+			aurea.drone_dispatch_current_duration = 0;
+			aurea.drone_current_cooldown = 0;
+			aurea.state = DRONE_DISPATCHED;
+			break;
+
+		case DRONE_DISPATCHED:
+			bool drones_reached_limit = false;
+			aurea.drone_dispatch_current_duration = ClampWithFlagsF(
+				aurea.drone_dispatch_current_duration + GetFrameTime(), 
+				0, aurea.drone_dispatch_duration, 
+				NULL, &drones_reached_limit);
+			
+			float sin_ease = sinf((aurea.drone_dispatch_current_duration / aurea.drone_dispatch_duration) * (PI / 2)) * aurea.drone_dispatch_duration;
+
+			Vector2 thruster_offset = (Vector2) { 0, 24 };
+
+			aurea.drone_left->position = Vector2Add(aurea.drone_left_cast_position,
+				Vector2MultiplyScalarF(
+					aurea.drone_max_range, sin_ease));
+
+			aurea.drone_left_thruster->position = Vector2Add(aurea.drone_left->position, thruster_offset);
+
+			aurea.drone_right->position = Vector2Add(aurea.drone_right_cast_position,
+				Vector2MultiplyScalarF(
+					aurea.drone_max_range, sin_ease));
+
+			aurea.drone_right_thruster->position = Vector2Add(aurea.drone_right->position, thruster_offset);
+
+			if (drones_reached_limit) {
+				aurea.state = DRONE_FIRING;
+				aurea.drone_fired_shots = 0;
+
+				DestroyEffect(aurea.drone_left_thruster);
+				DestroyEffect(aurea.drone_right_thruster);
+				aurea.drone_left_thruster = aurea.drone_right_thruster = NULL;
+			}
+			break;
+
+		case DRONE_FIRING:
+			InitPulseShootAtCoords(&ship, aurea.drone_left->position, aurea.drone_left->rotation + 180);
+			InitPulseShootAtCoords(&ship, aurea.drone_right->position, aurea.drone_right->rotation + 180);
+			aurea.drone_fired_shots++;
+			aurea.state = DRONE_ROTATING;
+
+			if (aurea.drone_fired_shots > aurea.drone_shots) {
+				aurea.state = DRONE_FINALIZING;
+				break;
+			}
+			
+			break;
+
+		case DRONE_ROTATING:
+			bool has_reached_turning_angle = false;
+
+			aurea.drone_firing_current_duration = ClampWithFlagsF(
+				aurea.drone_firing_current_duration + GetFrameTime(),
+				0, ((float)aurea.drone_fired_shots / (float)aurea.drone_shots),
+				NULL, &has_reached_turning_angle);
+
+			aurea.drone_left->rotation = -aurea.drone_firing_current_duration * 180 + 180;
+			aurea.drone_right->rotation = aurea.drone_firing_current_duration * 180 + 180;
+
+			if (has_reached_turning_angle) {
+				aurea.state = DRONE_FIRING;
+			}
+			break;
+			
+		case DRONE_FINALIZING:		
+			CreateManagedEffect(DRONE_EXPLOSION, aurea.drone_left->position);
+			CreateManagedEffect(DRONE_EXPLOSION, aurea.drone_right->position);
+
+			DestroyEffect(aurea.drone_left);
+			DestroyEffect(aurea.drone_right);
+
+			aurea.drone_left = aurea.drone_right = NULL;
+			aurea.state = DRONE_INITIALIZED;
+			break;
+	}
+}
 
 static void UpdateOrion(Ship* ship) {
 
@@ -143,6 +290,7 @@ static void UpdateOrion(Ship* ship) {
 static void UpdateNebula() { }
 
 static void UpdatePuddleJumper() {
+	// Cooldown
 	bool is_ability_ready = false;
 
 	puddle_jumper.wormhole_current_cooldown = ClampWithFlagsF(
@@ -154,10 +302,15 @@ static void UpdatePuddleJumper() {
 		puddle_jumper.wormhole_is_recharged = true;
 	}
 
+	// Wormhole expiration time logic
 	bool is_duration_expired = false;
-	puddle_jumper.wormhole_current_duration = ClampWithFlagsF(puddle_jumper.wormhole_current_duration + GetFrameTime(), 0, puddle_jumper.wormhole_duration, NULL, &is_duration_expired);
+
+	puddle_jumper.wormhole_current_duration = ClampWithFlagsF(
+		puddle_jumper.wormhole_current_duration + GetFrameTime(),
+		0, puddle_jumper.wormhole_duration, NULL, &is_duration_expired);
 
 	if (IsKeyPressed(KEY_Z)) {
+		// When it activates
 		if (puddle_jumper.wormhole_is_recharged) {
 			puddle_jumper.wormhole_in_position = ship.position;
 			puddle_jumper.wormhole_out_position = Vector2Add(ship.position, puddle_jumper.wormhole_portal_offset);	
@@ -168,25 +321,25 @@ static void UpdatePuddleJumper() {
 			if (puddle_jumper.wormhole_out_position.y <= 0) {
 				puddle_jumper.wormhole_out_position.y = ship.position.y - puddle_jumper.wormhole_portal_offset.y;
 			}
-
 			
-			CreateEffect(WORMHOLE, puddle_jumper.wormhole_in_position, puddle_jumper.wormhole_duration);
-			CreateEffect(WORMHOLE, puddle_jumper.wormhole_out_position, puddle_jumper.wormhole_duration);
+			CreateManagedEffectDuration(WORMHOLE, puddle_jumper.wormhole_in_position, puddle_jumper.wormhole_duration);
+			CreateManagedEffectDuration(WORMHOLE, puddle_jumper.wormhole_out_position, puddle_jumper.wormhole_duration);
 			return;
 		}
 		
+		// Jump-in logic
 		if (!is_duration_expired) {
 			bool is_intersecting_portal_in = CheckCollisionCircles(ship.position, ship.draw_size.x, puddle_jumper.wormhole_in_position, 40);
 			bool is_intersecting_portal_out = CheckCollisionCircles(ship.position, ship.draw_size.x, puddle_jumper.wormhole_out_position, 40);
 		
 			if (is_intersecting_portal_in) {
 				ship.position = puddle_jumper.wormhole_out_position;
-				CreateEffect(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_out_position, 0.5f);
+				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_out_position, 0.5f);
 			}
 	
 			if (is_intersecting_portal_out) {
 				ship.position = puddle_jumper.wormhole_in_position;
-				CreateEffect(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_in_position, 0.5f);
+				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_in_position, 0.5f);
 			}
 		}
 	}

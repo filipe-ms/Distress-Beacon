@@ -176,7 +176,7 @@ void GenerateWaves(int level) {
     float start_time = 5;
 
     for(int i = 0; i < level + 1; i++) {
-        int wave_type = GetRandomValue(8, 8);
+        int wave_type = GetRandomValue(99, 99);
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {
@@ -221,7 +221,7 @@ void GenerateWaves(int level) {
                 break;
         }
 
-        start_time += 8;
+        start_time += 3;
     }
 }
 

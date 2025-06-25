@@ -85,6 +85,6 @@ void UnloadGame(void)
     UnloadEnemyList();
     UnloadTutorialTextures();
     UnloadPowerUpTextures();
-	UnloadHitConfirmation();
+	UnloadEffects();
 	List_FreeAll();
 }

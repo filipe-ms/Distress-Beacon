@@ -3,7 +3,7 @@
 
 #include "raylib.h"
 
-typedef enum HitType {
+typedef enum EffectType {
 	SHOCKWAVE,
 	EXPLOSION,
 	ENERGY,
@@ -11,7 +11,10 @@ typedef enum HitType {
 	HIT_TYPE_COUNT,
 	WORMHOLE,
 	WORMHOLE_TELEPORT_ANIMATION,
-} HitType;
+	DRONE,
+	DRONE_EXPLOSION,
+	DRONE_THRUSTER,
+} EffectType;
 
 typedef enum ParticleRenderingOrder {
 	RENDERING_ORDER_BEFORE_ENEMY = 0,
@@ -20,10 +23,30 @@ typedef enum ParticleRenderingOrder {
 	RENDERING_ORDER_AFTER_SHIP = 2,
 } ParticleRenderingOrder;
 
-void CreateEffect(HitType type, Vector2 position, float duration);
-void ConfirmHit(HitType type, Vector2 position);
-void UpdateHitConfirmation(void);
-void DrawHitConfirmation(ParticleRenderingOrder order);
+typedef struct SpecialEffect {
+	EffectType type;
+	Rectangle source;
+	Vector2 position;
+	Vector2 original_size;
+	Vector2 size;
+	float rotation;
+	float duration;
+	float max_duration;
+	int current_frame;
+	int ending_frame;
+	Color color;
+	Texture2D* texture;
+	ParticleRenderingOrder order;
+} SpecialEffect;
 
-void InitHitConfirmation(void);
-void UnloadHitConfirmation(void);
+void DestroyEffect(SpecialEffect* effect);
+
+SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, float duration);
+SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration);
+void CreateManagedEffect(EffectType type, Vector2 position);
+
+void UpdateEffects(void);
+void DrawEffects(ParticleRenderingOrder order);
+
+void InitEffects(void);
+void UnloadEffects(void);

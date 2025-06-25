@@ -40,7 +40,7 @@ void InitGame(void) {
     EnemyProjectile_Init();
     InitPowerUps();
     InitWaves(50);
-	InitHitConfirmation();
+	InitEffects();
 	InitEnemySourceRects();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
 
@@ -84,7 +84,7 @@ void UpdateGame(void)
             UpdateLevelUpSelectMenu(&level_up_flag);
         } else {
 			UpdateBackground();
-            UpdateHitConfirmation();
+            UpdateEffects();
             UpdateWaves();
             UpdateEnemies(&ship);
             EnemyProjectile_Update(&ship);
@@ -113,13 +113,13 @@ void DrawGame(void)
     BeginDrawing();
     ClearBackground(BLACK);
     DrawBackground();
-    DrawHitConfirmation(RENDERING_ORDER_BEFORE_ENEMY);
+    DrawEffects(RENDERING_ORDER_BEFORE_ENEMY);
     DrawEnemies();
     EnemyProjectile_Draw();
     DrawWeapon();
-    DrawHitConfirmation(RENDERING_ORDER_BEFORE_SHIP);
+    DrawEffects(RENDERING_ORDER_BEFORE_SHIP);
     DrawShip(&ship);
-    DrawHitConfirmation(RENDERING_ORDER_AFTER_SHIP);
+    DrawEffects(RENDERING_ORDER_AFTER_SHIP);
     DrawLevelUpSelectMenu(level_up_flag);
 
     if (IsShieldActive()) {
