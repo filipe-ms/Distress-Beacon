@@ -120,6 +120,12 @@
     <ClInclude Include="..\..\include\general_utils.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pilot.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ship_references.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.c">
@@ -198,6 +204,12 @@
       <Filter>Source Files\resources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\general_utils.c">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pilot.c">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ship_references.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>

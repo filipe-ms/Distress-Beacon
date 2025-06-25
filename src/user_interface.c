@@ -1,4 +1,4 @@
-// user_interface.c
+ï»¿// user_interface.c
 #include "user_interface.h"
 #include "common.h"
 #include "player.h"
@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-// Posições aqui no topo para facilitar
+// PosiÃ§Ãµes aqui no topo para facilitar
 
 static Vector2 GetScoreTextPosition() {
     return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.05 };
@@ -38,7 +38,7 @@ static void DrawLeftUIBackground() {
 }
 
 static void DrawRightUIBackground(void) {
-    // Posição inicial x, posição inicial y, largura, altura, cor
+    // PosiÃ§Ã£o inicial x, posiÃ§Ã£o inicial y, largura, altura, cor
     DrawRectangle(UI_WIDTH + GAME_SCREEN_WIDTH, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
 }
 
@@ -54,7 +54,7 @@ static void DrawMultilineText(const char* text, float start_x, float start_y, in
         }
 
         if (len > 0) {
-            const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
+            const char* line = TextSubtext(str, 0, len); // FunÃ§Ã£o da raylib que faz uma substring
             float lineWidth = (float)MeasureText(line, fontSize);
             float x = start_x;
             DrawText(line, (int)x + UI_WIDTH/2 - lineWidth/2, (int)start_y, fontSize, Fade(color, alpha));

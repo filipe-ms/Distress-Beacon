@@ -247,18 +247,18 @@ void UpdateShip(Ship* ship) {
 
 void Ship_TakeDamage(Ship *ship)
 {
-	// --- VERIFICA SE A NAVE EST� INVENC�VEL ---
+	// --- VERIFICA SE A NAVE ESTÁ INVENCÍVEL ---
 	if (ship->isInvincible) {
-		return; // Se estiver, ignora a colis�o e continua o loop
+		return; // Se estiver, ignora a colisão e continua o loop
 	}
 
 	if (IsShieldActive())
 	{
 		shield.capacity--;
 		
-		// --- ATIVA A INVENCIBILIDADE AP�S O HIT ---
+		// --- ATIVA A INVENCIBILIDADE APÓS O HIT ---
 		ship->isInvincible = true;
-		ship->invincibilityTimer = 1.0f; // Dura��o de 1 segundo
+		ship->invincibilityTimer = 1.0f; // Duração de 1 segundo
 	
 		if (shield.capacity <= 0) {
 			DeactivateShield();

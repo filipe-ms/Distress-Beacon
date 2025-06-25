@@ -599,7 +599,7 @@ static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
     return false;
 }
 
-static int UnbindHomingProjectiles() {
+static void UnbindHomingProjectiles() {
     for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
         Enemy* enemy = (Enemy*)enemyNode->data;
 

@@ -150,7 +150,7 @@ void PowerRandomizer(void) {
         if (available_powerups->size == 0) break;
 
         int random_index = GetRandomValue(0, available_powerups->size - 1);
-        PowerUpType powerup_type = *(PowerUpType*)List_GetByIndex(available_powerups, random_index); // precisa de cast pq o retorno � void pointer
+        PowerUpType powerup_type = *(PowerUpType*)List_GetByIndex(available_powerups, random_index); // precisa de cast pq o retorno é void pointer
 
         active_cards[i] = power_up_type[powerup_type];
 
