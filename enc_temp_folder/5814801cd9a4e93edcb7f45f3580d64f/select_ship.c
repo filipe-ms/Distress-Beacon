@@ -86,20 +86,20 @@ static void DrawPilotHead(int pos_x, int pos_y) {
     DrawPilotDuringSpeech(ship_menu.option, pos_x, pos_y, scale, WHITE);
 }
 
+// Color top = { 89, 129, 117, 255 };
+//Color bottom = { 21, 39, 60, 255 };
+//DrawRectangleGradientV(0, 0, UI_WIDTH, SCREEN_HEIGHT, top, bottom);
+
 static void DrawLeftSideInfo() {
+    
 
     DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
-
-    int border_thick = 5;
-    int margin_offset = border_thick * 4;
-
-    DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT / 2, UI_WIDTH - margin_offset, SCREEN_HEIGHT - margin_offset, border_thick, WHITE);
 
     DrawCenteredOutlinedText(GetPilotName(ship_menu.option), UI_LEFT_CENTER, (int)(SCREEN_HEIGHT * 0.10f), 40, GOLD, Fade(GOLD, 0.3f));
 
     DrawPilotHead(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.2);
 
-    DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.4, UI_WIDTH - border_thick * 16, SCREEN_HEIGHT * 0.2, border_thick, WHITE);
+    DrawRectangle(25, SCREEN_HEIGHT * 0.3, 475, SCREEN_HEIGHT * 0.2, BLACK);
 
     DrawCenteredMultilineText(GetPilotPresentation(ship_menu.option), UI_LEFT_CENTER, SCREEN_HEIGHT * 0.4, 30, WHITE);
 }
@@ -108,11 +108,9 @@ static void DrawLeftSideInfo() {
 
 #pragma region RIGHT_SIDE_INFO
 static void DrawRightSideInfo() {
-    DrawRectangle(GAME_SCREEN_END, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
-
-    int border_width = 5;
-
-    DrawPixelBorder(GAME_SCREEN_END + border_width * 2, border_width * 2, UI_WIDTH - border_width * 4, SCREEN_HEIGHT - border_width * 4, 5, WHITE);
+    Color top = { 89, 129, 117, 255 };
+    Color bottom = { 21, 39, 60, 255 };
+    DrawRectangleGradientV(GAME_SCREEN_END, 0, UI_WIDTH, SCREEN_HEIGHT, top, bottom);
 
     DrawCenteredOutlinedText("Nave", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.1f, 40, WHITE, Fade(RAYWHITE, 0.5f));
 
@@ -120,8 +118,7 @@ static void DrawRightSideInfo() {
 
     DrawCenteredOutlinedText("Abilidade especial", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.3f, 40, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.365, UI_WIDTH * 0.7, SCREEN_HEIGHT*0.05f, Fade(WHITE, 0.2f));
-
+    DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.34, UI_WIDTH * 0.8, SCREEN_HEIGHT*0.05f, Fade(WHITE, 0.5f));
     DrawCenteredText(GetShipSpecial(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.35f, 35, WHITE);
 
     DrawCenteredOutlinedText("Descrição", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.45, 40, WHITE, Fade(RAYWHITE, 0.5f));
