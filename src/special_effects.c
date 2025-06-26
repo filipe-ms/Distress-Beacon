@@ -1,5 +1,5 @@
 // animations.c
-#include "hit_confirmation.h"
+#include "special_effects.h"
 #include "list.h"
 #include "texture_manager.h"
 #include "general_utils.h"

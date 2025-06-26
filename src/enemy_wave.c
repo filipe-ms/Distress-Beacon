@@ -185,7 +185,7 @@ void GenerateWaves(bool is_endless_mode) {
     int waves_to_create = is_endless_mode ? 10 : MAX_WAVES;
 
     for(int i = 0; i < waves_to_create + 1; i++) {
-        int wave_type = GetRandomValue(0, 9);
+        int wave_type = GetRandomValue(99, 99);
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {
@@ -226,7 +226,7 @@ void GenerateWaves(bool is_endless_mode) {
                 CreatePidgeonOfPrey(wave_id++, next_wave_start_time, modifier, intensity);
                 break;
             default: 
-                CreateSingleForDebug(ENEMY_BOSS_PIDGEON_OF_PREY, next_wave_start_time);
+                CreateSingleForDebug(ENEMY_GHOST, next_wave_start_time);
                 break;
         }
 

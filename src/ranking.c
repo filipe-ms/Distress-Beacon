@@ -130,17 +130,6 @@ void UpdateRanking() {
     }
 }
 
-static int StringEqualsIgnoreCase(const char* s1, const char* s2) {
-    while (*s1 && *s2) {
-        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) {
-            return 0;
-        }
-        s1++;
-        s2++;
-    }
-    return (*s1 == *s2);
-}
-
 void DrawRanking(void) {
     BeginDrawing();
     ClearBackground(BLACK);
@@ -180,7 +169,7 @@ void DrawRanking(void) {
         int ship_x = col3 - MeasureText(shipStr, entry_font_size) / 2;
         int score_x = col4 - MeasureText(scoreStr, entry_font_size) / 2;
 
-        Color ship_color = GetShipColor(GetPlayerShip());
+        Color ship_color = GetShipColorByName(entries[i].shipName);
 
         DrawText(posStr, pos_x, line_y, entry_font_size, WHITE);
         DrawText(nameStr, name_x, line_y, entry_font_size, WHITE);

@@ -154,7 +154,7 @@ typedef struct BlasterShoot {
     Rectangle source;
     float rotation;
     int level;
-    List* targets
+    List* targets;
 } BlasterShoot;
 
 typedef struct Shield {

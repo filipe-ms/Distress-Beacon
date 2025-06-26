@@ -9,7 +9,7 @@
 #include "player.h"
 #include "enemy_wave.h"
 #include "raymath.h"
-#include "hit_confirmation.h"
+#include "special_effects.h"
 #include "background.h"
 #include "enemy_projectile.h"
 #include "timer.h"

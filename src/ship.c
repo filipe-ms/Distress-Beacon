@@ -6,7 +6,7 @@
 #include "weapon.h"
 #include "texture_manager.h"
 #include "general_utils.h"
-#include "hit_confirmation.h"
+#include "special_effects.h"
 
 #define SOURCE_WH 8
 
@@ -140,6 +140,7 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		aurea.drone_dispatch_duration = 2.0f;
 		aurea.drone_max_range = (Vector2) { 0, -200 };
 		aurea.state = DRONE_INITIALIZED;
+		break;
 	case ORION:
 		orion.dash_cooldown = 5.0f;
 		orion.dash_recharge = 0.0f;
@@ -149,7 +150,9 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		orion.dash_position = (Vector2){ 0.0f, 0.0f };
 		orion.direction = CENTER;
 		orion.last_direction_pressed = -1;
+		break;
 	case NEBULA:
+	{
 		static const a_particle_motion_time = 1.0f;
 		static const b_particle_motion_time = 2.0f;
 		static const c_particle_motion_time = 3.0f;
@@ -171,6 +174,8 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		InitNebulaParticle(NEBULA_PARTICLE_C, NEBULA_PARTICLE_C_COUNT, &nebula.c_particles, c_particle_motion_time);
 
 		nebula.charge_energy_field = CreateUnmanagedEffect(NEBULA_ENERGY_FIELD, (Vector2) { 0 }, 0);
+		break;
+	}
 	case PUDDLE_JUMPER:
 		puddle_jumper.wormhole_cooldown = 10.0f;
 		puddle_jumper.wormhole_portal_offset = (Vector2) { 0, -400 };
@@ -229,6 +234,7 @@ static void UpdateAurea(Ship* ship) {
 			break;
 
 		case DRONE_DISPATCHED:
+		{
 			bool drones_reached_limit = false;
 			aurea.drone_dispatch_current_duration = ClampWithFlagsF(
 				aurea.drone_dispatch_current_duration + GetFrameTime(), 
@@ -260,7 +266,7 @@ static void UpdateAurea(Ship* ship) {
 				aurea.drone_left_thruster = aurea.drone_right_thruster = NULL;
 			}
 			break;
-
+		}
 		case DRONE_FIRING:
 			InitPulseShootAtCoords(ship, aurea.drone_left->position, aurea.drone_left->rotation + 180);
 			InitPulseShootAtCoords(ship, aurea.drone_right->position, aurea.drone_right->rotation + 180);
@@ -275,6 +281,7 @@ static void UpdateAurea(Ship* ship) {
 			break;
 
 		case DRONE_ROTATING:
+		{
 			bool has_reached_turning_angle = false;
 
 			aurea.drone_firing_current_duration = ClampWithFlagsF(
@@ -289,7 +296,7 @@ static void UpdateAurea(Ship* ship) {
 				aurea.state = DRONE_FIRING;
 			}
 			break;
-			
+		}
 		case DRONE_FINALIZING:		
 			CreateManagedEffect(DRONE_EXPLOSION, aurea.drone_left->position);
 			CreateManagedEffect(DRONE_EXPLOSION, aurea.drone_right->position);
@@ -397,10 +404,10 @@ static void UpdateNebula_UpdateParticle(NebulaParticleTracker* particle_arr, int
 	}
 }
 
-static void UpdateNebula(Ship* ship) { 
-	static const Color a_color = (Color) { .r = 162, .g = 255, .b = 243, .a = 255 };
-	static const Color b_color = (Color) { .r = 243, .g = 97, .b = 255, .a = 255 };
-	static const Color c_color = (Color) { .r = 255, .g = 162, .b = 0, .a = 255 };
+static void UpdateNebula(Ship* ship) {
+	static const Color a_color = { .r = 162, .g = 255, .b = 243, .a = 255 };
+	static const Color b_color = { .r = 243, .g = 97, .b = 255, .a = 255 };
+	static const Color c_color = { .r = 255, .g = 162, .b = 0, .a = 255 };
 
 	float frame_time = GetFrameTime();
 	bool is_skill_ready = false;

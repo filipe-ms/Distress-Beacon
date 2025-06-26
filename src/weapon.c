@@ -8,7 +8,7 @@
 #include "enemy.h"
 #include "list.h"
 
-#include "hit_confirmation.h"
+#include "special_effects.h"
 
 #include "player.h"
 #include "general_utils.h"

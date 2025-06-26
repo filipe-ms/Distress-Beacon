@@ -31,7 +31,7 @@
 
 #include "tutorial.h"
 
-#include "hit_confirmation.h"
+#include "special_effects.h"
 #include "list.h"
 
 #include "background.h"

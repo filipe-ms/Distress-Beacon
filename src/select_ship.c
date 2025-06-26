@@ -49,6 +49,7 @@ void InitSelectMenu() {
 
 	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
 	InitFadeInEffect(1.5f, BLACK, 1.0f);
+	TriggerPilotAnimation(5.0f);
 }
 
 void UpdateShipSelectMenu() {
@@ -66,8 +67,14 @@ void UpdateShipSelectMenu() {
     }
 
     if (!ship_menu.is_ship_selected) {
-        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) ship_menu.option = (ship_menu.option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
-        else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) ship_menu.option = (ship_menu.option + 1) % PLAYABLE_SHIPS;
+        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) {
+            ship_menu.option = (ship_menu.option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
+			TriggerPilotAnimation(5.0f);
+        }
+        else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) {
+            ship_menu.option = (ship_menu.option + 1) % PLAYABLE_SHIPS;
+            TriggerPilotAnimation(5.0f);
+        }
         else if (IsKeyPressed(KEY_ENTER)) {
             ship_menu.is_ship_selected = true;
             SetPlayerShip(ship_menu.option);
@@ -83,7 +90,7 @@ static void DrawPilotHead(int pos_x, int pos_y) {
     int scale = 16;
     float res_scale = 8 * scale;
     DrawRectangle(UI_LEFT_CENTER - res_scale / 2.0f, SCREEN_HEIGHT * 0.2f - res_scale / 2, res_scale, res_scale, BLACK);
-    DrawPilotDuringSpeech(ship_menu.option, pos_x, pos_y, scale, WHITE);
+    DrawPilot(ship_menu.option, pos_x, pos_y, scale, WHITE);
 }
 
 static void DrawLeftSideInfo() {

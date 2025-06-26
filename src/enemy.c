@@ -520,6 +520,9 @@ static void DrawGhostShade(Enemy* enemy) {
 static void DrawEnemy(void* context, void* data) {
     Enemy* enemy = (Enemy*)data;
 
+    // DrawGhostShade tem que ficar aqui
+    if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
+
     if (enemy->is_on_screen) {
         if (DEBUG_FLAG) {
             Vector2 center = { E_POSX, E_POSY };
@@ -531,11 +534,11 @@ static void DrawEnemy(void* context, void* data) {
 
         if (enemy->type == ENEMY_GHOST) {
             DrawTexturePro(texture_custom_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
-            if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
             return;
         }
 
         DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
+        
     }
 }
 

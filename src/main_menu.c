@@ -6,6 +6,7 @@
 #include "background.h"
 #include "scene_draw_effects.h"
 #include "timer.h"
+#include "draw_utils.h"
 
 #include "raymath.h"
 

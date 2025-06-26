@@ -2,6 +2,18 @@
 
 #include "common.h"
 
+static int StringEqualsIgnoreCase(const char* s1, const char* s2) {
+    while (*s1 && *s2) {
+        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) {
+            return 0;
+        }
+        s1++;
+        s2++;
+    }
+    return (*s1 == *s2);
+}
+
+
 char* GetShipName(int ship_id) {
     switch (ship_id) {
     case ORION: return "Orion";
@@ -48,4 +60,23 @@ char* GetPilotPresentation(int ship_id) {
     if (ship_id == ORION) return "Sou o vencedor do grand\nprix de Rio Doce.";
     if (ship_id == NEBULA) return "É dento.";
     return "Default";
+}
+
+Color GetShipColorByName(const char* ship_name) {
+	if (StringEqualsIgnoreCase(ship_name, "Orion")) {
+		return GetShipColor(ORION);
+	}
+	else if (StringEqualsIgnoreCase(ship_name, "Aurea")) {
+		return GetShipColor(AUREA);
+	}
+	else if (StringEqualsIgnoreCase(ship_name, "Nebula")) {
+		return GetShipColor(NEBULA);
+	}
+	else if (StringEqualsIgnoreCase(ship_name, "Puddle Jumper")) {
+		return GetShipColor(PUDDLE_JUMPER);
+	}
+	else if (StringEqualsIgnoreCase(ship_name, "Void")) {
+		return GetShipColor(VOID);
+	}
+	return GRAY;
 }

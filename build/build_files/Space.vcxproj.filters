@@ -102,7 +102,7 @@
     <ClInclude Include="..\..\include\select_ship.h">
       <Filter>Header Files\scenes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\hit_confirmation.h">
+    <ClInclude Include="..\..\include\special_effects.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\scene_draw_effects.h">
@@ -185,7 +185,7 @@
     <ClCompile Include="..\..\src\select_ship.c">
       <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\hit_confirmation.c">
+    <ClCompile Include="..\..\src\special_effects.c">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\scene_draw_effects.c">
