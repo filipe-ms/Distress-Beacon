@@ -58,8 +58,8 @@ char* GetShipSpecialDescription(int ship_id) {
 
 char* GetPilotPresentation(int ship_id) {
     if (ship_id == ORION) return "Sou o vencedor do grand\nprix de Rio Doce.";
-    if (ship_id == NEBULA) return "É dento.";
-    return "Default";
+    if (ship_id == NEBULA) return "Dorem dipsum dolor dit\ndmet donsectetur dipiscing\ndelit. Dolor dit damet\ndonsectetur dipiscing.";
+    return "Lorem ipsum dolor sit\namet consectetur adipiscing\nelit. Dolor sit amet\nconsectetur adipiscing.";
 }
 
 Color GetShipColorByName(const char* ship_name) {

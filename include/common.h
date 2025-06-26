@@ -34,6 +34,14 @@
 
 //--------------------------------------------------------------
 //
+//                             SONS
+//
+//--------------------------------------------------------------
+
+#define AUDIO_FLAG 1; // Ativa os sons do jogo
+
+//--------------------------------------------------------------
+//
 //                             JOGO
 //
 //--------------------------------------------------------------
@@ -47,13 +55,15 @@
 #define MAX_ENEMY_NUMBER 100        // Número máximo de inimigos
 #define MAX_WAVES 50                // Número máximo de waves
 
+#define ENEMY_LINE_SPAWN_START -80
+
 //--------------------------------------------------------------
 //
 //                            DESENHO
 //
 //--------------------------------------------------------------
 
-#define DRAW_WH 48 // Largura/Altura padrão de desenho
+#define DRAW_WH 48 // Largura/Altura padrão de desenho das naves e inimigos simples
 
 //--------------------------------------------------------------
 //
@@ -61,6 +71,8 @@
 //
 //--------------------------------------------------------------
 
+
+// Pilotos jogáveis
 #define AUREA 0
 #define ORION 1
 #define NEBULA 2
@@ -69,14 +81,23 @@
 
 #define PLAYABLE_SHIPS 5
 
+// Pilotos não jogáveis
+#define DUCK 5
+#define ROBOT 6
+#define ALIEN 7
+#define PIRATE 8
+#define INVERSE 9
+#define INTERFERENCE 10
+
+// Número de pilotos. Não é o número de jogáveis!
+#define TOTAL_PILOT_NUMBER 11
+
+// Direções
 #define CENTER 0
 #define LEFT 1
 #define RIGHT 2
 #define UP 3
 #define DOWN 4
-
-#define ENEMY_LINE_SPAWN_START -80
-
 
 //--------------------------------------------------------------
 //

@@ -9,6 +9,7 @@
 #include "enter_name.h"
 #include "winner.h"
 #include "game_over.h"
+#include "audio_manager.h"
 
 Scene current_scene;
 Scene main_menu;
@@ -97,6 +98,7 @@ void UpdateCurrentScene(void) {
         break;
     }
 
+	UpdateAudio();
 }
 
 void DrawCurrentScene(void) {

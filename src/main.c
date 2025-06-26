@@ -37,6 +37,7 @@
 #include "background.h"
 #include "enemy_projectile.h"
 
+#include "audio_manager.h"
 #include "texture_manager.h"
 
 static Scene starting_scene = START;
@@ -56,6 +57,8 @@ int main(void)
 
     SetTargetFPS(240);
 
+    InitAudioDevice();
+
     LoadGame();     // Inicializa o diretório de recursos/assets e as texturas
     InitEnemies();
     InitSceneManager(starting_scene);
@@ -63,6 +66,8 @@ int main(void)
     LoopScene();
 
     UnloadGame();   // Free
+
+    CloseAudioDevice();
 
     CloseWindow();  // Fecha a janela
 
@@ -76,6 +81,7 @@ void LoadGame() {
     InitEnemySourceRects();
     LoadTutorialTextures();
     EnemyProjectile_Load();
+    LoadAudioResources();
 }
 
 // Unload game variables
@@ -87,4 +93,5 @@ void UnloadGame(void)
     UnloadPowerUpTextures();
 	UnloadEffects();
 	List_FreeAll();
+    UnloadAudioResources();
 }

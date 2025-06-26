@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\include\ship_references.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\audio_manager.h">
+      <Filter>Header Files\resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.c">
@@ -211,6 +214,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ship_references.c">
       <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio_manager.c">
+      <Filter>Source Files\resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

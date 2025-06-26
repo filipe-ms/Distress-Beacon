@@ -1,4 +1,6 @@
+// game.c
 #include "game.h"
+
 #include "enemy.h"
 #include "common.h"
 #include "weapon.h"

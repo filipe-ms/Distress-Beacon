@@ -2,13 +2,16 @@
 
 #include "raylib.h"
 
-// Refatoração:
-// Basta chamar essa função com uma duração quando tomar um tiro ou
-// quando quiser que o piloto fale por qualquer motivo.
-// A gente pode colocar um switch aqui e colocar outras animações tb
-// tipo câmera chacoalhando etc.
-void TriggerPilotAnimation(float duration);
+void SetTopPilot(int pilot_id, int pos_x, int pos_y, float scale, Color color);
+void SetTopPilotDefault(int pilot_id);
+void TriggerTopPilotAnimation(float duration);
+int GetTopPilotId(void);
 
+void SetBottomPilot(int pilot_id, int pos_x, int pos_y, float scale, Color color);
+void SetBottomPilotDefault(int pilot_id);
+void TriggerBottomPilotAnimation(float duration);
+int GetBottomPilotId(void);
+void ClearBottomPilot(void);
 
-// Desenha o piloto na tela
-void DrawPilot(int ship, int pos_x, int pos_y, float scale, Color tint);
+void UpdatePilot(void);
+void DrawPilot(void);

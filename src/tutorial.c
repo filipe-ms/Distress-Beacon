@@ -4,7 +4,6 @@
 #include "scene_manager.h"
 #include "common.h"
 #include "select_ship.h"
-#include "math.h"
 #include "background.h"
 #include "raymath.h"
 

@@ -447,13 +447,13 @@ typedef struct BoundingBox {
 } BoundingBox;
 
 // Wave, audio wave data
-typedef struct EnemyWave {
+typedef struct Wave {
     unsigned int frameCount;    // Total number of frames (considering channels)
     unsigned int sampleRate;    // Frequency (samples per second)
     unsigned int sampleSize;    // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
     unsigned int channels;      // Number of channels (1-mono, 2-stereo, ...)
     void *data;                 // Buffer data pointer
-} EnemyWave;
+} Wave;
 
 // Opaque structs declaration
 // NOTE: Actual structs are defined internally in raudio module
@@ -1630,19 +1630,19 @@ RLAPI void SetMasterVolume(float volume);                             // Set mas
 RLAPI float GetMasterVolume(void);                                    // Get master volume (listener)
 
 // Wave/Sound loading/unloading functions
-RLAPI EnemyWave LoadWave(const char *fileName);                            // Load wave data from file
-RLAPI EnemyWave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int dataSize); // Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-RLAPI bool IsWaveValid(EnemyWave wave);                                    // Checks if wave data is valid (data loaded and parameters)
+RLAPI Wave LoadWave(const char *fileName);                            // Load wave data from file
+RLAPI Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int dataSize); // Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
+RLAPI bool IsWaveValid(Wave wave);                                    // Checks if wave data is valid (data loaded and parameters)
 RLAPI Sound LoadSound(const char *fileName);                          // Load sound from file
-RLAPI Sound LoadSoundFromWave(EnemyWave wave);                             // Load sound from wave data
+RLAPI Sound LoadSoundFromWave(Wave wave);                             // Load sound from wave data
 RLAPI Sound LoadSoundAlias(Sound source);                             // Create a new sound that shares the same sample data as the source sound, does not own the sound data
 RLAPI bool IsSoundValid(Sound sound);                                 // Checks if a sound is valid (data loaded and buffers initialized)
 RLAPI void UpdateSound(Sound sound, const void *data, int sampleCount); // Update sound buffer with new data
-RLAPI void UnloadWave(EnemyWave wave);                                     // Unload wave data
+RLAPI void UnloadWave(Wave wave);                                     // Unload wave data
 RLAPI void UnloadSound(Sound sound);                                  // Unload sound
 RLAPI void UnloadSoundAlias(Sound alias);                             // Unload a sound alias (does not deallocate sample data)
-RLAPI bool ExportWave(EnemyWave wave, const char *fileName);               // Export wave data to file, returns true on success
-RLAPI bool ExportWaveAsCode(EnemyWave wave, const char *fileName);         // Export wave sample data to code (.h), returns true on success
+RLAPI bool ExportWave(Wave wave, const char *fileName);               // Export wave data to file, returns true on success
+RLAPI bool ExportWaveAsCode(Wave wave, const char *fileName);         // Export wave sample data to code (.h), returns true on success
 
 // Wave/Sound management functions
 RLAPI void PlaySound(Sound sound);                                    // Play a sound
@@ -1653,10 +1653,10 @@ RLAPI bool IsSoundPlaying(Sound sound);                               // Check i
 RLAPI void SetSoundVolume(Sound sound, float volume);                 // Set volume for a sound (1.0 is max level)
 RLAPI void SetSoundPitch(Sound sound, float pitch);                   // Set pitch for a sound (1.0 is base level)
 RLAPI void SetSoundPan(Sound sound, float pan);                       // Set pan for a sound (0.5 is center)
-RLAPI EnemyWave WaveCopy(EnemyWave wave);                                       // Copy a wave to a new wave
-RLAPI void WaveCrop(EnemyWave *wave, int initFrame, int finalFrame);       // Crop a wave to defined frames range
-RLAPI void WaveFormat(EnemyWave *wave, int sampleRate, int sampleSize, int channels); // Convert wave data to desired format
-RLAPI float *LoadWaveSamples(EnemyWave wave);                              // Load samples data from wave as a 32bit float data array
+RLAPI Wave WaveCopy(Wave wave);                                       // Copy a wave to a new wave
+RLAPI void WaveCrop(Wave *wave, int initFrame, int finalFrame);       // Crop a wave to defined frames range
+RLAPI void WaveFormat(Wave *wave, int sampleRate, int sampleSize, int channels); // Convert wave data to desired format
+RLAPI float *LoadWaveSamples(Wave wave);                              // Load samples data from wave as a 32bit float data array
 RLAPI void UnloadWaveSamples(float *samples);                         // Unload samples data loaded with LoadWaveSamples()
 
 // Music management functions

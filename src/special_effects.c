@@ -4,7 +4,6 @@
 #include "texture_manager.h"
 #include "general_utils.h"
 #include "raymath.h"
-#include "math.h"
 
 #define HIT_ANIM_FRAMES 4
 
