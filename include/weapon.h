@@ -142,11 +142,27 @@ extern Shotgun shotgun;
 int IsShotgunActive(void);
 void ShotgunLevelUp(void);
 
+//--------------------------------------------------------------
+//
+//                         Blaster
+// 
+//--------------------------------------------------------------
+
+typedef struct BlasterShoot {
+    Shoot shoot;
+    Vector2 speed;
+    Rectangle source;
+    float rotation;
+    int level;
+    List* targets
+} BlasterShoot;
 
 typedef struct Shield {
     int capacity;
     bool is_active;
 } Shield;
+
+void InitBlasterShoot(Ship* ship, int level, float base_damage);
 
 extern Shield shield;
 

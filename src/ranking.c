@@ -141,15 +141,6 @@ static int StringEqualsIgnoreCase(const char* s1, const char* s2) {
     return (*s1 == *s2);
 }
 
-static Color GetShipColor(const char* shipName) {
-    if (StringEqualsIgnoreCase(shipName, "Aurea")) return YELLOW;
-    else if (StringEqualsIgnoreCase(shipName, "Orion")) return WHITE;
-    else if (StringEqualsIgnoreCase(shipName, "Nebula")) return PURPLE;
-    else if (StringEqualsIgnoreCase(shipName, "Puddle Jumper")) return GREEN;
-
-    return WHITE;
-}
-
 void DrawRanking(void) {
     BeginDrawing();
     ClearBackground(BLACK);
@@ -189,7 +180,7 @@ void DrawRanking(void) {
         int ship_x = col3 - MeasureText(shipStr, entry_font_size) / 2;
         int score_x = col4 - MeasureText(scoreStr, entry_font_size) / 2;
 
-        Color ship_color = GetShipColor(entries[i].shipName);
+        Color ship_color = GetShipColor(GetPlayerShip());
 
         DrawText(posStr, pos_x, line_y, entry_font_size, WHITE);
         DrawText(nameStr, name_x, line_y, entry_font_size, WHITE);

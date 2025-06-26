@@ -12,6 +12,10 @@
 
 #define MAX_THRUSTER_CYCLE 4
 
+#define NEBULA_PARTICLE_A_COUNT 15
+#define NEBULA_PARTICLE_B_COUNT 15
+#define NEBULA_PARTICLE_C_COUNT 15
+
 Ship ship;
 
 typedef struct Orion {
@@ -78,6 +82,55 @@ typedef struct Aurea {
 
 Aurea aurea;
 
+typedef struct NebulaParticleTracker {
+	SpecialEffect* effect;
+	float angle;
+	float motion_current_time;
+	float motion_time;
+} NebulaParticleTracker;
+
+typedef struct Nebula {
+	float blaster_cooldown;
+	float blaster_current_cooldown;
+
+	float blaster_charge_time_a;
+	float blaster_charge_time_b;
+	float blaster_charge_time_c;
+
+	float blaster_base_damage_a;
+	float blaster_base_damage_b;
+	float blaster_base_damage_c;
+
+	float blaster_current_charge_time;
+
+	Vector2 particle_initial_offset;
+
+	SpecialEffect* charge_energy_field;
+
+	NebulaParticleTracker a_particles[NEBULA_PARTICLE_A_COUNT];
+	NebulaParticleTracker b_particles[NEBULA_PARTICLE_B_COUNT];
+	NebulaParticleTracker c_particles[NEBULA_PARTICLE_C_COUNT];
+} Nebula;
+
+Nebula nebula;
+
+static void InitNebulaParticle(EffectType effect, int particle_count, NebulaParticleTracker* particle_arr, float particle_motion_time) {
+	for(int i = 0; i < particle_count; i++) {
+		particle_arr[i] = (NebulaParticleTracker) {
+			.effect = CreateUnmanagedEffect(effect, (Vector2){ 0 }, 0),
+			.motion_current_time = particle_motion_time * ((float)(i + 1) / (float)particle_count),
+			.motion_time = particle_motion_time,
+			.angle = (float)GetRandomValue(0, 3600) / 10.0f * DEG2RAD,
+		};
+
+		particle_arr[i].effect->color = Fade(WHITE, 0);
+		particle_arr[i].effect->rotation = (float)GetRandomValue(0, 3600) / 10.0f * DEG2RAD;
+		particle_arr[i].effect->position = Vector2Rotate(
+			Vector2MultiplyScalarF(nebula.particle_initial_offset, particle_arr[i].motion_current_time),
+			particle_arr[i].angle);
+	}
+}
+
 static void InitShipSpecifics(Ship* ship, int id) {
 	switch (id) {
 	case AUREA:
@@ -97,6 +150,27 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		orion.direction = CENTER;
 		orion.last_direction_pressed = -1;
 	case NEBULA:
+		static const a_particle_motion_time = 1.0f;
+		static const b_particle_motion_time = 2.0f;
+		static const c_particle_motion_time = 3.0f;
+
+		nebula.blaster_cooldown = 5.0f;
+
+		nebula.blaster_charge_time_a = 6.0f;
+		nebula.blaster_charge_time_b = 12.0f;
+		nebula.blaster_charge_time_c = 18.0f;
+
+		nebula.blaster_base_damage_a = 5;
+		nebula.blaster_base_damage_b = 10;
+		nebula.blaster_base_damage_c = 15;
+
+		nebula.particle_initial_offset = (Vector2) { 0, 120 };
+
+		InitNebulaParticle(NEBULA_PARTICLE_A, NEBULA_PARTICLE_A_COUNT, &nebula.a_particles, a_particle_motion_time);
+		InitNebulaParticle(NEBULA_PARTICLE_B, NEBULA_PARTICLE_B_COUNT, &nebula.b_particles, b_particle_motion_time);
+		InitNebulaParticle(NEBULA_PARTICLE_C, NEBULA_PARTICLE_C_COUNT, &nebula.c_particles, c_particle_motion_time);
+
+		nebula.charge_energy_field = CreateUnmanagedEffect(NEBULA_ENERGY_FIELD, (Vector2) { 0 }, 0);
 	case PUDDLE_JUMPER:
 		puddle_jumper.wormhole_cooldown = 10.0f;
 		puddle_jumper.wormhole_portal_offset = (Vector2) { 0, -400 };
@@ -123,7 +197,7 @@ void InitShip(Ship* ship, int id) {
 	InitShipSpecifics(ship, id);
 }
 
-static void UpdateAurea() { 
+static void UpdateAurea(Ship* ship) { 
 	bool is_ability_ready = false;
 
 	aurea.drone_cooldown = ClampWithFlagsF(
@@ -140,8 +214,8 @@ static void UpdateAurea() {
 			Vector2 left_offset = (Vector2) { -20, 0 };
 			Vector2 right_offset = (Vector2) { 20, 0 };
 	
-			aurea.drone_left_cast_position = Vector2Add(ship.position, left_offset);
-			aurea.drone_right_cast_position = Vector2Add(ship.position, right_offset);
+			aurea.drone_left_cast_position = Vector2Add(ship->position, left_offset);
+			aurea.drone_right_cast_position = Vector2Add(ship->position, right_offset);
 	
 			aurea.drone_left = CreateUnmanagedEffect(DRONE, aurea.drone_left_cast_position, aurea.drone_dispatch_duration);
 			aurea.drone_right = CreateUnmanagedEffect(DRONE, aurea.drone_right_cast_position, aurea.drone_dispatch_duration);
@@ -188,8 +262,8 @@ static void UpdateAurea() {
 			break;
 
 		case DRONE_FIRING:
-			InitPulseShootAtCoords(&ship, aurea.drone_left->position, aurea.drone_left->rotation + 180);
-			InitPulseShootAtCoords(&ship, aurea.drone_right->position, aurea.drone_right->rotation + 180);
+			InitPulseShootAtCoords(ship, aurea.drone_left->position, aurea.drone_left->rotation + 180);
+			InitPulseShootAtCoords(ship, aurea.drone_right->position, aurea.drone_right->rotation + 180);
 			aurea.drone_fired_shots++;
 			aurea.state = DRONE_ROTATING;
 
@@ -287,9 +361,110 @@ static void UpdateOrion(Ship* ship) {
 	}
 }
 
-static void UpdateNebula() { }
+static void UpdateNebula_UpdateParticle(NebulaParticleTracker* particle_arr, int particle_count, float min_time, float cur_time, float max_time) {
+	float frame_time = GetFrameTime();
 
-static void UpdatePuddleJumper() {
+	for(int i = 0; i < particle_count; i++) {
+
+		// Motion Time
+		particle_arr[i].motion_current_time = fmaxf(0, particle_arr[i].motion_current_time - frame_time);
+
+		// Transparency
+		float transparency_by_time = Clamp((cur_time - min_time) / (max_time - min_time), 0, 1);
+		float transparency_by_distance = 1.0f - particle_arr[i].motion_current_time / particle_arr[i].motion_time;
+
+		particle_arr[i].effect->color = Fade(WHITE, transparency_by_time * transparency_by_distance);
+
+		// Rotation
+		particle_arr[i].effect->rotation += GetFrameTime() * 360;
+
+		// Position
+		Vector2 offset_vector = Vector2Rotate(
+			Vector2MultiplyScalarF(
+				nebula.particle_initial_offset,
+				particle_arr[i].motion_current_time
+			),
+			particle_arr[i].angle
+		);
+
+		particle_arr[i].effect->position = Vector2Add(ship.position, offset_vector);
+
+		// Reset (if necessary)
+		if (particle_arr[i].motion_current_time <= 0) {
+			particle_arr[i].motion_current_time = particle_arr[i].motion_time;
+			particle_arr[i].angle = (float)GetRandomValue(0, 3600) / 10.0f * DEG2RAD;
+		}
+	}
+}
+
+static void UpdateNebula(Ship* ship) { 
+	static const Color a_color = (Color) { .r = 162, .g = 255, .b = 243, .a = 255 };
+	static const Color b_color = (Color) { .r = 243, .g = 97, .b = 255, .a = 255 };
+	static const Color c_color = (Color) { .r = 255, .g = 162, .b = 0, .a = 255 };
+
+	float frame_time = GetFrameTime();
+	bool is_skill_ready = false;
+
+	// COOLDOWN
+	nebula.blaster_current_cooldown = ClampWithFlagsF(
+		nebula.blaster_current_cooldown + frame_time, 0, nebula.blaster_cooldown,
+		NULL, &is_skill_ready);
+	
+	float time_factor = is_skill_ready ? 1 : -5;
+	float prev_charge_time = nebula.blaster_current_charge_time;
+
+	float current_charge_time = nebula.blaster_current_charge_time = Clamp(
+		nebula.blaster_current_charge_time + frame_time * time_factor,
+		0, nebula.blaster_charge_time_c); 
+
+	// Updating particles
+	UpdateNebula_UpdateParticle(&nebula.a_particles, NEBULA_PARTICLE_A_COUNT, 0, current_charge_time, nebula.blaster_charge_time_a);
+	UpdateNebula_UpdateParticle(&nebula.b_particles, NEBULA_PARTICLE_B_COUNT, nebula.blaster_charge_time_a, current_charge_time, nebula.blaster_charge_time_b);
+	UpdateNebula_UpdateParticle(&nebula.c_particles, NEBULA_PARTICLE_C_COUNT, nebula.blaster_charge_time_b, current_charge_time, nebula.blaster_charge_time_c);
+
+	// Updating energy field
+	bool is_absorbing_a_particles = current_charge_time >= 0;
+	bool is_absorbing_b_particles = current_charge_time >= nebula.blaster_charge_time_a;
+	bool is_absorbing_c_particles = current_charge_time >= nebula.blaster_charge_time_b;
+
+	nebula.charge_energy_field->position = ship->position;
+
+	if (is_absorbing_c_particles) {
+		nebula.charge_energy_field->color = c_color;
+	} else if (is_absorbing_b_particles) {
+		float normalized = Clamp(
+			Normalize(current_charge_time, nebula.blaster_charge_time_a, nebula.blaster_charge_time_b), 0, 1
+		);
+		nebula.charge_energy_field->color = LerpColor(b_color, c_color, normalized);
+	} else if (is_absorbing_a_particles) {
+		float normalized = Clamp(
+			Normalize(current_charge_time, 0, nebula.blaster_charge_time_a), 0, 1
+		);
+		nebula.charge_energy_field->color = LerpColor(a_color, b_color, normalized);
+	}
+
+	nebula.charge_energy_field->color = Fade(nebula.charge_energy_field->color, current_charge_time / nebula.blaster_charge_time_c);
+
+	// Is cooldown ready
+	if (!is_skill_ready || !IsKeyDown(KEY_Z)) {
+		return;
+	}
+	
+	bool is_level_3 = is_absorbing_c_particles;
+	bool is_level_2 = is_absorbing_b_particles;
+
+	if (is_level_3) {
+		InitBlasterShoot(ship, 2, nebula.blaster_base_damage_c);
+	} else if (is_level_2) {
+		InitBlasterShoot(ship, 1, nebula.blaster_base_damage_b);
+	} else {
+		InitBlasterShoot(ship, 0, nebula.blaster_base_damage_a);
+	}
+
+	nebula.blaster_current_cooldown = 0;
+}
+
+static void UpdatePuddleJumper(Ship* ship) {
 	// Cooldown
 	bool is_ability_ready = false;
 
@@ -312,14 +487,14 @@ static void UpdatePuddleJumper() {
 	if (IsKeyPressed(KEY_Z)) {
 		// When it activates
 		if (puddle_jumper.wormhole_is_recharged) {
-			puddle_jumper.wormhole_in_position = ship.position;
-			puddle_jumper.wormhole_out_position = Vector2Add(ship.position, puddle_jumper.wormhole_portal_offset);	
+			puddle_jumper.wormhole_in_position = ship->position;
+			puddle_jumper.wormhole_out_position = Vector2Add(ship->position, puddle_jumper.wormhole_portal_offset);	
 			puddle_jumper.wormhole_current_duration = 0;
 			puddle_jumper.wormhole_current_cooldown = 0;
 			puddle_jumper.wormhole_is_recharged = false;
 
 			if (puddle_jumper.wormhole_out_position.y <= 0) {
-				puddle_jumper.wormhole_out_position.y = ship.position.y - puddle_jumper.wormhole_portal_offset.y;
+				puddle_jumper.wormhole_out_position.y = ship->position.y - puddle_jumper.wormhole_portal_offset.y;
 			}
 			
 			CreateManagedEffectDuration(WORMHOLE, puddle_jumper.wormhole_in_position, puddle_jumper.wormhole_duration);
@@ -329,23 +504,23 @@ static void UpdatePuddleJumper() {
 		
 		// Jump-in logic
 		if (!is_duration_expired) {
-			bool is_intersecting_portal_in = CheckCollisionCircles(ship.position, ship.draw_size.x, puddle_jumper.wormhole_in_position, 40);
-			bool is_intersecting_portal_out = CheckCollisionCircles(ship.position, ship.draw_size.x, puddle_jumper.wormhole_out_position, 40);
+			bool is_intersecting_portal_in = CheckCollisionCircles(ship->position, ship->draw_size.x, puddle_jumper.wormhole_in_position, 40);
+			bool is_intersecting_portal_out = CheckCollisionCircles(ship->position, ship->draw_size.x, puddle_jumper.wormhole_out_position, 40);
 		
 			if (is_intersecting_portal_in) {
-				ship.position = puddle_jumper.wormhole_out_position;
+				ship->position = puddle_jumper.wormhole_out_position;
 				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_out_position, 0.5f);
 			}
 	
 			if (is_intersecting_portal_out) {
-				ship.position = puddle_jumper.wormhole_in_position;
+				ship->position = puddle_jumper.wormhole_in_position;
 				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_in_position, 0.5f);
 			}
 		}
 	}
 }
 
-static void UpdateVoid() {}
+static void UpdateVoid(Ship* ship) {}
 
 static void WallBehavior(Vector2* position) {
 	position->x = Clamp(position->x, GAME_SCREEN_START + DRAW_WH / 2, GAME_SCREEN_END - (DRAW_WH / 2));
@@ -377,19 +552,19 @@ void UpdateShip(Ship* ship) {
 
 	switch(ship->id) {
 		case AUREA:
-			UpdateAurea();
+			UpdateAurea(ship);
 			break;
 		case ORION:
 			UpdateOrion(ship);
 			break;
 		case NEBULA:
-			UpdateNebula();
+			UpdateNebula(ship);
 			break;
 		case PUDDLE_JUMPER:
-			UpdatePuddleJumper();
+			UpdatePuddleJumper(ship);
 			break;
 		case VOID:
-			UpdateVoid();
+			UpdateVoid(ship);
 			break;
 		default:
 			return;
@@ -622,5 +797,23 @@ void DrawShip(Ship* ship) {
 
 			TraceLog(LOG_INFO, "vulneravel");
 		}
+	}
+}
+
+void UnloadShip(Ship* ship) {
+	if (ship->id == NEBULA) {
+		for(int i = 0; i < NEBULA_PARTICLE_A_COUNT; i++) {
+			DestroyEffect(nebula.a_particles[i].effect);
+		}
+
+		for(int i = 0; i < NEBULA_PARTICLE_B_COUNT; i++) {
+			DestroyEffect(nebula.b_particles[i].effect);
+		}
+
+		for(int i = 0; i < NEBULA_PARTICLE_C_COUNT; i++) {
+			DestroyEffect(nebula.c_particles[i].effect);
+		}
+
+		DestroyEffect(nebula.charge_energy_field);
 	}
 }

@@ -554,6 +554,121 @@ static void DrawShotgun(void) {
 }
 #pragma endregion SHOTGUN
 
+#pragma region BLAST
+List* blaster_shoots;
+
+void InitBlasterShoot(Ship* ship, int level, float base_damage) {
+    BlasterShoot shot = { 0 };
+    shot.shoot.damage = ApplyMultiplier(damage_modifier, base_damage);
+    shot.shoot.size = Vector2Add((Vector2){ 100, 100 }, Vector2MultiplyScalarF(Vector2One(), level * 20));
+
+    shot.shoot.position = ship->position;
+    shot.rotation = -45;
+    shot.speed = (Vector2) { 0, -900 };
+    shot.level = level;
+    shot.targets = List_Create(sizeof(int));
+
+    if (level == 0) {
+        shot.source = (Rectangle){ 8 * 1, 8 * 5, 8, 8 };
+    } else if (level == 1) {
+        shot.source = (Rectangle){ 8 * 2, 8 * 5, 8, 8 };
+    } else if (level == 2) {
+        shot.source = (Rectangle){ 8 * 1, 8 * 7, 8, 8 };
+    }
+
+    List_AddLast(blaster_shoots, &shot);
+}
+
+static void DrawBlasterShoot(BlasterShoot* shot) {
+    Rectangle destRec = {
+        shot->shoot.position.x,
+        shot->shoot.position.y,
+        shot->shoot.size.x,
+        shot->shoot.size.y,
+    };
+
+    Vector2 origin = {
+        shot->shoot.size.x / 2.0f,
+        shot->shoot.size.y / 2.0f
+    };
+
+	if (DEBUG_FLAG) {
+        DrawCircle(shot->shoot.position.x, shot->shoot.position.y, shot->shoot.size.x / 1.50f, PINK);
+        DrawCircle(shot->shoot.position.x, shot->shoot.position.y, shot->shoot.size.x / 1.75f, RED);
+        DrawCircle(shot->shoot.position.x, shot->shoot.position.y, shot->shoot.size.x / 2.00f, GREEN);
+	}
+
+    
+    DrawTexturePro(texture_projectiles, shot->source, destRec, origin, shot->rotation, WHITE);
+}
+
+static void DrawBlasterShots(void) {
+    List_ForEach(blaster_shoots, (Function)DrawBlasterShoot);
+}
+
+
+static bool BlasterShoot_CheckForHits(Enemy* enemy, BlasterShoot* shoot) {
+    Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
+    
+    if (!enemy->is_targetable)
+    return false;
+
+    Node* node = shoot->targets->head;
+    for(; node != NULL; node = node->next) {
+        Enemy* enemy = node->data;
+        if (enemy == enemy) {
+            return false;
+        }
+    }
+    
+    float size;
+
+    if (shoot->level == 0) {
+        size = shoot->shoot.size.x / 2.0f;
+    } else if (shoot->level == 1) {
+        size = shoot->shoot.size.x / 1.75f;
+    } else {
+        size = shoot->shoot.size.x / 1.50f;
+    }
+
+    if (CheckCollisionCircles(enemy_pos, enemy->size.x / 2.0f, shoot->shoot.position, size)) {
+        enemy->hp -= shoot->shoot.damage;
+        CreateManagedEffect(EXPLOSION, enemy_pos);
+        
+        List_Add(shoot->targets, &enemy->id);
+        
+        if (enemy->hp <= 0) {
+            AddExperience(enemy->exp);
+            AddScore(enemy->score);
+			DeInitEnemy(enemy);
+        }
+
+        return true;
+    }
+    
+    return false;
+}
+
+static int CheckBlasterOutOfBonds(void* context, BlasterShoot* shot) {
+    if (shot->shoot.position.y < -80) {
+        List_Destroy(shot->targets);
+        return true;
+    }
+    return false;
+}
+
+static void BlasterShootPositionUpdate(BlasterShoot* shoot) {
+	shoot->shoot.position.x += ApplyMultiplier(speed_modifier, shoot->speed.x) * GetFrameTime();
+	shoot->shoot.position.y += ApplyMultiplier(speed_modifier, shoot->speed.y) * GetFrameTime();
+}
+
+static void UpdateBlaster(Ship* ship) {
+    List_ForEach(blaster_shoots, (Function)BlasterShootPositionUpdate);
+	List_RemoveWithFn(blaster_shoots, NULL, (MatchFunction)CheckBlasterOutOfBonds);
+}
+
+#pragma endregion
+
 //--------------------------------------------------------------
 //
 //                         SHIELD
@@ -640,7 +755,9 @@ bool CheckForProjectileCollisions(Ship* ship) {
         List_RemoveWithFn(photon.photon_shoots, enemy, (MatchFunction)CheckForHits);
         List_RemoveWithFn(shotgun.shotgun_shoots, enemy, (MatchFunction)CheckForHits);
         List_RemoveWithFn(homing.homing_shoots, enemy, (MatchFunction)CheckForHits);
+        List_ForEachCtx(blaster_shoots, enemy, BlasterShoot_CheckForHits);
     }
+
 
     List_ForEach(enemies, UnbindHomingProjectiles);
     List_RemoveWithFn(enemies, NULL, (MatchFunction)CheckForDeadEnemies);
@@ -683,6 +800,8 @@ static void InitAllWeapons(void) {
     InitPhoton();
     InitShotgun();
     InitHoming();
+
+    blaster_shoots = List_Create(sizeof(BlasterShoot));
 }
 
 void InitWeapon(void) {
@@ -696,6 +815,8 @@ void UpdateWeapon(Ship* ship) {
     UpdateShotgun(ship);
     UpdateHoming(ship);
 
+    UpdateBlaster(ship);
+
     CheckForProjectileCollisions(ship);
 }
 
@@ -704,4 +825,5 @@ void DrawWeapon(void) {
     DrawPhoton();
     DrawShotgun();
     DrawHoming();
+    DrawBlasterShots();
 }

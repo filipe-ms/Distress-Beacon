@@ -4,7 +4,6 @@
 #include "common.h"
 #include "scene_manager.h"
 #include "background.h"
-#include "draw_utils.h"
 #include "scene_draw_effects.h"
 #include "timer.h"
 

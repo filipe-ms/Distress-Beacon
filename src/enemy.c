@@ -18,6 +18,8 @@ static Rectangle source_rects[ENEMY_TYPE_COUNT];
 #define E_SPEEDX enemy->speed.x
 #define E_SPEEDY enemy->speed.y
 
+static int id = 0;
+
 List* enemies;
 
 #pragma region ENEMY_BEHAVIORS
@@ -373,6 +375,7 @@ static void InitEnemySpecifics(Enemy* enemy) {
 }
 
 void InitEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
+    enemy->id = id++;
     enemy->type = type;
     enemy->hp = (float)hp;
     enemy->color = WHITE;
@@ -526,14 +529,13 @@ static void DrawEnemy(void* context, void* data) {
         Vector2 origin = { E_SIZEX / 2, E_SIZEY / 2 };
 		Rectangle enemy_rect = GetEnemyRectangle(enemy);
 
-        if (enemy->type > -1 && enemy->type < ENEMY_GHOST) {
-            DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
-            return;
-        } else  if (enemy->type >= ENEMY_GHOST && enemy->type < ENEMY_TYPE_COUNT) {
+        if (enemy->type == ENEMY_GHOST) {
             DrawTexturePro(texture_custom_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
-
             if (enemy->type == ENEMY_GHOST) DrawGhostShade(enemy);
+            return;
         }
+
+        DrawTexturePro(texture_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
     }
 }
 

@@ -14,6 +14,10 @@ typedef enum EffectType {
 	DRONE,
 	DRONE_EXPLOSION,
 	DRONE_THRUSTER,
+	NEBULA_PARTICLE_A,
+	NEBULA_PARTICLE_B,
+	NEBULA_PARTICLE_C,
+	NEBULA_ENERGY_FIELD,
 } EffectType;
 
 typedef enum ParticleRenderingOrder {

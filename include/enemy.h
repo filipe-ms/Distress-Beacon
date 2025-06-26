@@ -37,6 +37,7 @@ typedef enum {
 } EnemyState;
 
 typedef struct {
+    int id;
     EnemyType type;
 
     Vector2 position;

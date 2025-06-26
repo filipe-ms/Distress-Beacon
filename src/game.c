@@ -33,6 +33,7 @@ void InitGame(void) {
     level_up_flag = false;
 
     // Other inits
+    InitEffects();
     InitShip(&ship, GetPlayerShip());
     InitWeapon();
     InitPlayer();
@@ -40,7 +41,6 @@ void InitGame(void) {
     EnemyProjectile_Init();
     InitPowerUps();
     InitWaves(50);
-	InitEffects();
 	InitEnemySourceRects();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
 

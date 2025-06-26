@@ -283,6 +283,74 @@ static void UpdateThrusterAnimation(SpecialEffect* hit) {
 	hit->source = DRONE_THRUSTER_FRAME[hit->current_frame];
 }
 
+static SpecialEffect InitNebulaParticleA(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = NEBULA_PARTICLE_A;
+	hit.source = (Rectangle) { 8 * 9, 8 * 7, 8, 8 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 8 * 2, 8 * 2 };
+	hit.duration = 0;
+	hit.max_duration = 0;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_ship_assets;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_SHIP;
+	return hit;
+}
+
+static SpecialEffect InitNebulaParticleB(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = NEBULA_PARTICLE_B;
+	hit.source = (Rectangle) { 8 * 5, 8 * 6, 8, 8 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 8 * 2, 8 * 2 };
+	hit.duration = 0;
+	hit.max_duration = 0;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_ship_assets;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_SHIP;
+	return hit;
+}
+
+static SpecialEffect InitNebulaParticleC(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = NEBULA_PARTICLE_C;
+	hit.source = (Rectangle) { 8 * 9, 8 * 6, 8, 8 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 8 * 2, 8 * 2 };
+	hit.duration = 0;
+	hit.max_duration = 0;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_ship_assets;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_SHIP;
+	return hit;
+}
+
+static SpecialEffect InitNebulaEnergyField(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = NEBULA_ENERGY_FIELD;
+	hit.source = (Rectangle) { 8 * 11, 8 * 4, 16, 16 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 8 * 12, 8 * 12 };
+	hit.duration = 0;
+	hit.max_duration = 0;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_ship_assets;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_SHIP;
+	return hit;
+}
+
 void DestroyEffect(SpecialEffect* effect) {
 	List_Remove(unmanaged_effects, effect);
 }
@@ -300,8 +368,12 @@ SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, fl
 SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration) {
 	SpecialEffect effect;
 	switch (type) {
-		case DRONE:							effect = InitDrone(position, duration); break;
-		case DRONE_THRUSTER: 				effect = InitDroneThruster(position); break;
+		case DRONE:					effect = InitDrone(position, duration); break;
+		case DRONE_THRUSTER:		effect = InitDroneThruster(position); break;
+		case NEBULA_PARTICLE_A:		effect = InitNebulaParticleA(position); break;
+		case NEBULA_PARTICLE_B:		effect = InitNebulaParticleB(position); break;
+		case NEBULA_PARTICLE_C:		effect = InitNebulaParticleC(position); break;
+		case NEBULA_ENERGY_FIELD:	effect = InitNebulaEnergyField(position); break;
 	}
 	List_Add(unmanaged_effects, &effect);
 	return (SpecialEffect*)List_GetByIndex(unmanaged_effects, 0);
