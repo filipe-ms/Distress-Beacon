@@ -3,6 +3,8 @@
 
 #include "raylib.h"
 
-void InitWaves(int level);
+void InitWaves(bool is_endless_mode);
 void UpdateWaves(void);
 bool AreAllWavesCompleted(void);
+
+int GetCurrentWaveNumber(void);

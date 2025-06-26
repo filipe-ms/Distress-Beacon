@@ -12,6 +12,7 @@
 #include "hit_confirmation.h"
 #include "background.h"
 #include "enemy_projectile.h"
+#include "timer.h"
 
 // Waves
 #define FIRST_WAVE 0
@@ -39,7 +40,7 @@ void InitGame(void) {
     InitEnemies();
     EnemyProjectile_Init();
     InitPowerUps();
-    InitWaves(50);
+    InitWaves(false);
 	InitEffects();
 	InitEnemySourceRects();
 	InitBackground(BACKGROUND_GAME, Fade(GRAY, 0.7f), STRETCH_TO_SCREEN, 1.0f, 100.0f);
@@ -97,6 +98,16 @@ void UpdateGame(void)
                 level_up_flag = true;
             }
         }
+    }
+
+	if (AreAllWavesCompleted() && !victory) {
+		victory = true;
+		ChangeSceneArgs(WINNER, GetPlayerScore());
+        InitTimer(10.0f);
+	}
+
+    if (victory && UpdateTimer()) {
+        ChangeScene(WINNER);
     }
 }
 
