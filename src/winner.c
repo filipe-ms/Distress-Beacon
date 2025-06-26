@@ -4,7 +4,7 @@
 #include "select_ship.h"
 #include "ranking.h"
 #include "player.h"
-#include "stdio.h"
+#include "input.h"
 
 static bool returnToMenu = false;
 
@@ -14,7 +14,7 @@ void InitWinner(void) {
 }
 
 void UpdateWinner(void) {
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsConfirmButtonPressed()) {
         returnToMenu = true;
 
         int current_score = GetPlayerScore();

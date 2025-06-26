@@ -5,6 +5,7 @@
 #include "player.h"
 #include "scene_manager.h"
 #include "winner.h"
+#include "input.h"
 
 #include <string.h>
 
@@ -35,13 +36,13 @@ void UpdateEnterName(void) {
         key = GetCharPressed();
     }
 
-    if (IsKeyPressed(KEY_BACKSPACE) && charIndex > 0) {
+    if (IsReturnButtonPressed() && charIndex > 0) {
         charIndex--;
         playerName[charIndex] = '\0';
         message_flag = false;
     }
 
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsConfirmButtonPressed()) {
         if (charIndex == 0) {
             message_flag = true;
             strcpy(message, "O nome nao pode estar vazio");

@@ -8,6 +8,7 @@
 #include "draw_utils.h"
 #include "scene_draw_effects.h"
 #include "timer.h"
+#include "input.h"
 
 static bool enter_pressed;
 
@@ -18,7 +19,7 @@ void InitGameOver(void) {
 }
 
 void UpdateGameOver(void) {
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsConfirmButtonPressed()) {
         enter_pressed = true;
         InitTimer(2.0f);
         InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());

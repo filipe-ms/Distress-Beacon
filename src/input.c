@@ -3,7 +3,6 @@
 #define GAMEPAD_ID 0
 #define AXIS_SENS 0.2f
 
-
 #pragma region PRESSED
 
 bool IsInputLeftPressed(void) {
@@ -81,6 +80,25 @@ bool IsPauseButtonPressed(void) {
 
 	return keyboard || gamepad;
 }
+
+bool IsActionButtonPressed(void) {
+	bool keyboard = IsKeyPressed(KEY_SPACE);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonPressed(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
+	}
+	return keyboard || gamepad;
+}
+
+bool IsReturnButtonPressed(void) {
+	bool keyboard = IsKeyPressed(KEY_BACKSPACE);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonPressed(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT);
+	}
+	return keyboard || gamepad;
+}
+
 #pragma endregion
 
 #pragma region DOWN
@@ -167,6 +185,25 @@ bool IsPauseButtonDown(void) {
 
 	return keyboard || gamepad;
 }
+
+bool IsActionButtonDown(void) {
+	bool keyboard = IsKeyDown(KEY_SPACE);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonDown(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
+	}
+	return keyboard || gamepad;
+}
+
+bool IsReturnButtonDown(void) {
+	bool keyboard = IsKeyDown(KEY_BACKSPACE);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonDown(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT);
+	}
+	return keyboard || gamepad;
+}
+
 #pragma endregion
 
 #pragma region RELEASED
@@ -243,6 +280,25 @@ bool IsPauseButtonReleased(void) {
 
 	return keyboard || gamepad;
 }
+
+bool IsActionButtonReleased(void) {
+	bool keyboard = IsKeyReleased(KEY_SPACE);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonReleased(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
+	}
+	return keyboard || gamepad;
+}
+
+bool IsReturnButtonReleased(void) {
+	bool keyboard = IsKeyReleased(KEY_BACKSPACE);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonReleased(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT);
+	}
+	return keyboard || gamepad;
+}
+
 #pragma endregion
 
 #pragma region DPAD

@@ -6,6 +6,7 @@
 #include "select_ship.h"
 #include "background.h"
 #include "raymath.h"
+#include "input.h"
 
 #define WHITE WHITE(tutorial.color, tutorial.alpha * tutorial_transition_alpha * tutorial_start_alpha)
 
@@ -50,7 +51,7 @@ void UpdateTutorial(void) {
             tutorial_start_flag = false;
         }
     }
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsConfirmButtonPressed()) {
         tutorial_transition_flag = true;
     }
     if (tutorial_transition_flag) {

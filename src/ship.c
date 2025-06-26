@@ -7,6 +7,7 @@
 #include "texture_manager.h"
 #include "general_utils.h"
 #include "special_effects.h"
+#include "input.h"
 
 #define SOURCE_WH 8
 
@@ -213,7 +214,7 @@ static void UpdateAurea(Ship* ship) {
 	// Drone animations
 	switch(aurea.state) {
 		case DRONE_INITIALIZED:
-			if (!IsKeyPressed(KEY_Z) || !is_ability_ready)
+			if (!IsActionButtonPressed() || !is_ability_ready)
 				break;
 			// When it activates
 			Vector2 left_offset = (Vector2) { -20, 0 };
@@ -345,10 +346,10 @@ static void UpdateOrion(Ship* ship) {
 	}
 
 	int current_direction = -1;
-	if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) current_direction = RIGHT;
-	else if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) current_direction = LEFT;
-	else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) current_direction = UP;
-	else if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) current_direction = DOWN;
+	if (IsInputRightPressed()) current_direction = RIGHT;
+	else if (IsInputLeftPressed()) current_direction = LEFT;
+	else if (IsInputUpPressed()) current_direction = UP;
+	else if (IsInputDownPressed()) current_direction = DOWN;
 
 	if (current_direction != -1) {
 		if (orion.double_tap_timer > 0 && 
@@ -491,7 +492,7 @@ static void UpdatePuddleJumper(Ship* ship) {
 		puddle_jumper.wormhole_current_duration + GetFrameTime(),
 		0, puddle_jumper.wormhole_duration, NULL, &is_duration_expired);
 
-	if (IsKeyPressed(KEY_Z)) {
+	if (IsActionButtonPressed()) {
 		// When it activates
 		if (puddle_jumper.wormhole_is_recharged) {
 			puddle_jumper.wormhole_in_position = ship->position;

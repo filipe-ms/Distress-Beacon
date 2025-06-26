@@ -7,6 +7,7 @@
 #include "scene_draw_effects.h"
 #include "timer.h"
 #include "draw_utils.h"
+#include "input.h"
 
 #include "raymath.h"
 
@@ -40,9 +41,9 @@ void UpdateMainMenu() {
     }
 
 	if (!main_menu.option_picked) {
-        if      (IsKeyPressed(KEY_UP)   || IsKeyPressed(KEY_W)) main_menu.option = (main_menu.option - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
-        else if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) main_menu.option = (main_menu.option + 1) % MENU_OPTION_COUNT;
-        else if (IsKeyPressed(KEY_ENTER)) {
+        if      (IsInputUpPressed()) main_menu.option = (main_menu.option - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
+        else if (IsInputDownPressed()) main_menu.option = (main_menu.option + 1) % MENU_OPTION_COUNT;
+        else if (IsConfirmButtonPressed()) {
             if      (main_menu.option == MENU_OPTION_START)   main_menu.next_scene = SELECT_SHIP;
             else if (main_menu.option == MENU_OPTION_RANKING) main_menu.next_scene = RANKING;
             else if (main_menu.option == MENU_OPTION_EXIT)    main_menu.next_scene = EXIT;
