@@ -24,6 +24,7 @@ typedef struct ShipSelectMenu {
     Vector2 select_pos5;
 
     bool is_ship_selected;
+	bool is_backspace_pressed;
 } ShipSelectMenu;
 
 static ShipSelectMenu ship_menu;
@@ -31,6 +32,7 @@ static ShipSelectMenu ship_menu;
 void InitSelectMenu() {
 
     ship_menu.option = ORION;
+    SetTopPilotDefault(ship_menu.option);
 
     ship_menu.select_pos1 = (Vector2){ GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.4 };
 
@@ -46,15 +48,17 @@ void InitSelectMenu() {
     ship_menu.ship.color = WHITE;
 	ship_menu.ship.alpha = 1.0f;
 	ship_menu.is_ship_selected = false;
+	ship_menu.is_backspace_pressed = false;
 
 	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
 	InitFadeInEffect(1.5f, BLACK, 1.0f);
-	TriggerPilotAnimation(5.0f);
+    TriggerTopPilotAnimation(5.0f);
 }
 
 void UpdateShipSelectMenu() {
     UpdateBackground();
     UpdateShip(&ship_menu.ship);
+    UpdatePilot();
 
     if (ship_menu.is_ship_selected) {
         if (GetPlayerShip()      == ORION)         ship_menu.select_pos1.y -= 1500 * GetFrameTime();
@@ -66,20 +70,34 @@ void UpdateShipSelectMenu() {
 		if (UpdateTimer()) ChangeScene(GAME);
     }
 
+	if (ship_menu.is_backspace_pressed) {
+		if (UpdateTimer()) {
+			ChangeScene(START);
+		}
+	}
+
     if (!ship_menu.is_ship_selected) {
         if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) {
             ship_menu.option = (ship_menu.option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
-			TriggerPilotAnimation(5.0f);
+            SetPlayerShip(ship_menu.option);
+			SetTopPilotDefault(ship_menu.option);
+            TriggerTopPilotAnimation(5.0f);
         }
         else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) {
             ship_menu.option = (ship_menu.option + 1) % PLAYABLE_SHIPS;
-            TriggerPilotAnimation(5.0f);
+            SetPlayerShip(ship_menu.option);
+            SetTopPilotDefault(ship_menu.option);
+            TriggerTopPilotAnimation(5.0f);
         }
         else if (IsKeyPressed(KEY_ENTER)) {
             ship_menu.is_ship_selected = true;
-            SetPlayerShip(ship_menu.option);
             InitTimer(2.0f);
-			InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
+            InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
+        }
+        else if (IsKeyPressed(KEY_BACKSPACE)) {
+            ship_menu.is_backspace_pressed = true;
+            InitTimer(2.0f);
+            InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }
     }
 }
@@ -90,7 +108,7 @@ static void DrawPilotHead(int pos_x, int pos_y) {
     int scale = 16;
     float res_scale = 8 * scale;
     DrawRectangle(UI_LEFT_CENTER - res_scale / 2.0f, SCREEN_HEIGHT * 0.2f - res_scale / 2, res_scale, res_scale, BLACK);
-    DrawPilot(ship_menu.option, pos_x, pos_y, scale, WHITE);
+    DrawPilot();
 }
 
 static void DrawLeftSideInfo() {

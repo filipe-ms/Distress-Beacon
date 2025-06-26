@@ -82,7 +82,7 @@ void DrawMainMenu() {
 
     UpdateAndDrawScreenEffects();
 
-    DrawOutlinedText("DISTRESS BEACON", SCREEN_WIDTH  / 2 - MeasureText("DISTRESS BEACON", 50) / 2, SCREEN_HEIGHT * 0.35f, 50, Fade(WHITE, main_menu.alpha), Fade(RAYWHITE, main_menu.alpha - 0.5f));
+    DrawCenteredOutlinedText("DISTRESS BEACON", GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.35f, 50, Fade(WHITE, main_menu.alpha), Fade(RAYWHITE, main_menu.alpha - 0.5f));
 
 	DrawCenteredText("Iniciar Jogo",    SCREEN_HEIGHT * 0.45f, 30, Fade(color_game_start, main_menu.alpha));
 	DrawCenteredText("Ranking",         SCREEN_HEIGHT * 0.5f, 30, Fade(color_ranking, main_menu.alpha));

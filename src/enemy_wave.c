@@ -24,16 +24,16 @@ int GetCurrentWaveNumber(void) {
 }
 
 
-typedef struct Wave {
+typedef struct EnemyWave {
     int wave_id;
     float start_time;
     int modifier;
     List* spawns;
-} Wave;
+} EnemyWave;
 
 #pragma region spawners
 
-static Wave* CreateWave(Wave* wave, int id, EnemyType type, float start_time, int modifier) {
+static EnemyWave* CreateWave(EnemyWave* wave, int id, EnemyType type, float start_time, int modifier) {
     wave->wave_id = id;
     wave->start_time = start_time;
     wave->modifier = (modifier % 2);
@@ -41,7 +41,7 @@ static Wave* CreateWave(Wave* wave, int id, EnemyType type, float start_time, in
 }
 
 static void CreateLineAtBorders(int id, EnemyType type, float start_time, int modifier) {
-    Wave wave;
+    EnemyWave wave;
     CreateWave(&wave, id, type, start_time, modifier);
     
     int starting_x;
@@ -67,7 +67,7 @@ static void CreateLineAtBorders(int id, EnemyType type, float start_time, int mo
 }
 
 static int CreateVFormation(int id, EnemyType type, float start_time, int modifier) {
-    Wave wave;
+    EnemyWave wave;
     CreateWave(&wave, id, type, start_time, modifier);
 
     int enemy_count = 5 + (int)(intensity);
@@ -114,7 +114,7 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
 }
 
 static void CreateCentralLine(int id, EnemyType type, float start_time, int modifier) {
-    Wave wave;
+    EnemyWave wave;
     CreateWave(&wave, id, type, start_time, modifier);
 
     int starting_x;
@@ -143,7 +143,7 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
 }
 
 static void CreateSingle(int id, EnemyType type, float start_time, Vector2 initial_position) {
-    Wave wave;
+    EnemyWave wave;
     CreateWave(&wave, id, type, start_time, 0);
 
     Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
@@ -165,7 +165,7 @@ static void CreatePidgeonOfPrey(int id, float start_time, int modifier, float in
 }
 
 static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
-    Wave wave;
+    EnemyWave wave;
     CreateWave(&wave, 0, type, start_time, 0);
     
     Vector2 position = { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START };
@@ -246,7 +246,7 @@ void InitWaves(bool is_endless_mode) {
     endless_mode = is_endless_mode;
     next_wave_start_time = 5.0f;
 
-    waves = List_Create(sizeof(Wave));
+    waves = List_Create(sizeof(EnemyWave));
 
     GenerateWaves(is_endless_mode);
 }
@@ -255,7 +255,7 @@ void UpdateWaves(void) {
     total_elapsed_time += GetFrameTime();
 
     if (waves != NULL && waves->size > 0) {
-        Wave wave = *(Wave*)List_GetByIndex(waves, 0);
+        EnemyWave wave = *(EnemyWave*)List_GetByIndex(waves, 0);
 
         if (wave.start_time < total_elapsed_time) {
             SpawnEnemies(wave.spawns);

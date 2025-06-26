@@ -21,10 +21,10 @@ void LoadAllTextures(void) {
 	background_stars = LoadTexture("background/stars.png");
 	background_dark_space = LoadTexture("background/dark_space.png");
 	background_stars_and_dust = LoadTexture("background/stars_and_dust.png");
-	background_menubg = LoadTexture("background/menubg.png");
 
 	texture_pilots = LoadTexture("pilots.png");
 }
+
 void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
 	UnloadTexture(texture_projectiles);
@@ -34,7 +34,6 @@ void UnloadAllTextures(void) {
 	UnloadTexture(background_stars);
 	UnloadTexture(background_dark_space);
 	UnloadTexture(background_stars_and_dust);
-	UnloadTexture(background_menubg);
 
 	UnloadTexture(texture_pilots);
 }

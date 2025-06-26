@@ -766,9 +766,9 @@ void UntrackAudioBuffer(AudioBuffer *buffer)
 //----------------------------------------------------------------------------------
 
 // Load wave data from file
-EnemyWave LoadWave(const char *fileName)
+Wave LoadWave(const char *fileName)
 {
-    EnemyWave wave = { 0 };
+    Wave wave = { 0 };
 
     // Loading file to memory
     int dataSize = 0;
@@ -784,9 +784,9 @@ EnemyWave LoadWave(const char *fileName)
 
 // Load wave from memory buffer, fileType refers to extension: i.e. ".wav"
 // WARNING: File extension must be provided in lower-case
-EnemyWave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int dataSize)
+Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int dataSize)
 {
-    EnemyWave wave = { 0 };
+    Wave wave = { 0 };
 
     if (false) { }
 #if defined(SUPPORT_FILEFORMAT_WAV)
@@ -893,7 +893,7 @@ EnemyWave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData
 }
 
 // Checks if wave data is valid (data loaded and parameters)
-bool IsWaveValid(EnemyWave wave)
+bool IsWaveValid(Wave wave)
 {
     bool result = false;
 
@@ -910,7 +910,7 @@ bool IsWaveValid(EnemyWave wave)
 // NOTE: The entire file is loaded to memory to be played (no-streaming)
 Sound LoadSound(const char *fileName)
 {
-    EnemyWave wave = LoadWave(fileName);
+    Wave wave = LoadWave(fileName);
 
     Sound sound = LoadSoundFromWave(wave);
 
@@ -921,7 +921,7 @@ Sound LoadSound(const char *fileName)
 
 // Load sound from wave data
 // NOTE: Wave data must be unallocated manually
-Sound LoadSoundFromWave(EnemyWave wave)
+Sound LoadSoundFromWave(Wave wave)
 {
     Sound sound = { 0 };
 
@@ -1008,7 +1008,7 @@ bool IsSoundValid(Sound sound)
 }
 
 // Unload wave data
-void UnloadWave(EnemyWave wave)
+void UnloadWave(Wave wave)
 {
     RL_FREE(wave.data);
     //TRACELOG(LOG_INFO, "WAVE: Unloaded wave data from RAM");
@@ -1044,7 +1044,7 @@ void UpdateSound(Sound sound, const void *data, int frameCount)
 }
 
 // Export wave data to file
-bool ExportWave(EnemyWave wave, const char *fileName)
+bool ExportWave(Wave wave, const char *fileName)
 {
     bool success = false;
 
@@ -1102,7 +1102,7 @@ bool ExportWave(EnemyWave wave, const char *fileName)
 }
 
 // Export wave sample data to code (.h)
-bool ExportWaveAsCode(EnemyWave wave, const char *fileName)
+bool ExportWaveAsCode(Wave wave, const char *fileName)
 {
     bool success = false;
 
@@ -1221,7 +1221,7 @@ void SetSoundPan(Sound sound, float pan)
 }
 
 // Convert wave data to desired format
-void WaveFormat(EnemyWave *wave, int sampleRate, int sampleSize, int channels)
+void WaveFormat(Wave *wave, int sampleRate, int sampleSize, int channels)
 {
     ma_format formatIn = ((wave->sampleSize == 8)? ma_format_u8 : ((wave->sampleSize == 16)? ma_format_s16 : ma_format_f32));
     ma_format formatOut = ((sampleSize == 8)? ma_format_u8 : ((sampleSize == 16)? ma_format_s16 : ma_format_f32));
@@ -1254,9 +1254,9 @@ void WaveFormat(EnemyWave *wave, int sampleRate, int sampleSize, int channels)
 }
 
 // Copy a wave to a new wave
-EnemyWave WaveCopy(EnemyWave wave)
+Wave WaveCopy(Wave wave)
 {
-    EnemyWave newWave = { 0 };
+    Wave newWave = { 0 };
 
     newWave.data = RL_MALLOC(wave.frameCount*wave.channels*wave.sampleSize/8);
 
@@ -1276,7 +1276,7 @@ EnemyWave WaveCopy(EnemyWave wave)
 
 // Crop a wave to defined frames range
 // NOTE: Security check in case of out-of-range
-void WaveCrop(EnemyWave *wave, int initFrame, int finalFrame)
+void WaveCrop(Wave *wave, int initFrame, int finalFrame)
 {
     if ((initFrame >= 0) && (initFrame < finalFrame) && ((unsigned int)finalFrame <= wave->frameCount))
     {
@@ -1296,7 +1296,7 @@ void WaveCrop(EnemyWave *wave, int initFrame, int finalFrame)
 // Load samples data from wave as a floats array
 // NOTE 1: Returned sample values are normalized to range [-1..1]
 // NOTE 2: Sample data allocated should be freed with UnloadWaveSamples()
-float *LoadWaveSamples(EnemyWave wave)
+float *LoadWaveSamples(Wave wave)
 {
     float *samples = (float *)RL_MALLOC(wave.frameCount*wave.channels*sizeof(float));
 
