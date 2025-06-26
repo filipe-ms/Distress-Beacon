@@ -92,6 +92,7 @@ void UpdateShipSelectMenu() {
         }
         else if (IsConfirmButtonPressed()) {
             ship_menu.is_ship_selected = true;
+            TriggerTopPilotAnimation(0.0f);
             InitTimer(2.0f);
             InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }
