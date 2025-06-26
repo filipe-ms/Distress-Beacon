@@ -43,6 +43,16 @@ int LerpInt(int start, int end, float elapsed_time, float duration) {
     return start + (int)(t * (end - start));
 }
 
+Color LerpColor(Color start, Color end, float factor)
+{
+    return (Color) {
+        .r = Lerp((float)start.r / 255.0f, (float)end.r / 255.0f, factor) * 255.0f,
+        .g = Lerp((float)start.g / 255.0f, (float)end.g / 255.0f, factor) * 255.0f,
+        .b = Lerp((float)start.b / 255.0f, (float)end.b / 255.0f, factor) * 255.0f,
+        .a = Lerp((float)start.a / 255.0f, (float)end.a / 255.0f, factor) * 255.0f,
+    };
+}
+
 Vector2 Vector2DivideScalarF(Vector2 vector, float scalar) {
     return (Vector2) { vector.x / scalar, vector.y / scalar };
 }

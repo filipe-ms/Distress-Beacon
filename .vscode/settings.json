@@ -28,6 +28,7 @@
 		"*.m": "c",
 		"math.h": "c",
 		"texture_manager.h": "c",
-		"hit_confirmation.h": "c"
+		"hit_confirmation.h": "c",
+		"random": "c"
 	}
 }

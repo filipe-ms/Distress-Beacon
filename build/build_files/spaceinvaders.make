@@ -123,6 +123,7 @@ GENERATED += $(OBJDIR)/hit_confirmation.o
 GENERATED += $(OBJDIR)/list.o
 GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/main_menu.o
+GENERATED += $(OBJDIR)/pilot.o
 GENERATED += $(OBJDIR)/player.o
 GENERATED += $(OBJDIR)/power_ups.o
 GENERATED += $(OBJDIR)/ranking.o
@@ -130,6 +131,7 @@ GENERATED += $(OBJDIR)/scene_draw_effects.o
 GENERATED += $(OBJDIR)/scene_manager.o
 GENERATED += $(OBJDIR)/select_ship.o
 GENERATED += $(OBJDIR)/ship.o
+GENERATED += $(OBJDIR)/ship_references.o
 GENERATED += $(OBJDIR)/texture_manager.o
 GENERATED += $(OBJDIR)/timer.o
 GENERATED += $(OBJDIR)/tutorial.o
@@ -150,6 +152,7 @@ OBJECTS += $(OBJDIR)/hit_confirmation.o
 OBJECTS += $(OBJDIR)/list.o
 OBJECTS += $(OBJDIR)/main.o
 OBJECTS += $(OBJDIR)/main_menu.o
+OBJECTS += $(OBJDIR)/pilot.o
 OBJECTS += $(OBJDIR)/player.o
 OBJECTS += $(OBJDIR)/power_ups.o
 OBJECTS += $(OBJDIR)/ranking.o
@@ -157,6 +160,7 @@ OBJECTS += $(OBJDIR)/scene_draw_effects.o
 OBJECTS += $(OBJDIR)/scene_manager.o
 OBJECTS += $(OBJDIR)/select_ship.o
 OBJECTS += $(OBJDIR)/ship.o
+OBJECTS += $(OBJDIR)/ship_references.o
 OBJECTS += $(OBJDIR)/texture_manager.o
 OBJECTS += $(OBJDIR)/timer.o
 OBJECTS += $(OBJDIR)/tutorial.o
@@ -268,6 +272,9 @@ $(OBJDIR)/main.o: ../../src/main.c
 $(OBJDIR)/main_menu.o: ../../src/main_menu.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/pilot.o: ../../src/pilot.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/player.o: ../../src/player.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -287,6 +294,9 @@ $(OBJDIR)/select_ship.o: ../../src/select_ship.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ship.o: ../../src/ship.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ship_references.o: ../../src/ship_references.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/texture_manager.o: ../../src/texture_manager.c

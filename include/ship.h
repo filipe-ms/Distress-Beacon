@@ -28,3 +28,4 @@ void InitShip(Ship* ship, int id);
 void UpdateShip(Ship* ship);
 void Ship_TakeDamage(Ship* ship);
 void DrawShip(Ship* ship);
+void UnloadShip();
