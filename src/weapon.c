@@ -222,7 +222,7 @@ static void InitPhotonShoot(Ship* ship) {
         List_AddLast(photon.photon_shoots, &new_photon_shoot);
     }
     else if (photon.weapon.level == 3) {
-        new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y + new_photon_shoot.shoot.size.y };
+        new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y - new_photon_shoot.shoot.size.y };
         List_AddLast(photon.photon_shoots, &new_photon_shoot);
 		new_photon_shoot.shoot.position = (Vector2){ ship->position.x + new_photon_shoot.shoot.size.x, ship->position.y };
 		List_AddLast(photon.photon_shoots, &new_photon_shoot);
@@ -398,7 +398,6 @@ static void UpdateHoming(Ship* ship) {
     if (homing.weapon.cooldown_charge <= 0) {
         InitHomingShoot(ship);
         homing.weapon.cooldown_charge = homing.weapon.cooldown_time;
-        TraceLog(LOG_INFO, "ATIROU");
     }
 
     List_ForEach(homing.homing_shoots, (Function)HomingShootPositionUpdate);
