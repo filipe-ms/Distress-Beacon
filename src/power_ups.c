@@ -6,6 +6,7 @@
 #include "list.h"
 #include "raymath.h"
 #include "draw_utils.h"
+#include "input.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -223,13 +224,13 @@ void UpdateLevelUpSelectMenu(bool* flag) {
         power_up_alpha += 0.5f * GetFrameTime();
     }
 
-    if (IsKeyPressed(KEY_RIGHT)) {
+    if (IsInputRightPressed()) {
         current_option = (current_option + 1) % 3;
     }
-    else if (IsKeyPressed(KEY_LEFT)) {
+    else if (IsInputLeftPressed()) {
         current_option = (current_option - 1 + 3) % 3;
     }
-    else if (IsKeyPressed(KEY_ENTER)) {
+    else if (IsConfirmButtonPressed()) {
         *flag = false;
         PickPowerUp();
     }

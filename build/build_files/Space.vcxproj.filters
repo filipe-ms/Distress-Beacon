@@ -129,6 +129,9 @@
     <ClInclude Include="..\..\include\audio_manager.h">
       <Filter>Header Files\resources</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\input.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.c">
@@ -217,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\audio_manager.c">
       <Filter>Source Files\resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input.c">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -15,6 +15,7 @@
 #include "background.h"
 #include "enemy_projectile.h"
 #include "timer.h"
+#include "input.h"
 
 // Waves
 #define FIRST_WAVE 0
@@ -73,11 +74,11 @@ void InitGame(void) {
 
 void UpdateGame(void)
 {
-    if (IsKeyPressed('P') && !pause_flag) {
+    if (IsPauseButtonPressed() && !pause_flag) {
         pause = !pause;
         pause_flag = true;
     }
-    if (IsKeyReleased('P')) {
+    if (IsPauseButtonReleased()) {
         pause_flag = false;
     }
 

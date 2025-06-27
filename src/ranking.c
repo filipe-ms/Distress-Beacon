@@ -6,6 +6,7 @@
 #include "player.h"
 #include "draw_utils.h"
 #include "ship_references.h"
+#include "input.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -106,7 +107,7 @@ void AddToRanking(const char* name, int shipType, int score) {
     SaveRanking();
 }
 void UpdateRanking() {
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsConfirmButtonPressed()) {
         if (enter_transition) {
             enter_transition = false;
             rec_alpha = 0;

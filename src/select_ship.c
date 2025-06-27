@@ -12,6 +12,7 @@
 #include "pilot.h"
 #include "draw_utils.h"
 #include "ship_references.h"
+#include "input.h"
 
 typedef struct ShipSelectMenu {
 	int option;
@@ -77,25 +78,27 @@ void UpdateShipSelectMenu() {
 	}
 
     if (!ship_menu.is_ship_selected) {
-        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) {
+        if (IsInputLeftPressed()) {
             ship_menu.option = (ship_menu.option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
             SetPlayerShip(ship_menu.option);
 			SetTopPilotDefault(ship_menu.option);
             TriggerTopPilotAnimation(5.0f);
         }
-        else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) {
+        else if (IsInputRightPressed()) {
             ship_menu.option = (ship_menu.option + 1) % PLAYABLE_SHIPS;
             SetPlayerShip(ship_menu.option);
             SetTopPilotDefault(ship_menu.option);
             TriggerTopPilotAnimation(5.0f);
         }
-        else if (IsKeyPressed(KEY_ENTER)) {
+        else if (IsConfirmButtonPressed()) {
             ship_menu.is_ship_selected = true;
+            TriggerTopPilotAnimation(0.0f);
             InitTimer(2.0f);
             InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }
-        else if (IsKeyPressed(KEY_BACKSPACE)) {
+        else if (IsReturnButtonPressed()) {
             ship_menu.is_backspace_pressed = true;
+            SetPlayerShip(ORION);
             InitTimer(2.0f);
             InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }

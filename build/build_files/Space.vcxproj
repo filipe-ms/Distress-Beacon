@@ -268,6 +268,7 @@
     <ClInclude Include="..\..\include\audio_manager.h" />
     <ClInclude Include="..\..\include\enemy_projectile.h" />
     <ClInclude Include="..\..\include\general_utils.h" />
+    <ClInclude Include="..\..\include\input.h" />
     <ClInclude Include="..\..\include\special_effects.h" />
     <ClInclude Include="..\..\include\background.h" />
     <ClInclude Include="..\..\include\draw_utils.h" />
@@ -306,6 +307,7 @@
     <ClCompile Include="..\..\src\background.c" />
     <ClCompile Include="..\..\src\enemy_projectile.c" />
     <ClCompile Include="..\..\src\general_utils.c" />
+    <ClCompile Include="..\..\src\input.c" />
     <ClCompile Include="..\..\src\special_effects.c" />
     <ClCompile Include="..\..\src\draw_utils.c" />
     <ClCompile Include="..\..\src\enemy.c" />

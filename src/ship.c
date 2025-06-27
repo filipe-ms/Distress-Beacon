@@ -7,6 +7,7 @@
 #include "texture_manager.h"
 #include "general_utils.h"
 #include "special_effects.h"
+#include "input.h"
 
 #define SOURCE_WH 8
 
@@ -244,7 +245,7 @@ static void UpdateAurea(Ship* ship) {
 	// Drone animations
 	switch(aurea.state) {
 		case DRONE_INITIALIZED:
-			if (!IsKeyPressed(KEY_Z) || !is_ability_ready)
+			if (!IsActionButtonPressed() || !is_ability_ready)
 				break;
 			// When it activates
 			Vector2 left_offset = (Vector2) { -20, 0 };
@@ -362,7 +363,7 @@ static void UpdateOrion(Ship* ship) {
 					0, orion.dash_cooldown,
 					NULL, &is_dash_ready);
 
-				if (is_dash_ready && IsKeyPressed(KEY_Z)) {
+				if (is_dash_ready && IsActionButtonPressed()) {
 					orion.dash_state = DASH_ACCELERATING;
 					// Create disruption field for a bit over than the total time
 					orion.dash_disruption_field = CreateManagedEffectDuration(ORION_DISRUPTION_FIELD, (Vector2) { 0 }, orion.dash_total_time + 1.0f);
@@ -579,7 +580,7 @@ static void UpdatePuddleJumper(Ship* ship) {
 		puddle_jumper.wormhole_current_duration + GetFrameTime(),
 		0, puddle_jumper.wormhole_duration, NULL, &is_duration_expired);
 
-	if (IsKeyPressed(KEY_Z)) {
+	if (IsActionButtonPressed()) {
 		// When it activates
 		if (puddle_jumper.wormhole_is_recharged) {
 			puddle_jumper.wormhole_in_position = ship->position;
