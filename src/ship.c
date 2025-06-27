@@ -19,15 +19,38 @@
 
 Ship ship;
 
+typedef enum OrionDashState {
+	DASH_INACTIVE,
+	DASH_ACCELERATING,
+	DASH_FULL_SPEED,
+	DASH_DEACCELERATING,
+} OrionDashState;
+
 typedef struct Orion {
 	float dash_cooldown;
-	float dash_recharge;
-	float double_tap_timer;
-	Vector2 dash_position;
-	bool slide_flag;
-	float slide_timer;
-	int direction;
-	int last_direction_pressed;
+	float dash_current_cooldown;
+
+	Vector2 dash_speed_modifier;
+	Vector2 dash_current_speed_modifier;
+
+	float dash_alpha_modifier;
+	float dash_alpha_current_modifier;
+
+	float dash_total_time;
+	float dash_current_total_time;
+
+	float dash_acceleration_time;
+	float dash_full_speed_time;
+	float dash_deacceleration_time;
+
+	float dash_disruption_field_base_damage;
+	float dash_disruption_field_damage_tick;
+	float dash_disruption_field_current_damage_tick;
+
+	Vector2 dash_disruption_field_area;
+	SpecialEffect* dash_disruption_field;
+
+	OrionDashState dash_state;
 } Orion;
 
 Orion orion;
@@ -143,14 +166,21 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		aurea.state = DRONE_INITIALIZED;
 		break;
 	case ORION:
-		orion.dash_cooldown = 5.0f;
-		orion.dash_recharge = 0.0f;
-		orion.double_tap_timer = 0.3f;
-		orion.slide_flag = false;
-		orion.slide_timer = 0.0f;
-		orion.dash_position = (Vector2){ 0.0f, 0.0f };
-		orion.direction = CENTER;
-		orion.last_direction_pressed = -1;
+		orion.dash_cooldown = orion.dash_current_cooldown = 5.0f;
+		orion.dash_alpha_modifier = 0.8f;
+		orion.dash_speed_modifier = (Vector2){ 300, 300 };
+		orion.dash_alpha_current_modifier;
+	
+		orion.dash_acceleration_time = 2.0f;
+		orion.dash_full_speed_time = 6.0f;
+		orion.dash_deacceleration_time = 2.0f;
+		orion.dash_total_time = orion.dash_acceleration_time + orion.dash_full_speed_time + orion.dash_deacceleration_time;
+	
+		orion.dash_state = DASH_INACTIVE;
+		orion.dash_disruption_field = NULL;
+		orion.dash_disruption_field_base_damage = 0.5f;
+		orion.dash_disruption_field_area = (Vector2) { 450, 450 };
+		orion.dash_disruption_field_damage_tick = 0.5f;
 		break;
 	case NEBULA:
 	{
@@ -186,7 +216,6 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		puddle_jumper.wormhole_is_recharged = true;
 	default: break;
 	}
-	ship->speed = (Vector2){ 360.0f, 360.0f };
 }
 
 void InitShip(Ship* ship, int id) {
@@ -200,6 +229,8 @@ void InitShip(Ship* ship, int id) {
 	ship->color = WHITE;
 	ship->alpha = 1.0f;
 	ship->is_alive = true;
+	ship->speed = (Vector2){ 360.0f, 360.0f };
+	ship->speed_dash_modifier = (Vector2){ 0 };
 	InitShipSpecifics(ship, id);
 }
 
@@ -312,60 +343,117 @@ static void UpdateAurea(Ship* ship) {
 }
 
 static void UpdateOrion(Ship* ship) {
+	static const float disruption_field_maximum_transparency = 0.5f;
 
 	// Cooldown
-	if (orion.dash_recharge > 0) {
-		orion.dash_recharge -= GetFrameTime();
-		if (orion.dash_recharge < 0) orion.dash_recharge = 0;
+	float frame_time = GetFrameTime();
+	
+	bool has_changed_state = false;
+
+	if (orion.dash_disruption_field) {
+		orion.dash_disruption_field->position = ship->position;
 	}
 
-	if (orion.double_tap_timer > 0) {
-		orion.double_tap_timer -= GetFrameTime();
-		if (orion.double_tap_timer <= 0) orion.last_direction_pressed = -1;
-	}
+	switch(orion.dash_state) {
+		case DASH_INACTIVE: {
+				bool is_dash_ready = false;
+		
+				orion.dash_current_cooldown = ClampWithFlagsF(
+					orion.dash_current_cooldown + frame_time,
+					0, orion.dash_cooldown,
+					NULL, &is_dash_ready);
 
-	// Slide behavior
-	if (orion.slide_flag) {
-		orion.slide_timer -= GetFrameTime();
-		if (orion.slide_timer > 0) {
-			float slide_speed = 2000.0f;
-			switch (orion.direction) {
-			case LEFT:  orion.dash_position.x -= slide_speed * GetFrameTime(); break;
-			case RIGHT: orion.dash_position.x += slide_speed * GetFrameTime(); break;
-			case UP:    orion.dash_position.y -= slide_speed * GetFrameTime(); break;
-			case DOWN:  orion.dash_position.y += slide_speed * GetFrameTime(); break;
+				if (is_dash_ready && IsActionButtonPressed()) {
+					orion.dash_state = DASH_ACCELERATING;
+					// Create disruption field for a bit over than the total time
+					orion.dash_disruption_field = CreateManagedEffectDuration(ORION_DISRUPTION_FIELD, (Vector2) { 0 }, orion.dash_total_time + 1.0f);
+					orion.dash_disruption_field->size = orion.dash_disruption_field_area;
+				}
+
+				break;
 			}
-			ship->position = orion.dash_position;
-			return;
-		}
-		else {
-			orion.slide_flag = false;
-			orion.dash_recharge = orion.dash_cooldown;
-			orion.slide_timer = 0;
-		}
-	}
+		case DASH_ACCELERATING:
+			{
+				// Time
+				orion.dash_current_total_time = ClampWithFlagsF(
+					orion.dash_current_total_time + frame_time,
+					0, orion.dash_acceleration_time,
+					NULL, &has_changed_state);
+					
+				// Speed
+				float factor = Normalize(orion.dash_current_total_time,
+					0, orion.dash_acceleration_time);
 
-	int current_direction = -1;
-	if (IsInputRightPressed()) current_direction = RIGHT;
-	else if (IsInputLeftPressed()) current_direction = LEFT;
-	else if (IsInputUpPressed()) current_direction = UP;
-	else if (IsInputDownPressed()) current_direction = DOWN;
+				ship->speed_dash_modifier = Vector2MultiplyScalarF(orion.dash_speed_modifier, factor);
 
-	if (current_direction != -1) {
-		if (orion.double_tap_timer > 0 && 
-			orion.last_direction_pressed == current_direction &&
-			orion.dash_recharge <= 0) {
+				// Alpha
+				ship->alpha = 1.0f - orion.dash_alpha_modifier * factor;
+
+				orion.dash_disruption_field->color = Fade(WHITE, factor * disruption_field_maximum_transparency);
+
+				if (has_changed_state) {
+					orion.dash_state = DASH_FULL_SPEED;
+					orion.dash_disruption_field_current_damage_tick = 0;
+				}
+
+				break;
+			}			
+		case DASH_FULL_SPEED:
+			// Time
+			orion.dash_current_total_time = ClampWithFlagsF(
+				orion.dash_current_total_time + frame_time,
+				0, orion.dash_acceleration_time + orion.dash_full_speed_time,
+				NULL, &has_changed_state);
+
+			bool should_tick = false;
+
+			orion.dash_disruption_field_current_damage_tick = ClampWithFlagsF(
+				orion.dash_disruption_field_current_damage_tick + frame_time,
+				0, orion.dash_disruption_field_damage_tick, false, &should_tick);
+
+			if (should_tick) {
+				// Dividing the area by 2.4 to better suit the animation range
+				DashDisruptionFieldTick(orion.dash_disruption_field_area.x / 2.4f, orion.dash_disruption_field_base_damage);
+				orion.dash_disruption_field_current_damage_tick = 0;
+			}
+
+			if (has_changed_state) {
+				orion.dash_state = DASH_DEACCELERATING;
+			}
 			
-			orion.slide_flag = true;
-			orion.dash_position = ship->position;
-			orion.slide_timer = 0.1f;
-			orion.direction = current_direction;
-			orion.double_tap_timer = 0.0f;
-		}
-		else {
-			orion.last_direction_pressed = current_direction;
-			orion.double_tap_timer = 0.3f;
-		}
+			break;
+		case DASH_DEACCELERATING:
+			{
+				// Time
+				orion.dash_current_total_time = ClampWithFlagsF(
+					orion.dash_current_total_time + frame_time,
+					0, orion.dash_total_time,
+					NULL, &has_changed_state);
+
+				// Speed
+				float factor = 1.0f - Normalize(orion.dash_current_total_time,
+					orion.dash_full_speed_time + orion.dash_acceleration_time,
+					orion.dash_total_time);
+
+				ship->speed_dash_modifier = Vector2MultiplyScalarF(orion.dash_speed_modifier, factor);
+
+				// Alpha
+				ship->alpha = 1.0f - orion.dash_alpha_modifier * factor;
+
+				orion.dash_disruption_field->color = Fade(WHITE, factor * disruption_field_maximum_transparency);
+				
+				if (has_changed_state) {
+					ship->speed_dash_modifier = Vector2Zero();
+					ship->alpha = 1.0f;
+					orion.dash_current_total_time = 0.0f;
+
+					orion.dash_state = DASH_INACTIVE;
+					orion.dash_disruption_field->color = Fade(WHITE, 0);
+					orion.dash_disruption_field = NULL;
+				}
+				
+				break;
+			}
 	}
 }
 
@@ -536,8 +624,8 @@ static void WallBehavior(Vector2* position) {
 }
 
 void UpdateShip(Ship* ship) {
-	float movement_x = ship->speed.x * GetFrameTime();
-	float movement_y = ship->speed.y * GetFrameTime();
+	float movement_x = (ship->speed.x + ship->speed_dash_modifier.x) * GetFrameTime();
+	float movement_y = (ship->speed.y + ship->speed_dash_modifier.y) * GetFrameTime();
 
 	if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
 		ship->position.x += movement_x;
@@ -583,6 +671,10 @@ void UpdateShip(Ship* ship) {
 
 void Ship_TakeDamage(Ship *ship)
 {
+	// se for orion e estiver invisível -> não tem dano (;
+	if (ship->id == ORION && orion.dash_state != DASH_INACTIVE)
+		return;
+
 	// --- VERIFICA SE A NAVE ESTÁ INVENCÍVEL ---
 	if (ship->isInvincible) {
 		return; // Se estiver, ignora a colisão e continua o loop

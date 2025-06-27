@@ -42,6 +42,17 @@ const Rectangle DRONE_THRUSTER_FRAME[] = {
 	{ 8 * 8, 8 * 1, 8, 8 },
 };
 
+const Rectangle ORION_DISRUPTION_FIELD_FRAME[] = {
+	{24 * 16, 24 * 3, 24, 24},   // Frame 1
+	{24 * 17, 24 * 3, 24, 24},   // Frame 2
+	{24 * 18, 24 * 3, 24, 24},   // Frame 3
+	{24 * 19, 24 * 3, 24, 24},   // Frame 4
+	{24 * 20, 24 * 3, 24, 24},   // Frame 5
+	{24 * 21, 24 * 3, 24, 24},   // Frame 6
+	{24 * 22, 24 * 3, 24, 24},   // Frame 7
+	{24 * 23, 24 * 3, 24, 24},   // Frame 8
+};
+
 List* managed_effects;
 
 List* unmanaged_effects;
@@ -81,6 +92,7 @@ static SpecialEffect InitShockwaveHitConfirmation(Vector2 position) {
 	hit.texture = &texture_ship_assets;
 	hit.color = Fade(WHITE, 0.5f);
 	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	hit.reproduction_type = REPRODUCTION_ONCE;
 	return hit;
 }
 
@@ -113,6 +125,7 @@ static SpecialEffect InitExplosionHitConfirmation(Vector2 position) {
 	hit.texture = &texture_ship_assets;
 	hit.color = Fade(WHITE, 0.5f);
 	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	hit.reproduction_type = REPRODUCTION_ONCE;
 	return hit;
 }
 
@@ -145,6 +158,7 @@ static SpecialEffect InitEnergyHitConfirmation(Vector2 position) {
 	hit.texture = &texture_ship_assets;
 	hit.color = Fade(WHITE, 0.5f);
 	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	hit.reproduction_type = REPRODUCTION_ONCE;
 	return hit;
 }
 
@@ -177,6 +191,7 @@ static SpecialEffect InitChaosHitConfirmation(Vector2 position) {
 	hit.texture = &texture_ship_assets;
 	hit.color = Fade(WHITE, 0.5f);
 	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	hit.reproduction_type = REPRODUCTION_ONCE;
 	return hit;
 }
 
@@ -210,6 +225,7 @@ static SpecialEffect InitWormhole(Vector2 position, float duration) {
 	hit.texture = &texture_projectiles;
 	hit.color = WHITE;
 	hit.order = RENDERING_ORDER_BEFORE_SHIP;
+	hit.reproduction_type = REPRODUCTION_TIMED_LOOP;
 	return hit;
 }
 
@@ -235,12 +251,18 @@ static SpecialEffect InitWormholeTeleportAnimation(Vector2 position, float durat
 	hit.texture = &texture_projectiles;
 	hit.color = WHITE;
 	hit.order = RENDERING_ORDER_AFTER_SHIP;
+	hit.reproduction_type = REPRODUCTION_TIMED_LOOP;
 	return hit;
 }
 
 static bool IsHitConfirmationFinished(void* context, SpecialEffect* hit) {
-	bool has_ended = hit->current_frame > hit->ending_frame ||
-		hit->current_frame == hit->ending_frame && hit->duration >= hit->max_duration;
+	bool has_ended = false;
+	
+	if (hit->reproduction_type == REPRODUCTION_ONCE) {
+		has_ended = hit->current_frame > hit->ending_frame + 1;
+	} else {
+		has_ended = hit->duration >= hit->max_duration;
+	}
 
 	return has_ended;
 }
@@ -354,11 +376,37 @@ void DestroyEffect(SpecialEffect* effect) {
 	List_Remove(unmanaged_effects, effect);
 }
 
+static SpecialEffect InitOrionDisruptionField(Vector2 position, float duration) {
+	SpecialEffect hit = { 0 };
+	hit.type = ORION_DISRUPTION_FIELD;
+	hit.source = ORION_DISRUPTION_FIELD_FRAME[0];
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 24, 24 };
+	hit.duration = 0;
+	hit.max_duration = duration;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_special_effects_1;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	hit.reproduction_type = REPRODUCTION_TIMED_LOOP;
+	return hit;
+}
+
+static void UpdateOrionDisruptionField(SpecialEffect* hit) {
+	hit->duration += GetFrameTime();
+	hit->current_frame = (int)(fmodf(hit->duration, 0.2f * 8.0f) / 0.2f);
+	TraceLog(LOG_WARNING, "Current Frame: %d | Duration: %f ", hit->current_frame, hit->duration);
+	hit->source = ORION_DISRUPTION_FIELD_FRAME[hit->current_frame];
+}
+
 SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, float duration) {
 	SpecialEffect effect;
 	switch (type) {
 		case WORMHOLE:                    effect = InitWormhole(position, duration); break;
 		case WORMHOLE_TELEPORT_ANIMATION: effect = InitWormholeTeleportAnimation(position, duration); break;
+		case ORION_DISRUPTION_FIELD:	  effect = InitOrionDisruptionField(position, duration); break;
 	}
 	List_Add(managed_effects, &effect);
 	return (SpecialEffect*)List_GetByIndex(managed_effects, 0);
@@ -367,12 +415,12 @@ SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, fl
 SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration) {
 	SpecialEffect effect;
 	switch (type) {
-		case DRONE:					effect = InitDrone(position, duration); break;
-		case DRONE_THRUSTER:		effect = InitDroneThruster(position); break;
-		case NEBULA_PARTICLE_A:		effect = InitNebulaParticleA(position); break;
-		case NEBULA_PARTICLE_B:		effect = InitNebulaParticleB(position); break;
-		case NEBULA_PARTICLE_C:		effect = InitNebulaParticleC(position); break;
-		case NEBULA_ENERGY_FIELD:	effect = InitNebulaEnergyField(position); break;
+		case DRONE:						effect = InitDrone(position, duration); break;
+		case DRONE_THRUSTER:			effect = InitDroneThruster(position); break;
+		case NEBULA_PARTICLE_A:			effect = InitNebulaParticleA(position); break;
+		case NEBULA_PARTICLE_B:			effect = InitNebulaParticleB(position); break;
+		case NEBULA_PARTICLE_C:			effect = InitNebulaParticleC(position); break;
+		case NEBULA_ENERGY_FIELD:		effect = InitNebulaEnergyField(position); break;
 	}
 	List_Add(unmanaged_effects, &effect);
 	return (SpecialEffect*)List_GetByIndex(unmanaged_effects, 0);
@@ -400,6 +448,7 @@ void UpdateFrameTime(SpecialEffect* hit) {
 	case WORMHOLE:						UpdateWormholeAnimation(hit); break;
 	case WORMHOLE_TELEPORT_ANIMATION:	UpdateWormholeTeleportAnimation(hit); break;
 	case DRONE_THRUSTER:				UpdateThrusterAnimation(hit); break;
+	case ORION_DISRUPTION_FIELD:	  	UpdateOrionDisruptionField(hit); break;
 	default:
 		break;
 	}

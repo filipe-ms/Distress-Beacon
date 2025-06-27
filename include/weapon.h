@@ -76,6 +76,7 @@ void InitPulseShootAtCoords(Ship* ship, Vector2 position, float angle_in_deg);
 // Deixei como struct para facilitar no futuro se formos adicionar algum comportamento
 typedef struct PhotonShoot {
     Shoot shoot;
+    float alpha;
 } PhotonShoot;
 
 typedef struct Photon {
@@ -87,6 +88,7 @@ extern Photon photon;
 
 int GetPhotonLevel(void);
 void PhotonLevelUp(void);
+void DashDisruptionFieldTick(float radius, float base_damage);
 
 //--------------------------------------------------------------
 //
