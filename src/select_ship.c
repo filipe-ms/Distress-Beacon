@@ -14,8 +14,9 @@
 #include "ship_references.h"
 #include "input.h"
 
+#include "left_ui.h"
+
 typedef struct ShipSelectMenu {
-	int option;
     Ship ship;
 	
     Vector2 select_pos1;
@@ -32,8 +33,9 @@ static ShipSelectMenu ship_menu;
 
 void InitSelectMenu() {
 
-    ship_menu.option = ORION;
-    SetTopPilotDefault(ship_menu.option);
+    SetPlayerShip(ORION);
+    SetTopPilotDefault();
+    InitLeftUIPanel();
 
     ship_menu.select_pos1 = (Vector2){ GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.4 };
 
@@ -43,7 +45,6 @@ void InitSelectMenu() {
     ship_menu.select_pos4 = (Vector2){ GAME_SCREEN_CENTER + 0.4 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
     ship_menu.select_pos5 = (Vector2){ GAME_SCREEN_CENTER - 0.4 * GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
     
-
     ship_menu.ship.draw_size = (Vector2){ DRAW_WH, DRAW_WH };
     ship_menu.ship.direction = CENTER;
     ship_menu.ship.color = WHITE;
@@ -53,7 +54,25 @@ void InitSelectMenu() {
 
 	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
 	InitFadeInEffect(1.5f, BLACK, 1.0f);
-    TriggerTopPilotAnimation(5.0f);
+    SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
+}
+
+static int GetPrevShip() {
+    if (GetPlayerShip() == ORION) return AUREA;
+    if (GetPlayerShip() == AUREA) return VOID;
+    if (GetPlayerShip() == VOID) return PUDDLE_JUMPER;
+    if (GetPlayerShip() == PUDDLE_JUMPER) return NEBULA;
+    if (GetPlayerShip() == NEBULA) return ORION;
+    return ORION;
+}
+
+static int GetNextShip() {
+    if (GetPlayerShip() == ORION) return NEBULA;
+    if (GetPlayerShip() == AUREA) return ORION;
+    if (GetPlayerShip() == VOID) return AUREA;
+    if (GetPlayerShip() == PUDDLE_JUMPER) return VOID;
+    if (GetPlayerShip() == NEBULA) return PUDDLE_JUMPER;
+    return ORION;
 }
 
 void UpdateShipSelectMenu() {
@@ -68,26 +87,30 @@ void UpdateShipSelectMenu() {
 		else if (GetPlayerShip() == PUDDLE_JUMPER) ship_menu.select_pos4.y -= 1500 * GetFrameTime();
         else if (GetPlayerShip() == VOID)          ship_menu.select_pos5.y -= 1500 * GetFrameTime();
         
-		if (UpdateTimer()) ChangeScene(GAME);
+        if (UpdateTimer()) {
+            ChangeScene(GAME);
+            ClearTopPilotText();
+        }
     }
 
 	if (ship_menu.is_backspace_pressed) {
 		if (UpdateTimer()) {
+            ClearTopPilotText();
 			ChangeScene(START);
 		}
 	}
 
     if (!ship_menu.is_ship_selected) {
         if (IsInputLeftPressed()) {
-            ship_menu.option = (ship_menu.option - 1 + PLAYABLE_SHIPS) % PLAYABLE_SHIPS;
-            SetPlayerShip(ship_menu.option);
-			SetTopPilotDefault(ship_menu.option);
+            SetPlayerShip(GetPrevShip());
+			SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
+			SetTopPilotDefault();
             TriggerTopPilotAnimation(5.0f);
         }
         else if (IsInputRightPressed()) {
-            ship_menu.option = (ship_menu.option + 1) % PLAYABLE_SHIPS;
-            SetPlayerShip(ship_menu.option);
-            SetTopPilotDefault(ship_menu.option);
+            SetPlayerShip(GetNextShip());
+            SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
+            SetTopPilotDefault();
             TriggerTopPilotAnimation(5.0f);
         }
         else if (IsConfirmButtonPressed()) {
@@ -105,35 +128,6 @@ void UpdateShipSelectMenu() {
     }
 }
 
-#pragma region LEFT_SIDE_INFO
-
-static void DrawPilotHead(int pos_x, int pos_y) {
-    int scale = 16;
-    float res_scale = 8 * scale;
-    DrawRectangle(UI_LEFT_CENTER - res_scale / 2.0f, SCREEN_HEIGHT * 0.2f - res_scale / 2, res_scale, res_scale, BLACK);
-    DrawPilot();
-}
-
-static void DrawLeftSideInfo() {
-
-    DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
-
-    int border_thick = 5;
-    int margin_offset = border_thick * 4;
-
-    DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT / 2, UI_WIDTH - margin_offset, SCREEN_HEIGHT - margin_offset, border_thick, WHITE);
-
-    DrawCenteredOutlinedText(GetPilotName(ship_menu.option), UI_LEFT_CENTER, (int)(SCREEN_HEIGHT * 0.10f), 40, GOLD, Fade(GOLD, 0.3f));
-
-    DrawPilotHead(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.2);
-
-    DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.4, UI_WIDTH - border_thick * 16, SCREEN_HEIGHT * 0.2, border_thick, WHITE);
-
-    DrawCenteredMultilineText(GetPilotPresentation(ship_menu.option), UI_LEFT_CENTER, SCREEN_HEIGHT * 0.4, 30, WHITE);
-}
-
-#pragma endregion LEFT_SIDE_INFO
-
 #pragma region RIGHT_SIDE_INFO
 static void DrawRightSideInfo() {
     DrawRectangle(GAME_SCREEN_END, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
@@ -144,17 +138,17 @@ static void DrawRightSideInfo() {
 
     DrawCenteredOutlinedText("Nave", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.1f, 40, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawCenteredText(GetShipName(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.15f, 40, GetShipColor(ship_menu.option));
+    DrawCenteredText(GetShipName(GetPlayerShip()), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.15f, 40, GetShipColor(GetPlayerShip()));
 
     DrawCenteredOutlinedText("Abilidade especial", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.3f, 40, WHITE, Fade(RAYWHITE, 0.5f));
 
     DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.365, UI_WIDTH * 0.7, SCREEN_HEIGHT*0.05f, Fade(WHITE, 0.2f));
 
-    DrawCenteredText(GetShipSpecial(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.35f, 35, WHITE);
+    DrawCenteredText(GetShipSpecial(GetPlayerShip()), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.35f, 35, WHITE);
 
     DrawCenteredOutlinedText("Descrição", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.45, 40, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawCenteredMultilineText(GetShipSpecialDescription(ship_menu.option), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.55f, 30, WHITE);
+    DrawCenteredMultilineText(GetShipSpecialDescription(GetPlayerShip()), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.55f, 30, WHITE);
 }
 
 #pragma endregion RIGHT_SIDE_INFO
@@ -164,11 +158,11 @@ void DrawSelectMenu() {
     ClearBackground(BLACK);
     DrawBackground();
 
-    Color ship_1 = (ship_menu.option == ORION)  ? RED : GRAY;
-    Color ship_2 = (ship_menu.option == AUREA)  ? RED : GRAY;
-    Color ship_3 = (ship_menu.option == NEBULA) ? RED : GRAY;
-	Color ship_4 = (ship_menu.option == PUDDLE_JUMPER) ? RED : GRAY;
-    Color ship_5 = (ship_menu.option == VOID) ? RED : GRAY;
+    Color ship_1 = (GetPlayerShip() == ORION)  ? RED : GRAY;
+    Color ship_2 = (GetPlayerShip() == AUREA)  ? RED : GRAY;
+    Color ship_3 = (GetPlayerShip() == NEBULA) ? RED : GRAY;
+	Color ship_4 = (GetPlayerShip() == PUDDLE_JUMPER) ? RED : GRAY;
+    Color ship_5 = (GetPlayerShip() == VOID) ? RED : GRAY;
 
     ship_menu.ship.direction = CENTER;
     
@@ -198,7 +192,9 @@ void DrawSelectMenu() {
     DrawCenteredText(GetShipName(PUDDLE_JUMPER), ship_menu.select_pos4.x, ship_menu.select_pos4.y + 100, 20, ship_4);
     DrawCenteredText(GetShipName(VOID), ship_menu.select_pos5.x, ship_menu.select_pos5.y + 100, 20, ship_5);
 
-    DrawLeftSideInfo();
+    { // Left UI panel
+        DrawLeftUIPanel();
+    }
 
     DrawRightSideInfo();
 

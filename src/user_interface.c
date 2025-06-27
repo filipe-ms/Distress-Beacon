@@ -4,6 +4,7 @@
 #include "player.h"
 #include "weapon.h"
 #include "draw_utils.h"
+#include "left_ui.h"
 
 #include <stdio.h>
 
@@ -31,10 +32,6 @@ static Rectangle GetExpBarPosition() {
 
 static Vector2 GetLevelTextPosition() {
     return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.9 };
-}
-
-static void DrawLeftUIBackground() {
-    DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
 }
 
 static void DrawRightUIBackground(void) {
@@ -115,7 +112,6 @@ static void DrawExpBar(void) {
     DrawRectangleRoundedLines(exp_bar, 0.5f, 10, Fade(DARKGRAY, 0.6f));
 }
 
-
 static void DrawLevelText(void) {
 	Vector2 level_text = GetLevelTextPosition();
 	int font_size = 30;
@@ -142,7 +138,7 @@ static void DrawScoreNumber(void) {
 void DrawUserInterface(void) {
 
     { // Left
-        DrawLeftUIBackground();
+        DrawLeftUIPanel();
     }
 
     { // Right
