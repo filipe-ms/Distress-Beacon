@@ -18,6 +18,7 @@ typedef enum EffectType {
 	NEBULA_PARTICLE_B,
 	NEBULA_PARTICLE_C,
 	NEBULA_ENERGY_FIELD,
+	ORION_DISRUPTION_FIELD,
 } EffectType;
 
 typedef enum ParticleRenderingOrder {
@@ -26,6 +27,11 @@ typedef enum ParticleRenderingOrder {
 	RENDERING_ORDER_BEFORE_SHIP = 1,
 	RENDERING_ORDER_AFTER_SHIP = 2,
 } ParticleRenderingOrder;
+
+typedef enum EffectReproductionType {
+	REPRODUCTION_ONCE,
+	REPRODUCTION_TIMED_LOOP,
+} EffectReproductionType;
 
 typedef struct SpecialEffect {
 	EffectType type;
@@ -41,6 +47,7 @@ typedef struct SpecialEffect {
 	Color color;
 	Texture2D* texture;
 	ParticleRenderingOrder order;
+	EffectReproductionType reproduction_type;
 } SpecialEffect;
 
 void DestroyEffect(SpecialEffect* effect);

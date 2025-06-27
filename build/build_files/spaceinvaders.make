@@ -109,6 +109,7 @@ endif
 GENERATED :=
 OBJECTS :=
 
+GENERATED += $(OBJDIR)/audio_manager.o
 GENERATED += $(OBJDIR)/background.o
 GENERATED += $(OBJDIR)/draw_utils.o
 GENERATED += $(OBJDIR)/enemy.o
@@ -119,7 +120,7 @@ GENERATED += $(OBJDIR)/game.o
 GENERATED += $(OBJDIR)/game_behavior.o
 GENERATED += $(OBJDIR)/game_over.o
 GENERATED += $(OBJDIR)/general_utils.o
-GENERATED += $(OBJDIR)/hit_confirmation.o
+GENERATED += $(OBJDIR)/input.o
 GENERATED += $(OBJDIR)/list.o
 GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/main_menu.o
@@ -132,12 +133,14 @@ GENERATED += $(OBJDIR)/scene_manager.o
 GENERATED += $(OBJDIR)/select_ship.o
 GENERATED += $(OBJDIR)/ship.o
 GENERATED += $(OBJDIR)/ship_references.o
+GENERATED += $(OBJDIR)/special_effects.o
 GENERATED += $(OBJDIR)/texture_manager.o
 GENERATED += $(OBJDIR)/timer.o
 GENERATED += $(OBJDIR)/tutorial.o
 GENERATED += $(OBJDIR)/user_interface.o
 GENERATED += $(OBJDIR)/weapon.o
 GENERATED += $(OBJDIR)/winner.o
+OBJECTS += $(OBJDIR)/audio_manager.o
 OBJECTS += $(OBJDIR)/background.o
 OBJECTS += $(OBJDIR)/draw_utils.o
 OBJECTS += $(OBJDIR)/enemy.o
@@ -148,7 +151,7 @@ OBJECTS += $(OBJDIR)/game.o
 OBJECTS += $(OBJDIR)/game_behavior.o
 OBJECTS += $(OBJDIR)/game_over.o
 OBJECTS += $(OBJDIR)/general_utils.o
-OBJECTS += $(OBJDIR)/hit_confirmation.o
+OBJECTS += $(OBJDIR)/input.o
 OBJECTS += $(OBJDIR)/list.o
 OBJECTS += $(OBJDIR)/main.o
 OBJECTS += $(OBJDIR)/main_menu.o
@@ -161,6 +164,7 @@ OBJECTS += $(OBJDIR)/scene_manager.o
 OBJECTS += $(OBJDIR)/select_ship.o
 OBJECTS += $(OBJDIR)/ship.o
 OBJECTS += $(OBJDIR)/ship_references.o
+OBJECTS += $(OBJDIR)/special_effects.o
 OBJECTS += $(OBJDIR)/texture_manager.o
 OBJECTS += $(OBJDIR)/timer.o
 OBJECTS += $(OBJDIR)/tutorial.o
@@ -230,6 +234,9 @@ endif
 # File Rules
 # #############################################
 
+$(OBJDIR)/audio_manager.o: ../../src/audio_manager.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/background.o: ../../src/background.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -260,7 +267,7 @@ $(OBJDIR)/game_over.o: ../../src/game_over.c
 $(OBJDIR)/general_utils.o: ../../src/general_utils.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/hit_confirmation.o: ../../src/hit_confirmation.c
+$(OBJDIR)/input.o: ../../src/input.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/list.o: ../../src/list.c
@@ -297,6 +304,9 @@ $(OBJDIR)/ship.o: ../../src/ship.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ship_references.o: ../../src/ship_references.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/special_effects.o: ../../src/special_effects.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/texture_manager.o: ../../src/texture_manager.c

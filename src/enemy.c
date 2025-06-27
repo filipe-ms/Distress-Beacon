@@ -4,6 +4,7 @@
 #include "enemy_projectile.h"
 #include "general_utils.h"
 #include "texture_manager.h"
+#include "stdlib.h"
 
 static const int SPAWN_Y_MIN = -200;
 

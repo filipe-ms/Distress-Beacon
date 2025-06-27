@@ -210,6 +210,7 @@ static void InitPhotonShoot(Ship* ship) {
     PhotonShoot new_photon_shoot = { 0 };
     new_photon_shoot.shoot.damage = ApplyMultiplier(damage_modifier, photon.weapon.damage);
     new_photon_shoot.shoot.size = (Vector2){ ApplyMultiplier(size_modifier, 36.0f), ApplyMultiplier(size_modifier, 36.0f) };
+    new_photon_shoot.alpha = 1.0f;
     if (photon.weapon.level == 1) {
         new_photon_shoot.shoot.position = (Vector2){ ship->position.x, ship->position.y };
         List_AddLast(photon.photon_shoots, &new_photon_shoot);
@@ -270,13 +271,27 @@ static void DrawPhotonShoot(PhotonShoot* photon_shoot) {
         DrawCircleV(center, 20, Fade(RED, 0.5f));
     }	
 
-    DrawTexturePro(texture_projectiles, photon.weapon.source, destRec, origin, 0, WHITE);
+    DrawTexturePro(texture_projectiles, photon.weapon.source, destRec, origin, 0, Fade(WHITE, photon_shoot->alpha));
 }
 
 static void DrawPhoton(void) {
     List_ForEach(photon.photon_shoots, (Function)DrawPhotonShoot);
 }
+
+void DashDisruptionFieldTick(float radius, float base_damage) {
+    float damage = ApplyMultiplier(damage_modifier, base_damage);
+
+    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        if (CheckCollisionCircles(ship.position, radius, enemy->position, enemy->size.x / 2.0f)) {
+            enemy->hp -= damage;
+            CreateManagedEffect(EXPLOSION, enemy->position);
+        }
+    }
+}
 #pragma endregion PHOTON
+
 #pragma region HOMING
 //--------------------------------------------------------------
 //

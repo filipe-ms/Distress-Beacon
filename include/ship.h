@@ -17,6 +17,7 @@ typedef struct Ship {
     Color color;            // Cor
     float alpha;            // Transparência
 	Vector2 speed;          // Velocidade da nave
+    Vector2 speed_dash_modifier;
     bool isInvincible;
     float invincibilityTimer;
     float is_alive;
