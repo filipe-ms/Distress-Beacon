@@ -59,35 +59,35 @@ static void DrawActiveWeapons() {
 
     int pos_x = UI_RIGHT_CENTER - 200;
     int pos_y = SCREEN_HEIGHT * 0.353;
+    int next_line = pos_y;
     int width = 400;
     float border_width = UI_WIDTH * 0.8;
     int font_size = 30;
-    int owned_weapons = GetActiveWeaponsAmount();
-    float frame_center = (pos_y + font_size * (owned_weapons + 1) / 2.0f) + 25;
+    float frame_center = (pos_y + font_size * (3) / 2.0f) + 10;
 
     DrawCenteredRectangle(UI_RIGHT_CENTER, frame_center, border_width - 10, 165, UI_HIGHLIGHT_COLOR);
     DrawCenteredPixelBorder(UI_RIGHT_CENTER, frame_center, border_width, 165, 5, WHITE);
 
     DrawCenteredOutlinedText("ARSENAL", UI_RIGHT_CENTER, pos_y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
-    pos_y += font_size;
+    next_line += font_size;
     if (GetPulseLevel()) {
-        DrawAlignedWeapon("Pulse", GetPulseLevel(), pos_x, pos_y, width, font_size, WHITE);
-        pos_y += font_size;
+        DrawAlignedWeapon("Pulse", GetPulseLevel(), pos_x, next_line, width, font_size, WHITE);
+        next_line += font_size;
     }
     if (GetPhotonLevel()) {
-        DrawAlignedWeapon("Photon", GetPhotonLevel(), pos_x, pos_y, width, font_size, WHITE);
-        pos_y += font_size;
+        DrawAlignedWeapon("Photon", GetPhotonLevel(), pos_x, next_line, width, font_size, WHITE);
+        next_line += font_size;
     }
     if (GetShotgunLevel()) {
-        DrawAlignedWeapon("Shotgun", GetShotgunLevel(), pos_x, pos_y, width, font_size, WHITE);
-        pos_y += font_size;
+        DrawAlignedWeapon("Shotgun", GetShotgunLevel(), pos_x, next_line, width, font_size, WHITE);
+        next_line += font_size;
     }
     if (GetHomingLevel()) {
-        DrawAlignedWeapon("Homing", GetHomingLevel(), pos_x, pos_y, width, font_size, WHITE);
+        DrawAlignedWeapon("Homing", GetHomingLevel(), pos_x, next_line, width, font_size, WHITE);
     }
-    for (/*empty*/;owned_weapons < MAX_WEAPON_SLOTS; owned_weapons++) {
-        DrawAlignedWeapon("Empty", 0, pos_x, pos_y, width, font_size, WHITE);
-        pos_y += font_size;
+    for (int i = GetActiveWeaponsAmount(); i < MAX_WEAPON_SLOTS; i++) {
+        DrawAlignedWeapon("Empty", 0, pos_x, next_line, width, font_size, WHITE);
+        next_line += font_size;
     }
 }
 
