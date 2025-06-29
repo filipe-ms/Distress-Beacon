@@ -11,6 +11,7 @@ Texture background_stars_and_dust;
 Texture background_menubg;
 
 Texture texture_pilots;
+Texture texture_progress_bars;
 
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
@@ -23,7 +24,12 @@ void LoadAllTextures(void) {
 	background_stars_and_dust = LoadTexture("background/stars_and_dust.png");
 
 	texture_pilots = LoadTexture("pilots.png");
+
+	texture_progress_bars = LoadTexture("progress_bars.png");
 }
+
+
+
 
 void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
@@ -36,4 +42,5 @@ void UnloadAllTextures(void) {
 	UnloadTexture(background_stars_and_dust);
 
 	UnloadTexture(texture_pilots);
+	UnloadTexture(texture_progress_bars);
 }

@@ -442,7 +442,7 @@ static void DrawHoming(void) {
 
 Shotgun shotgun;
 
-int IsShotgunActive(void) { return shotgun.weapon.level; }
+int GetShotgunLevel(void) { return shotgun.weapon.level; }
 
 void ShotgunLevelUp(void) { 
     shotgun.weapon.level += 1;
@@ -768,7 +768,7 @@ int GetWeaponLevel(int reference) {
     switch (reference) {
     case PULSE:   return GetPulseLevel();
     case PHOTON:  return GetPhotonLevel();
-    case SHOTGUN: return IsShotgunActive();
+    case SHOTGUN: return GetShotgunLevel();
     case HOMING:  return GetHomingLevel();
     default:      return false;
     }
@@ -780,7 +780,7 @@ const char* GetActiveWeaponsString(void) {
 
     if (GetPulseLevel())   strcat(active_weapons, "Pulse\n");
     if (GetPhotonLevel())  strcat(active_weapons, "Photon\n");
-    if (IsShotgunActive()) strcat(active_weapons, "Shotgun\n");
+    if (GetShotgunLevel()) strcat(active_weapons, "Shotgun\n");
     if (GetHomingLevel())  strcat(active_weapons, "Homing\n");
 
     if (strlen(active_weapons) == 0) {
@@ -792,6 +792,15 @@ const char* GetActiveWeaponsString(void) {
     }
 
     return active_weapons;
+}
+
+int GetActiveWeaponsAmount(void) {
+    int owned_weapons = 0;
+    if (GetPulseLevel()) owned_weapons++;
+    if (GetPhotonLevel()) owned_weapons++;
+    if (GetShotgunLevel()) owned_weapons++;
+    if (GetHomingLevel()) owned_weapons++;
+    return owned_weapons;
 }
 
 static void InitAllWeapons(void) {

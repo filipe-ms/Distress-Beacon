@@ -138,6 +138,9 @@
     <ClInclude Include="..\..\include\dev_interface_left_ui.h">
       <Filter>Header Files\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\bars.h">
+      <Filter>Header Files\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.c">
@@ -234,6 +237,9 @@
       <Filter>Source Files\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\dev_interface_left_ui.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\bars.c">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
   </ItemGroup>

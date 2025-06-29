@@ -12,7 +12,10 @@ extern Texture background_stars;
 extern Texture background_dark_space;
 extern Texture background_stars_and_dust;
 extern Texture background_menubg;
+
 extern Texture texture_pilots;
+
+extern Texture texture_progress_bars;
 
 void LoadAllTextures(void);
 void UnloadAllTextures(void);

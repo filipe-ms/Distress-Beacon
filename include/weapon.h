@@ -139,12 +139,12 @@ typedef struct Shotgun {
 
 extern Shotgun shotgun;
 
-int IsShotgunActive(void);
+int GetShotgunLevel(void);
 void ShotgunLevelUp(void);
 
 //--------------------------------------------------------------
 //
-//                         Blaster
+//                    Blaster (Ship special)
 // 
 //--------------------------------------------------------------
 
@@ -178,6 +178,7 @@ void UpdateWeapon(Ship* ship);
 void DrawWeapon(void);
 int GetWeaponLevel(int reference);
 const char* GetActiveWeaponsString(void);
+int GetActiveWeaponsAmount(void);
 
 // Power Modifiers
 float GetCooldownModifier(void);

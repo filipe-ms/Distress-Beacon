@@ -5,134 +5,189 @@
 #include "weapon.h"
 #include "draw_utils.h"
 #include "left_ui.h"
+#include "ship.h"
+#include "bars.h"
+#include "raymath.h"
 
+#include <string.h>
 #include <stdio.h>
 
 // Posições aqui no topo para facilitar
 
-static Vector2 GetScoreTextPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.05 };
-}
-
-static Vector2 GetScoreNumberPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT* 0.08 };
-}
-
-static Vector2 GetActiveBonusesStartingPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.2 };
-}
-
-static Vector2 GetActiveWeaponsPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.5 };
-}
-
 static Rectangle GetExpBarPosition() {
-    return (Rectangle) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.85, 360, 20 };
+    return (Rectangle) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.9, 400, 25 };
 }
 
-static Vector2 GetLevelTextPosition() {
-    return (Vector2) { UI_WIDTH + GAME_SCREEN_WIDTH, SCREEN_HEIGHT * 0.9 };
+static void DrawRightUIBGandBorder(void) {
+    DrawRectangle(UI_WIDTH + GAME_SCREEN_WIDTH, 0, UI_WIDTH, SCREEN_HEIGHT, UI_BG_COLOR);
+
+    int border_width = 5;
+
+    int border_thick = 5;
+    int margin_offset = border_thick * 4;
+
+    DrawCenteredPixelBorder(
+        UI_RIGHT_CENTER,
+        SCREEN_HEIGHT / 2,
+        UI_WIDTH - margin_offset,
+        SCREEN_HEIGHT - margin_offset,
+        border_thick,
+        WHITE);
 }
 
-static void DrawRightUIBackground(void) {
-    // Posição inicial x, posição inicial y, largura, altura, cor
-    DrawRectangle(UI_WIDTH + GAME_SCREEN_WIDTH, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
+#pragma region Draw_Active_Weapons
+
+void DrawAlignedWeaponLevel(const char* label, int value, int pos_x, int pos_y, int level_width, int font_size, Color color) {
+    DrawText("Level", pos_x, pos_y, font_size, color);
+    char number_text[8];
+    sprintf(number_text, "%d", value);
+
+    int number_width = MeasureText(number_text, font_size);
+    int number_pos_x = pos_x + level_width - number_width;
+
+    DrawText(number_text, number_pos_x, pos_y, font_size, color);
 }
 
-
-static void DrawMultilineText(const char* text, float start_x, float start_y, int fontSize, Color color, float alpha) {
-    const char* str = text;
-    float lineHeight = (float)fontSize + 4.0f;
-
-    while (*str) {
-        int len = 0;
-        while (str[len] != '\n' && str[len] != '\0') {
-            len++;
-        }
-
-        if (len > 0) {
-            const char* line = TextSubtext(str, 0, len); // Função da raylib que faz uma substring
-            float lineWidth = (float)MeasureText(line, fontSize);
-            float x = start_x;
-            DrawText(line, (int)x + UI_WIDTH/2 - lineWidth/2, (int)start_y, fontSize, Fade(color, alpha));
-        }
-
-        str += len;
-        if (*str == '\n') {
-            str++;
-            start_y += lineHeight;
-        }
-    }
+void DrawAlignedWeapon(const char* label, int value, int pos_x, int pos_y, int col_width, int font_size, Color color) {
+    DrawText(label, pos_x, pos_y, font_size, color);
+    int label_width = MeasureText(label, font_size);
+    int level_x = pos_x + col_width - MeasureText("Level 0", font_size);
+    DrawAlignedWeaponLevel("Level", value, level_x, pos_y, MeasureText("Level 0", font_size), font_size, color);
 }
 
 static void DrawActiveWeapons() {
-    Vector2 draw_pos = GetActiveWeaponsPosition();
+
+    int pos_x = UI_RIGHT_CENTER - 200;
+    int pos_y = SCREEN_HEIGHT * 0.353;
+    int width = 400;
+    float border_width = UI_WIDTH * 0.8;
     int font_size = 30;
-    int text_mid = MeasureText("WEAPONS", font_size) / 2;
-    DrawOutlinedText("WEAPONS", UI_RIGHT_CENTER - text_mid, (int)draw_pos.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
-	DrawMultilineText(GetActiveWeaponsString(), (int)draw_pos.x, (int)draw_pos.y + 50, font_size, BLUE, 1.0f);
+    int owned_weapons = GetActiveWeaponsAmount();
+    float frame_center = (pos_y + font_size * (owned_weapons + 1) / 2.0f) + 25;
+
+    DrawCenteredRectangle(UI_RIGHT_CENTER, frame_center, border_width - 10, 165, UI_HIGHLIGHT_COLOR);
+    DrawCenteredPixelBorder(UI_RIGHT_CENTER, frame_center, border_width, 165, 5, WHITE);
+
+    DrawCenteredOutlinedText("ARSENAL", UI_RIGHT_CENTER, pos_y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+    pos_y += font_size;
+    if (GetPulseLevel()) {
+        DrawAlignedWeapon("Pulse", GetPulseLevel(), pos_x, pos_y, width, font_size, WHITE);
+        pos_y += font_size;
+    }
+    if (GetPhotonLevel()) {
+        DrawAlignedWeapon("Photon", GetPhotonLevel(), pos_x, pos_y, width, font_size, WHITE);
+        pos_y += font_size;
+    }
+    if (GetShotgunLevel()) {
+        DrawAlignedWeapon("Shotgun", GetShotgunLevel(), pos_x, pos_y, width, font_size, WHITE);
+        pos_y += font_size;
+    }
+    if (GetHomingLevel()) {
+        DrawAlignedWeapon("Homing", GetHomingLevel(), pos_x, pos_y, width, font_size, WHITE);
+    }
+    for (/*empty*/;owned_weapons < MAX_WEAPON_SLOTS; owned_weapons++) {
+        DrawAlignedWeapon("Empty", 0, pos_x, pos_y, width, font_size, WHITE);
+        pos_y += font_size;
+    }
+}
+
+#pragma endregion
+
+void DrawAlignedStat(const char* label, int value, int pos_x, int pos_y, int col_width, int font_size, Color color) {
+    char value_text[16];
+    sprintf(value_text, "+%d%%", value);
+    DrawText(label, pos_x, pos_y, font_size, color);
+    int value_width = MeasureText(value_text, font_size);
+    DrawText(value_text, pos_x + col_width - value_width, pos_y, font_size, color);
 }
 
 static void DrawActiveBonuses() {
-    Vector2 start_pos = GetActiveBonusesStartingPosition();
-    int base_height = start_pos.y;
-    int label_x = UI_RIGHT_CENTER - 200;
-    int value_x = UI_RIGHT_CENTER + 100;
+    int base_height = SCREEN_HEIGHT * 0.15;
+    int start_x = UI_RIGHT_CENTER - 200;
+    int width = 400;
 	int font_size = 30;
+    float border_width = UI_WIDTH * 0.8;
+    int num_stats = 5;
+    float frame_center = (base_height + font_size * (num_stats + 1) / 2.0f) - 20;
 
-    int upgrades_size = MeasureText("UPGRADES", font_size);
-    DrawOutlinedText("UPGRADES", UI_RIGHT_CENTER - upgrades_size/2, base_height, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+    DrawCenteredRectangle(UI_RIGHT_CENTER, frame_center, border_width - 10, 190, UI_HIGHLIGHT_COLOR);
+    DrawCenteredPixelBorder(UI_RIGHT_CENTER, frame_center, border_width, 190, 5, WHITE);
 
-    DrawText("Damage", label_x, base_height + font_size *2, font_size, RED);
-    DrawText(TextFormat("%03.0f%%", GetDamageModifier()), value_x, base_height + font_size*2, font_size, RED);
+    DrawCenteredOutlinedText("UPGRADES", UI_RIGHT_CENTER, base_height, font_size, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawText("Fire rate", label_x, base_height + font_size*3, font_size, YELLOW);
-    DrawText(TextFormat("%03.0f%%", GetCooldownModifier()), value_x, base_height + font_size*3, font_size, YELLOW);
-
-    DrawText("Size", label_x, base_height + font_size*4, font_size, PURPLE);
-    DrawText(TextFormat("%03.0f%%", GetSizeModifier()), value_x, base_height + font_size*4, font_size, PURPLE);
-
-    DrawText("Bullet Speed", label_x, base_height + font_size*5, font_size, LIGHTGRAY);
-    DrawText(TextFormat("%03.0f%%", GetSpeedModifier()), value_x, base_height + font_size*5, font_size, LIGHTGRAY);
-
-    DrawText("Shield", label_x, base_height + font_size * 6, font_size, SKYBLUE);
-    DrawText(TextFormat("%d", GetShieldCapacity()), value_x, base_height + font_size * 6, font_size, SKYBLUE);
+    DrawAlignedStat("Damage", GetDamageModifier(), start_x, base_height + font_size * 1, width, font_size, WHITE);
+    DrawAlignedStat("Fire rate", GetCooldownModifier(), start_x, base_height + font_size * 2, width, font_size, WHITE);
+    DrawAlignedStat("Projectile size", GetSizeModifier(), start_x, base_height + font_size * 3, width, font_size, WHITE);
+    DrawAlignedStat("Bullet speed", GetSpeedModifier(), start_x, base_height + font_size * 4, width, font_size, WHITE);
 }
 
 static void DrawExpBar(void) {
     Rectangle exp_bar = GetExpBarPosition();
     exp_bar.x = UI_RIGHT_CENTER - exp_bar.width/2;
-    Rectangle fill = exp_bar;
 
-    float fill_percentage = (float)GetPlayerExperience() / GetPlayerExpToLevel();
-    fill.width = fill_percentage * exp_bar.width;
-
-
-    DrawRectangleRounded(fill, 0.5f, 10, PURPLE);
-    DrawRectangleRoundedLines(exp_bar, 0.5f, 10, Fade(DARKGRAY, 0.6f));
+    float scale = 10;
+    float fill_percentage = ((float)GetPlayerExperience() / GetPlayerExpToLevel());
+    DrawProgressBarRec(PROGRESS_BAR_ROUNDED_EMPTY_WIDE, exp_bar, 1, 1);
+    DrawProgressBarRec(PROGRESS_BAR_ROUNDED_BLUE_WIDE, exp_bar, fill_percentage, 1);
 }
 
-static void DrawLevelText(void) {
-	Vector2 level_text = GetLevelTextPosition();
+static void DrawLevel(void) {
+
+    int pos_x = UI_RIGHT_CENTER;
+    int pos_y = SCREEN_HEIGHT * 0.93;
+    int exp = GetPlayerExperience();
+    int to_level = GetPlayerExpToLevel();
 	int font_size = 30;
 
-    int text_mid = MeasureText(TextFormat("Level %i", GetPlayerLevel()), font_size)/2;
-
-	DrawText(TextFormat("Level %i", GetPlayerLevel()), level_text.x + UI_WIDTH/2 - text_mid, level_text.y, font_size, Fade(WHITE, 1.0f));
+    DrawCenteredText(TextFormat("Level %-6i Exp %i/%i", GetPlayerLevel(), exp, to_level), pos_x, pos_y, font_size, WHITE);
 }
 
-static void DrawScoreText(void) {
-	Vector2 score_position = GetScoreTextPosition();
-	int font_size = 30;
-	int text_mid = MeasureText("SCORE", font_size) / 2;
-    DrawOutlinedText("SCORE", score_position.x + UI_WIDTH / 2 - text_mid, score_position.y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+static void DrawScore() {
+    int pos_x = UI_RIGHT_CENTER;
+
+    int text_pos_y = SCREEN_HEIGHT * 0.05;
+    int number_pos_y = SCREEN_HEIGHT * 0.08;
+    int border_pos_y = (text_pos_y + number_pos_y) / 2;
+
+    int border_width = UI_WIDTH * 0.8;
+    int border_height = 80;
+
+    int bg_width = border_width - 5;
+    int bg_height = border_height - 5;
+
+    int font_size = 30;
+
+    DrawCenteredRectangle(pos_x, border_pos_y, bg_width, bg_height, UI_HIGHLIGHT_COLOR);
+    DrawCenteredPixelBorder(pos_x, border_pos_y, border_width, border_height, 5, WHITE);
+    DrawCenteredOutlinedText("SCORE", pos_x, text_pos_y, font_size, WHITE, Fade(RAYWHITE, 0.5));
+    DrawCenteredOutlinedText(TextFormat("%08i", GetPlayerScore()), pos_x, number_pos_y, font_size, WHITE, Fade(RAYWHITE, 0.5f));
 }
 
-static void DrawScoreNumber(void) {
-	Vector2 score_position = GetScoreNumberPosition();
-	int font_size = 30;
-    int text_mid = MeasureText(TextFormat("%08i", GetPlayerScore()), font_size) / 2;
-    DrawOutlinedText(TextFormat("%08i", GetPlayerScore()), score_position.x + UI_WIDTH/2 - text_mid, score_position.y, font_size, Fade(WHITE, 0.9f), Fade(RAYWHITE, 0.5f));
+static float GetSpecialBarAlpha(int bar_pos_x, int bar_pos_y, int bar_width) {
+    float min_dist = 50.0f;
+    float max_dist = bar_width;
+
+    Vector2 ship_pos = GetShipPosition();
+    Vector2 bar_center = { bar_pos_x + bar_width / 2.0f, bar_pos_y };
+
+    float distance = Vector2Distance(ship_pos, bar_center);
+
+    float result = (distance - min_dist) / (max_dist - min_dist);
+    
+    result = Clamp(result, 0.1f, 1.0f);
+
+    return result;
+}
+
+
+static void DrawShipSpecialCooldown(void) {
+    float pos_x = GAME_SCREEN_END - GAME_SCREEN_END * 0.2;
+    float pos_y = GAME_SCREEN_HEIGHT - GAME_SCREEN_HEIGHT * 0.1;
+    float scale = 5;
+    float alpha = GetSpecialBarAlpha(pos_x, pos_y, 210);
+
+    DrawContainerBar(CONTAINER_BAR_Z_GRAY, pos_x, pos_y, scale, alpha);
+    DrawProgressBar(PROGRESS_BAR_Z_RED, CONTAINER_BAR_Z_GRAY, pos_x, pos_y, scale, GetShipCooldownPct(GetPlayerShip()), alpha);
 }
 
 void DrawUserInterface(void) {
@@ -142,12 +197,15 @@ void DrawUserInterface(void) {
     }
 
     { // Right
-        DrawRightUIBackground();
-        DrawScoreText();
-        DrawScoreNumber();
+        DrawRightUIBGandBorder();
+        DrawScore();
         DrawActiveWeapons();
         DrawActiveBonuses();
         DrawExpBar();
-        DrawLevelText();
+        DrawLevel();
+    }
+    
+    { // Game
+        DrawShipSpecialCooldown();
     }
 }

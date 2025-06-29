@@ -57,6 +57,8 @@
 
 #define ENEMY_LINE_SPAWN_START -80
 
+#define MAX_WEAPON_SLOTS 3
+
 //--------------------------------------------------------------
 //
 //                            DESENHO
@@ -64,6 +66,8 @@
 //--------------------------------------------------------------
 
 #define DRAW_WH 48 // Largura/Altura padrão de desenho das naves e inimigos simples
+#define UI_BG_COLOR (Color){ 13, 13, 23, 255 }
+#define UI_HIGHLIGHT_COLOR (Color){ 20, 20, 40, 255 }
 
 //--------------------------------------------------------------
 //

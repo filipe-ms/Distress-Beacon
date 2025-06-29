@@ -14,7 +14,7 @@ char bottom_pilot_text_buffer[256] = { 0 };
 
 #pragma region DRAW BG AND BG BORDERS
 static void DrawLeftUIBackground() {
-	DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
+	DrawRectangle(0, 0, UI_WIDTH, SCREEN_HEIGHT, UI_BG_COLOR);
 }
 
 static void DrawLeftUIBorders() {
@@ -126,7 +126,6 @@ static void DrawTopPilotTextPanel() {
 static void DrawBottomPilotTextPanel() {
 	DrawBottomPilotText();
 	if (bottom_pilot_text_buffer[0] != '\0') DrawBottomTextBorder();
-
 }
 
 #pragma endregion
