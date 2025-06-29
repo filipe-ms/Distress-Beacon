@@ -29,4 +29,7 @@ void InitShip(Ship* ship, int id);
 void UpdateShip(Ship* ship);
 void Ship_TakeDamage(Ship* ship);
 void DrawShip(Ship* ship);
-void UnloadShip();
+void UnloadShip(Ship* ship);
+
+float GetShipCooldownPct(int ship);
+Vector2 GetShipPosition(void);

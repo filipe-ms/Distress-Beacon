@@ -2,6 +2,7 @@
 #include "texture_manager.h"
 #include "common.h"
 #include "audio_manager.h"
+#include "player.h"
 
 typedef struct Pilot {
 	int pilot_id;
@@ -62,20 +63,14 @@ void SetTopPilot(int pilot_id, int pos_x, int pos_y, float scale, Color color) {
 	top_pilot.color = color;
 }
 
-void SetTopPilotDefault(int pilot_id) {
-	if (pilot_id < 0 || pilot_id >= PLAYABLE_SHIPS) {
-		top_pilot.pilot_id = INTERFERENCE;
-	}
-	else {
-		top_pilot.pilot_id = pilot_id;
-	}
-
+void SetTopPilotDefault(void) {
+	top_pilot.pilot_id = GetPlayerShip();
 	int scale = 16;
 	top_pilot.current_frame = 0;
 	top_pilot.elapsed_time = 0.0f;
 	top_pilot.total_animation_time = 0.0f;
 	top_pilot.pos_x = UI_LEFT_CENTER;
-	top_pilot.pos_y = SCREEN_HEIGHT * 0.2f - scale / 2;
+	top_pilot.pos_y = SCREEN_HEIGHT * 0.18f - scale / 2;
 	top_pilot.scale = scale;
 	top_pilot.color = WHITE;
 }
@@ -124,7 +119,7 @@ static void DrawTopPilot() {
 int GetBottomPilotId(void) { return bottom_pilot.pilot_id; }
 
 void SetBottomPilot(int pilot_id, int pos_x, int pos_y, float scale, Color color) {
-	if (pilot_id < 0 || pilot_id >= TOTAL_PILOT_NUMBER) {
+	if (pilot_id < NONE || pilot_id >= TOTAL_PILOT_NUMBER) {
 		bottom_pilot.pilot_id = INTERFERENCE;
 	}
 	else {
@@ -141,7 +136,7 @@ void SetBottomPilot(int pilot_id, int pos_x, int pos_y, float scale, Color color
 }
 
 void SetBottomPilotDefault(int pilot_id) {
-	if (pilot_id < 0 || pilot_id >= PLAYABLE_SHIPS) {
+	if (pilot_id < NONE || pilot_id >= TOTAL_PILOT_NUMBER) {
 		bottom_pilot.pilot_id = INTERFERENCE;
 	}
 	else {
@@ -154,7 +149,7 @@ void SetBottomPilotDefault(int pilot_id) {
 	bottom_pilot.elapsed_time = 0.0f;
 	bottom_pilot.total_animation_time = 0.0f;
 	bottom_pilot.pos_x = UI_LEFT_CENTER;
-	bottom_pilot.pos_y = SCREEN_HEIGHT * 0.6f - scale / 2;
+	bottom_pilot.pos_y = SCREEN_HEIGHT * 0.62f - scale / 2;
 	bottom_pilot.scale = scale;
 	bottom_pilot.color = WHITE;
 }
@@ -190,8 +185,7 @@ static void UpdateBottomPilot() {
 }
 
 void DrawBottomPilot() {
-
-	if (bottom_pilot.pilot_id == -1) return;
+	if (bottom_pilot.pilot_id == NONE) return;
 
 	PilotSpriteData* sprite = &PILOT_DATA[bottom_pilot.pilot_id];
 	Rectangle source = sprite->base_rect;

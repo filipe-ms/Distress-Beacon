@@ -120,9 +120,6 @@
     <ClInclude Include="..\..\include\general_utils.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pilot.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\ship_references.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
@@ -131,6 +128,18 @@
     </ClInclude>
     <ClInclude Include="..\..\include\input.h">
       <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\left_ui.h">
+      <Filter>Header Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pilot.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\dev_interface_left_ui.h">
+      <Filter>Header Files\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\bars.h">
+      <Filter>Header Files\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +232,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\input.c">
       <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\left_ui.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dev_interface_left_ui.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\bars.c">
+      <Filter>Source Files\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@
 #include "raylib.h"
 
 void SetTopPilot(int pilot_id, int pos_x, int pos_y, float scale, Color color);
-void SetTopPilotDefault(int pilot_id);
+void SetTopPilotDefault(void);
 void TriggerTopPilotAnimation(float duration);
 int GetTopPilotId(void);
 

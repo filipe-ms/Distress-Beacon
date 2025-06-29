@@ -138,6 +138,26 @@ typedef struct Nebula {
 
 Nebula nebula;
 
+Vector2 GetShipPosition(void) {
+	return ship.position;
+}
+
+float GetShipCooldownPct(int ship) {
+	switch (ship) {
+	case AUREA:
+		return 1.0f - (aurea.drone_current_cooldown / aurea.drone_cooldown);
+	case ORION:
+		return 1.0f - (orion.dash_recharge / orion.dash_cooldown);
+	case NEBULA:
+		return 1.0f - (nebula.blaster_current_cooldown / nebula.blaster_cooldown);
+	case PUDDLE_JUMPER:
+		return 1.0f - (puddle_jumper.wormhole_current_cooldown / puddle_jumper.wormhole_cooldown);
+	case VOID:
+	default:
+		return 0.0f;
+	}
+}
+
 static void InitNebulaParticle(EffectType effect, int particle_count, NebulaParticleTracker* particle_arr, float particle_motion_time) {
 	for(int i = 0; i < particle_count; i++) {
 		particle_arr[i] = (NebulaParticleTracker) {

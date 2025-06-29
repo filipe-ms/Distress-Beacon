@@ -12,7 +12,7 @@ void TriggerPilotSpeech(int ship, float duration);
 
 // SFX
 typedef enum {
-    NONE
+    NO_SFX
 } SoundEffect;
 
 void PlaySfx(SoundEffect sound);
