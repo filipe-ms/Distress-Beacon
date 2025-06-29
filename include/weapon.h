@@ -166,6 +166,14 @@ typedef struct Shield {
 
 void InitBlasterShoot(Ship* ship, int level, float base_damage);
 
+//--------------------------------------------------------------
+//
+//                         Wormhole
+// 
+//--------------------------------------------------------------
+void WormholeClearList(void);
+void WormholePassThroughDamage(Ship* ship, Vector2 position, float base_damage);
+
 extern Shield shield;
 
 // Shield Apply

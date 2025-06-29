@@ -55,18 +55,39 @@ typedef struct Orion {
 
 Orion orion;
 
+typedef enum PuddleJumperPortalAnimationState {
+	WORMHOLE_INACTIVE,
+	WORMHOLE_SPAWNING,
+	WORMHOLE_MOVING,
+	WORMHOLE_EXITING,
+} PuddleJumperPortalAnimationState;
+
 typedef struct PuddleJumper {
-	Vector2 wormhole_portal_offset;
-	float wormhole_cooldown;
-	float wormhole_duration;
+	float wormhole_spawn_cooldown;
+	float wormhole_spawn_current_cooldown;
+	
+	float wormhole_enter_cooldown;
+	float wormhole_enter_current_cooldown;
 
-	float wormhole_current_cooldown;
-	float wormhole_current_duration;
+	float wormhole_scale_time;
+	float wormhole_current_in_scale_time;
+	float wormhole_current_out_scale_time;
+	
+	bool wormhole_in_active;
+	bool wormhole_out_active;
 
-	Vector2 wormhole_in_position;
-	Vector2 wormhole_out_position;
+	float wormhole_moving_time;
+	float wormhole_current_moving_time;
 
-	bool wormhole_is_recharged;
+	float wormhole_base_damage;
+	
+	SpecialEffect* wormhole_in_effect;
+	SpecialEffect* wormhole_out_effect;
+	SpecialEffect* wormhole_puddle_jumper;
+	SpecialEffect* wormhole_tether;
+
+	PuddleJumperPortalAnimationState wormhole_state;
+
 } PuddleJumper;
 
 PuddleJumper puddle_jumper;
@@ -228,12 +249,44 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		break;
 	}
 	case PUDDLE_JUMPER:
-		puddle_jumper.wormhole_cooldown = 10.0f;
-		puddle_jumper.wormhole_portal_offset = (Vector2) { 0, -400 };
-		puddle_jumper.wormhole_duration = 5.0f;
-		puddle_jumper.wormhole_current_duration = 0.0f;
-		puddle_jumper.wormhole_current_cooldown = 10.0f;
-		puddle_jumper.wormhole_is_recharged = true;
+	{
+		puddle_jumper.wormhole_base_damage = 20.0f;
+		puddle_jumper.wormhole_spawn_cooldown = 10.0f;
+
+		puddle_jumper.wormhole_scale_time = 0.25f;
+
+		puddle_jumper.wormhole_in_effect = CreateUnmanagedEffect(WORMHOLE, Vector2Zero(), 0);
+		puddle_jumper.wormhole_in_effect->size = (Vector2){ 0 };
+		puddle_jumper.wormhole_in_effect->order = RENDERING_ORDER_AFTER_SHIP;
+		
+		puddle_jumper.wormhole_out_effect = CreateUnmanagedEffect(WORMHOLE, Vector2Zero(), 0);
+		puddle_jumper.wormhole_out_effect->size = (Vector2){ 0 };
+
+		puddle_jumper.wormhole_puddle_jumper = CreateUnmanagedEffect(WORMHOLE_PUDDLE_JUMPER_SHIP, Vector2Zero(), 0);
+		puddle_jumper.wormhole_puddle_jumper->size = (Vector2){ 0 };
+
+		puddle_jumper.wormhole_tether = CreateUnmanagedEffect(WORMHOLE_TETHER, Vector2Zero(), 0);
+		puddle_jumper.wormhole_tether->size = (Vector2){ 0 };
+
+		puddle_jumper.wormhole_in_active = false;
+		puddle_jumper.wormhole_out_active = false;
+
+		puddle_jumper.wormhole_current_in_scale_time = 0.0f;
+		puddle_jumper.wormhole_current_out_scale_time = 0.0f;
+
+		puddle_jumper.wormhole_enter_cooldown = 15.0f;
+		puddle_jumper.wormhole_enter_current_cooldown = 0.0f;
+
+		puddle_jumper.wormhole_moving_time = 0.25f;
+
+		puddle_jumper.wormhole_state = WORMHOLE_INACTIVE;
+
+		// x
+
+		puddle_jumper.wormhole_spawn_current_cooldown = 15.0f;
+		puddle_jumper.wormhole_enter_current_cooldown = 15.0f;
+		break;
+	}
 	default: break;
 	}
 }
@@ -251,6 +304,8 @@ void InitShip(Ship* ship, int id) {
 	ship->is_alive = true;
 	ship->speed = (Vector2){ 360.0f, 360.0f };
 	ship->speed_dash_modifier = (Vector2){ 0 };
+	ship->should_render = true;
+	ship->is_able_to_act = true;
 	InitShipSpecifics(ship, id);
 }
 
@@ -375,59 +430,61 @@ static void UpdateOrion(Ship* ship) {
 	}
 
 	switch(orion.dash_state) {
-		case DASH_INACTIVE: {
-				bool is_dash_ready = false;
-		
-				orion.dash_current_cooldown = ClampWithFlagsF(
-					orion.dash_current_cooldown + frame_time,
-					0, orion.dash_cooldown,
-					NULL, &is_dash_ready);
+		case DASH_INACTIVE:
+		{
+			bool is_dash_ready = false;
+	
+			orion.dash_current_cooldown = ClampWithFlagsF(
+				orion.dash_current_cooldown + frame_time,
+				0, orion.dash_cooldown,
+				NULL, &is_dash_ready);
 
-				if (is_dash_ready && IsActionButtonPressed()) {
-					orion.dash_state = DASH_ACCELERATING;
-					// Create disruption field for a bit over than the total time
-					orion.dash_disruption_field = CreateManagedEffectDuration(ORION_DISRUPTION_FIELD, (Vector2) { 0 }, orion.dash_total_time + 1.0f);
-					orion.dash_disruption_field->size = orion.dash_disruption_field_area;
-				}
-
-				break;
+			if (is_dash_ready && IsActionButtonPressed()) {
+				orion.dash_state = DASH_ACCELERATING;
+				// Create disruption field for a bit over than the total time
+				orion.dash_disruption_field = CreateManagedEffectDuration(ORION_DISRUPTION_FIELD, (Vector2) { 0 }, orion.dash_total_time + 1.0f);
+				orion.dash_disruption_field->size = orion.dash_disruption_field_area;
 			}
+
+			break;
+		}
 		case DASH_ACCELERATING:
-			{
-				// Time
-				orion.dash_current_total_time = ClampWithFlagsF(
-					orion.dash_current_total_time + frame_time,
-					0, orion.dash_acceleration_time,
-					NULL, &has_changed_state);
-					
-				// Speed
-				float factor = Normalize(orion.dash_current_total_time,
-					0, orion.dash_acceleration_time);
+		{
+			// Time
+			orion.dash_current_total_time = ClampWithFlagsF(
+				orion.dash_current_total_time + frame_time,
+				0, orion.dash_acceleration_time,
+				NULL, &has_changed_state);
+				
+			// Speed
+			float factor = Normalize(orion.dash_current_total_time,
+				0, orion.dash_acceleration_time);
 
-				ship->speed_dash_modifier = Vector2MultiplyScalarF(orion.dash_speed_modifier, factor);
+			ship->speed_dash_modifier = Vector2MultiplyScalarF(orion.dash_speed_modifier, factor);
 
-				// Alpha
-				ship->alpha = 1.0f - orion.dash_alpha_modifier * factor;
+			// Alpha
+			ship->alpha = 1.0f - orion.dash_alpha_modifier * factor;
 
-				orion.dash_disruption_field->color = Fade(WHITE, factor * disruption_field_maximum_transparency);
+			orion.dash_disruption_field->color = Fade(WHITE, factor * disruption_field_maximum_transparency);
 
-				if (has_changed_state) {
-					orion.dash_state = DASH_FULL_SPEED;
-					orion.dash_disruption_field_current_damage_tick = 0;
-				}
+			if (has_changed_state) {
+				orion.dash_state = DASH_FULL_SPEED;
+				orion.dash_disruption_field_current_damage_tick = 0;
+			}
 
-				break;
-			}			
+			break;
+		}			
 		case DASH_FULL_SPEED:
+		{
 			// Time
 			orion.dash_current_total_time = ClampWithFlagsF(
 				orion.dash_current_total_time + frame_time,
 				0, orion.dash_acceleration_time + orion.dash_full_speed_time,
 				NULL, &has_changed_state);
-
-			bool should_tick = false;
-
-			orion.dash_disruption_field_current_damage_tick = ClampWithFlagsF(
+				
+				bool should_tick = false;
+				
+				orion.dash_disruption_field_current_damage_tick = ClampWithFlagsF(
 				orion.dash_disruption_field_current_damage_tick + frame_time,
 				0, orion.dash_disruption_field_damage_tick, false, &should_tick);
 
@@ -436,44 +493,45 @@ static void UpdateOrion(Ship* ship) {
 				DashDisruptionFieldTick(orion.dash_disruption_field_area.x / 2.4f, orion.dash_disruption_field_base_damage);
 				orion.dash_disruption_field_current_damage_tick = 0;
 			}
-
+			
 			if (has_changed_state) {
 				orion.dash_state = DASH_DEACCELERATING;
 			}
 			
 			break;
+		}
 		case DASH_DEACCELERATING:
-			{
-				// Time
-				orion.dash_current_total_time = ClampWithFlagsF(
-					orion.dash_current_total_time + frame_time,
-					0, orion.dash_total_time,
-					NULL, &has_changed_state);
+		{
+			// Time
+			orion.dash_current_total_time = ClampWithFlagsF(
+				orion.dash_current_total_time + frame_time,
+				0, orion.dash_total_time,
+				NULL, &has_changed_state);
 
-				// Speed
-				float factor = 1.0f - Normalize(orion.dash_current_total_time,
-					orion.dash_full_speed_time + orion.dash_acceleration_time,
-					orion.dash_total_time);
+			// Speed
+			float factor = 1.0f - Normalize(orion.dash_current_total_time,
+				orion.dash_full_speed_time + orion.dash_acceleration_time,
+				orion.dash_total_time);
 
-				ship->speed_dash_modifier = Vector2MultiplyScalarF(orion.dash_speed_modifier, factor);
+			ship->speed_dash_modifier = Vector2MultiplyScalarF(orion.dash_speed_modifier, factor);
 
-				// Alpha
-				ship->alpha = 1.0f - orion.dash_alpha_modifier * factor;
+			// Alpha
+			ship->alpha = 1.0f - orion.dash_alpha_modifier * factor;
 
-				orion.dash_disruption_field->color = Fade(WHITE, factor * disruption_field_maximum_transparency);
-				
-				if (has_changed_state) {
-					ship->speed_dash_modifier = Vector2Zero();
-					ship->alpha = 1.0f;
-					orion.dash_current_total_time = 0.0f;
+			orion.dash_disruption_field->color = Fade(WHITE, factor * disruption_field_maximum_transparency);
+			
+			if (has_changed_state) {
+				ship->speed_dash_modifier = Vector2Zero();
+				ship->alpha = 1.0f;
+				orion.dash_current_total_time = 0.0f;
 
-					orion.dash_state = DASH_INACTIVE;
-					orion.dash_disruption_field->color = Fade(WHITE, 0);
-					orion.dash_disruption_field = NULL;
-				}
-				
-				break;
+				orion.dash_state = DASH_INACTIVE;
+				orion.dash_disruption_field->color = Fade(WHITE, 0);
+				orion.dash_disruption_field = NULL;
 			}
+			
+			break;
+		}
 	}
 }
 
@@ -582,57 +640,131 @@ static void UpdateNebula(Ship* ship) {
 
 static void UpdatePuddleJumper(Ship* ship) {
 	// Cooldown
-	bool is_ability_ready = false;
+	bool is_wormhole_spawn_ready = false;
+	bool is_wormhole_in_ready = false;
+	bool is_wormhole_out_ready = false;
 
-	puddle_jumper.wormhole_current_cooldown = ClampWithFlagsF(
-		puddle_jumper.wormhole_current_cooldown + GetFrameTime(),
-		0, puddle_jumper.wormhole_cooldown,
-		NULL, &is_ability_ready);
+	float frame_time = GetFrameTime();
 
-	if (is_ability_ready){
-		puddle_jumper.wormhole_is_recharged = true;
+	puddle_jumper.wormhole_spawn_current_cooldown = ClampWithFlagsF(
+		puddle_jumper.wormhole_spawn_current_cooldown + frame_time,
+		0, puddle_jumper.wormhole_spawn_cooldown,
+		NULL, &is_wormhole_out_ready);
+
+	// In-Timer
+	float in_portal_opening_factor = puddle_jumper.wormhole_current_in_scale_time / puddle_jumper.wormhole_scale_time;
+
+	puddle_jumper.wormhole_current_in_scale_time = ClampWithFlagsF(
+		puddle_jumper.wormhole_current_in_scale_time + frame_time * (puddle_jumper.wormhole_in_active ? 1 : -1), 0, puddle_jumper.wormhole_scale_time,
+		NULL, &is_wormhole_in_ready);
+	puddle_jumper.wormhole_in_effect->size = Vector2MultiplyScalarF(
+		puddle_jumper.wormhole_in_effect->original_size, in_portal_opening_factor);
+
+	// Out-Timer
+	puddle_jumper.wormhole_current_out_scale_time = Clamp(
+		puddle_jumper.wormhole_current_out_scale_time + frame_time * (puddle_jumper.wormhole_out_active ? 1 : -1), 0, puddle_jumper.wormhole_scale_time);
+	puddle_jumper.wormhole_out_effect->size = Vector2MultiplyScalarF(
+		puddle_jumper.wormhole_out_effect->original_size, puddle_jumper.wormhole_current_out_scale_time / puddle_jumper.wormhole_scale_time);
+
+	// Tether scale
+	puddle_jumper.wormhole_tether->size.y = in_portal_opening_factor * 54;
+
+	// Wormhole Spawn Logic
+	if (is_wormhole_out_ready && IsActionButton2Pressed()) {
+		// When it activates
+		puddle_jumper.wormhole_out_active = true;
+		puddle_jumper.wormhole_spawn_current_cooldown = 0;
+
+		puddle_jumper.wormhole_current_out_scale_time = 0;
+		puddle_jumper.wormhole_out_effect->position = ship->position;		
+		return;
 	}
 
-	// Wormhole expiration time logic
-	bool is_duration_expired = false;
+	// Wormhole enter animation
+	switch(puddle_jumper.wormhole_state) {
+		case WORMHOLE_INACTIVE:
+		{
+			bool is_skill_ready = false;
 
-	puddle_jumper.wormhole_current_duration = ClampWithFlagsF(
-		puddle_jumper.wormhole_current_duration + GetFrameTime(),
-		0, puddle_jumper.wormhole_duration, NULL, &is_duration_expired);
+			puddle_jumper.wormhole_enter_current_cooldown = ClampWithFlagsF(
+				puddle_jumper.wormhole_enter_current_cooldown + frame_time,
+				0, puddle_jumper.wormhole_enter_cooldown,
+				NULL, &is_skill_ready);
 
-	if (IsActionButtonPressed()) {
-		// When it activates
-		if (puddle_jumper.wormhole_is_recharged) {
-			puddle_jumper.wormhole_in_position = ship->position;
-			puddle_jumper.wormhole_out_position = Vector2Add(ship->position, puddle_jumper.wormhole_portal_offset);	
-			puddle_jumper.wormhole_current_duration = 0;
-			puddle_jumper.wormhole_current_cooldown = 0;
-			puddle_jumper.wormhole_is_recharged = false;
+			if (puddle_jumper.wormhole_out_active && is_skill_ready && IsActionButtonPressed()) {
+				ship->is_able_to_act = false;
 
-			if (puddle_jumper.wormhole_out_position.y <= 0) {
-				puddle_jumper.wormhole_out_position.y = ship->position.y - puddle_jumper.wormhole_portal_offset.y;
+				// Opening IN wormhole
+				puddle_jumper.wormhole_in_active = true;
+				puddle_jumper.wormhole_in_effect->position = ship->position;
+
+				// Switching state
+				puddle_jumper.wormhole_state = WORMHOLE_SPAWNING;
+				
+				// Starting movement timer
+				puddle_jumper.wormhole_current_moving_time = 0.0f;
+
+				// Prepare fake ship to fly (flying animation)
+				puddle_jumper.wormhole_puddle_jumper->size = puddle_jumper.wormhole_puddle_jumper->original_size;
+				puddle_jumper.wormhole_puddle_jumper->rotation = CalculateFacingAngle(
+					puddle_jumper.wormhole_in_effect->position,
+					puddle_jumper.wormhole_out_effect->position) * RAD2DEG - 90;
+				
+				float distance = Vector2Distance(puddle_jumper.wormhole_in_effect->position, puddle_jumper.wormhole_out_effect->position);
+				puddle_jumper.wormhole_tether->position = Vector2DivideScalarF(Vector2Add(puddle_jumper.wormhole_in_effect->position, puddle_jumper.wormhole_out_effect->position), 2.0f);
+				puddle_jumper.wormhole_tether->rotation = puddle_jumper.wormhole_puddle_jumper->rotation + 90;
+				puddle_jumper.wormhole_tether->size.x = distance;
 			}
-			
-			CreateManagedEffectDuration(WORMHOLE, puddle_jumper.wormhole_in_position, puddle_jumper.wormhole_duration);
-			CreateManagedEffectDuration(WORMHOLE, puddle_jumper.wormhole_out_position, puddle_jumper.wormhole_duration);
-			return;
+			break;
 		}
-		
-		// Jump-in logic
-		if (!is_duration_expired) {
-			bool is_intersecting_portal_in = CheckCollisionCircles(ship->position, ship->draw_size.x, puddle_jumper.wormhole_in_position, 40);
-			bool is_intersecting_portal_out = CheckCollisionCircles(ship->position, ship->draw_size.x, puddle_jumper.wormhole_out_position, 40);
-		
-			if (is_intersecting_portal_in) {
-				ship->position = puddle_jumper.wormhole_out_position;
-				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_out_position, 0.5f);
+		case WORMHOLE_SPAWNING:
+		{
+			// Tether asset
+			if (is_wormhole_in_ready) {
+				ship->should_render = false;
+				puddle_jumper.wormhole_state = WORMHOLE_MOVING;
+				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, ship->position, 0.5f);
 			}
-	
-			if (is_intersecting_portal_out) {
-				ship->position = puddle_jumper.wormhole_in_position;
-				CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, puddle_jumper.wormhole_in_position, 0.5f);
-			}
+			break;
 		}
+		case WORMHOLE_MOVING:
+		{
+			bool is_movement_done = false;
+
+			puddle_jumper.wormhole_current_moving_time = ClampWithFlagsF(puddle_jumper.wormhole_current_moving_time + frame_time,
+				0, puddle_jumper.wormhole_moving_time, NULL, &is_movement_done);
+
+			// Moving ship animation
+			float factor = puddle_jumper.wormhole_current_moving_time / puddle_jumper.wormhole_moving_time;
+			float distance = Vector2Distance(puddle_jumper.wormhole_in_effect->position, puddle_jumper.wormhole_out_effect->position);
+			Vector2 rotated_vector = Vector2Rotate((Vector2) { 0, -1 }, puddle_jumper.wormhole_puddle_jumper->rotation * DEG2RAD);
+			Vector2 scaled_vector = Vector2MultiplyScalarF(rotated_vector, factor * distance);
+
+			puddle_jumper.wormhole_puddle_jumper->position = Vector2Add(ship->position, scaled_vector);
+
+			WormholePassThroughDamage(ship, puddle_jumper.wormhole_puddle_jumper->position, puddle_jumper.wormhole_base_damage);
+
+			if (is_movement_done) {
+				puddle_jumper.wormhole_state = WORMHOLE_EXITING;
+			}
+
+			break;
+		}
+		case WORMHOLE_EXITING:
+			ship->should_render = true;
+			ship->is_able_to_act = true;
+			puddle_jumper.wormhole_in_active = false;
+			puddle_jumper.wormhole_out_active = false;
+			ship->position = puddle_jumper.wormhole_out_effect->position;
+			CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, ship->position, 0.5f);
+			ship->color = WHITE;
+			puddle_jumper.wormhole_state = WORMHOLE_INACTIVE;
+			puddle_jumper.wormhole_puddle_jumper->size = (Vector2) {0, 0};
+			WormholeClearList();
+			break;
+
+		default:
+			break;
 	}
 }
 
@@ -647,17 +779,19 @@ void UpdateShip(Ship* ship) {
 	float movement_x = (ship->speed.x + ship->speed_dash_modifier.x) * GetFrameTime();
 	float movement_y = (ship->speed.y + ship->speed_dash_modifier.y) * GetFrameTime();
 
-	if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-		ship->position.x += movement_x;
-		ship->direction = RIGHT;
-	} else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-		ship->position.x -= movement_x;
-		ship->direction = LEFT;
+	if (ship->is_able_to_act) {
+		if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+			ship->position.x += movement_x;
+			ship->direction = RIGHT;
+		} else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+			ship->position.x -= movement_x;
+			ship->direction = LEFT;
+		}
+		else ship->direction = CENTER;
+	
+		if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) ship->position.y -= movement_y;
+		if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) ship->position.y += movement_y;
 	}
-	else ship->direction = CENTER;
-
-	if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) ship->position.y -= movement_y;
-	if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) ship->position.y += movement_y;
 
 	ship->animation_cycle += GetFrameTime();
 
@@ -693,6 +827,9 @@ void Ship_TakeDamage(Ship *ship)
 {
 	// se for orion e estiver invisível -> não tem dano (;
 	if (ship->id == ORION && orion.dash_state != DASH_INACTIVE)
+		return;
+
+	if (ship->id == PUDDLE_JUMPER && puddle_jumper.wormhole_state != WORMHOLE_INACTIVE)
 		return;
 
 	// --- VERIFICA SE A NAVE ESTÁ INVENCÍVEL ---
@@ -882,6 +1019,9 @@ static void DrawVoid(Ship* ship, Rectangle draw_pos) {
 }
 
 void DrawShip(Ship* ship) {
+	if (!ship->should_render)
+		return;
+
 	Rectangle destination = {
 		ship->position.x - DRAW_WH / 2,
 		ship->position.y - DRAW_WH / 2,
@@ -935,5 +1075,10 @@ void UnloadShip(Ship* ship) {
 		}
 
 		DestroyEffect(nebula.charge_energy_field);
+	}
+
+	if (ship->id == PUDDLE_JUMPER) {
+		DestroyEffect(puddle_jumper.wormhole_in_effect);
+		DestroyEffect(puddle_jumper.wormhole_out_effect);
 	}
 }

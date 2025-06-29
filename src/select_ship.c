@@ -49,6 +49,7 @@ void InitSelectMenu() {
     ship_menu.ship.direction = CENTER;
     ship_menu.ship.color = WHITE;
 	ship_menu.ship.alpha = 1.0f;
+    ship_menu.ship.should_render = true;
 	ship_menu.is_ship_selected = false;
 	ship_menu.is_backspace_pressed = false;
 

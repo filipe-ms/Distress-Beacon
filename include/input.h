@@ -11,6 +11,7 @@ bool IsConfirmButtonPressed(void);
 bool IsReturnButtonPressed(void);
 bool IsPauseButtonPressed(void);
 bool IsActionButtonPressed(void);
+bool IsActionButton2Pressed(void);
 
 // Down
 bool IsInputLeftDown(void);

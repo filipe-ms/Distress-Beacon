@@ -51,7 +51,7 @@ float GetCooldownModifier(void) { return cooldown_modifier; }
 float GetDamageModifier(void) { return damage_modifier; }
 float GetSizeModifier(void) { return size_modifier; }
 float GetSpeedModifier(void) { return speed_modifier; }
-#pragma endregion POWER_UPS
+#pragma endregion
 #pragma region PULSE
 //--------------------------------------------------------------
 //
@@ -148,7 +148,8 @@ static void UpdatePulse(Ship* ship) {
     if (!pulse.weapon.level) return;
 	pulse.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
-    if (pulse.weapon.cooldown_charge <= 0) {
+    if (pulse.weapon.cooldown_charge <= 0 && ship->is_able_to_act) {
+        return;
 		pulse.weapon.cooldown_charge = pulse.weapon.cooldown_time;
 		InitPulseShoot(ship);
     }
@@ -177,7 +178,7 @@ static void PulseShootDraw(PulseShoot* pulse_shoot) {
 static void DrawPulseShoot() {
 	List_ForEach(pulse.pulse_shoots, (Function)PulseShootDraw);
 }
-#pragma endregion PULSE
+#pragma endregion
 #pragma region PHOTON
 //--------------------------------------------------------------
 //
@@ -249,7 +250,7 @@ static void UpdatePhoton(Ship* ship) {
 
     photon.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
-    if (photon.weapon.cooldown_charge <= 0) {
+    if (photon.weapon.cooldown_charge <= 0 && ship->is_able_to_act) {
         InitPhotonShoot(ship);
         photon.weapon.cooldown_charge = photon.weapon.cooldown_time;
     }
@@ -290,8 +291,7 @@ void DashDisruptionFieldTick(float radius, float base_damage) {
         }
     }
 }
-#pragma endregion PHOTON
-
+#pragma endregion
 #pragma region HOMING
 //--------------------------------------------------------------
 //
@@ -410,7 +410,7 @@ static void UpdateHoming(Ship* ship) {
 
     homing.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
-    if (homing.weapon.cooldown_charge <= 0) {
+    if (homing.weapon.cooldown_charge <= 0 && ship->is_able_to_act) {
         InitHomingShoot(ship);
         homing.weapon.cooldown_charge = homing.weapon.cooldown_time;
     }
@@ -567,7 +567,6 @@ static void DrawShotgun(void) {
     List_ForEach(shotgun.shotgun_shoots, (Function)DrawShotgunShoot);
 }
 #pragma endregion SHOTGUN
-
 #pragma region BLAST
 List* blaster_shoots;
 
@@ -629,8 +628,8 @@ static bool BlasterShoot_CheckForHits(Enemy* enemy, BlasterShoot* shoot) {
 
     Node* node = shoot->targets->head;
     for(; node != NULL; node = node->next) {
-        Enemy* enemy = node->data;
-        if (enemy == enemy) {
+        int* curr_enemy_id = node->data;
+        if (enemy->id == *curr_enemy_id) {
             return false;
         }
     }
@@ -682,7 +681,51 @@ static void UpdateBlaster(Ship* ship) {
 }
 
 #pragma endregion
+#pragma region WORMHOLE
+List* wormhole_enemy_list;
 
+void WormholeClearList(void) {
+    List_Destroy(wormhole_enemy_list);
+    wormhole_enemy_list = List_Create(sizeof(int));
+}
+
+void WormholePassThroughDamage(Ship* ship, Vector2 position, float base_damage) {
+    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        Node* node = wormhole_enemy_list->head;
+
+        for(; node != NULL; node = node->next) {
+            int* curr_enemy_id = node->data;
+
+            if (enemy->id == *curr_enemy_id) {
+                return false;
+            }
+        }
+
+        if (CheckCollisionCircles(position, ship->draw_size.x /2.0f, enemy->position, enemy->size.x / 2.0f)) {
+            float damage = ApplyMultiplier(damage_modifier, base_damage);
+            List_Add(wormhole_enemy_list, &enemy->id);
+            
+            enemy->hp -= damage;
+            CreateManagedEffect(EXPLOSION, enemy->position);
+        }
+    }
+}
+
+static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos) {
+    float ship_radius = DRAW_WH / 2.0f;
+    float enemy_radius = DRAW_WH / 2.0f;
+
+    if (DEBUG_FLAG) {
+        DrawCircleV(*ship_pos, ship_radius, Fade(RED, 0.5f));
+        DrawCircleV(*enemy_pos, ship_radius, Fade(RED, 0.5f));
+    }
+
+    return CheckCollisionCircles(*ship_pos, ship_radius, *enemy_pos, enemy_radius);
+}
+
+#pragma endregion
 //--------------------------------------------------------------
 //
 //                         SHIELD
@@ -825,6 +868,7 @@ static void InitAllWeapons(void) {
     InitHoming();
 
     blaster_shoots = List_Create(sizeof(BlasterShoot));
+    wormhole_enemy_list = List_Create(sizeof(int));
 }
 
 void InitWeapon(void) {
