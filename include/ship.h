@@ -34,4 +34,6 @@ void DrawShip(Ship* ship);
 void UnloadShip(Ship* ship);
 
 float GetShipCooldownPct(int ship);
+float GetExtraGaugePct(int ship);
+
 Vector2 GetShipPosition(void);

@@ -111,6 +111,8 @@ OBJECTS :=
 
 GENERATED += $(OBJDIR)/audio_manager.o
 GENERATED += $(OBJDIR)/background.o
+GENERATED += $(OBJDIR)/bars.o
+GENERATED += $(OBJDIR)/dev_interface_left_ui.o
 GENERATED += $(OBJDIR)/draw_utils.o
 GENERATED += $(OBJDIR)/enemy.o
 GENERATED += $(OBJDIR)/enemy_projectile.o
@@ -121,6 +123,7 @@ GENERATED += $(OBJDIR)/game_behavior.o
 GENERATED += $(OBJDIR)/game_over.o
 GENERATED += $(OBJDIR)/general_utils.o
 GENERATED += $(OBJDIR)/input.o
+GENERATED += $(OBJDIR)/left_ui.o
 GENERATED += $(OBJDIR)/list.o
 GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/main_menu.o
@@ -142,6 +145,8 @@ GENERATED += $(OBJDIR)/weapon.o
 GENERATED += $(OBJDIR)/winner.o
 OBJECTS += $(OBJDIR)/audio_manager.o
 OBJECTS += $(OBJDIR)/background.o
+OBJECTS += $(OBJDIR)/bars.o
+OBJECTS += $(OBJDIR)/dev_interface_left_ui.o
 OBJECTS += $(OBJDIR)/draw_utils.o
 OBJECTS += $(OBJDIR)/enemy.o
 OBJECTS += $(OBJDIR)/enemy_projectile.o
@@ -152,6 +157,7 @@ OBJECTS += $(OBJDIR)/game_behavior.o
 OBJECTS += $(OBJDIR)/game_over.o
 OBJECTS += $(OBJDIR)/general_utils.o
 OBJECTS += $(OBJDIR)/input.o
+OBJECTS += $(OBJDIR)/left_ui.o
 OBJECTS += $(OBJDIR)/list.o
 OBJECTS += $(OBJDIR)/main.o
 OBJECTS += $(OBJDIR)/main_menu.o
@@ -240,6 +246,12 @@ $(OBJDIR)/audio_manager.o: ../../src/audio_manager.c
 $(OBJDIR)/background.o: ../../src/background.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/bars.o: ../../src/bars.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/dev_interface_left_ui.o: ../../src/dev_interface_left_ui.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/draw_utils.o: ../../src/draw_utils.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -268,6 +280,9 @@ $(OBJDIR)/general_utils.o: ../../src/general_utils.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/input.o: ../../src/input.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/left_ui.o: ../../src/left_ui.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/list.o: ../../src/list.c

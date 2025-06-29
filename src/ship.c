@@ -27,6 +27,8 @@ typedef enum OrionDashState {
 } OrionDashState;
 
 typedef struct Orion {
+	float dash_is_in_use;
+
 	float dash_cooldown;
 	float dash_current_cooldown;
 
@@ -63,6 +65,9 @@ typedef enum PuddleJumperPortalAnimationState {
 } PuddleJumperPortalAnimationState;
 
 typedef struct PuddleJumper {
+	float wormhole_enter_is_in_use;
+	float wormhole_spawn_is_in_use;
+
 	float wormhole_spawn_cooldown;
 	float wormhole_spawn_current_cooldown;
 	
@@ -166,16 +171,43 @@ Vector2 GetShipPosition(void) {
 float GetShipCooldownPct(int ship) {
 	switch (ship) {
 	case AUREA:
-		return 1.0f - (aurea.drone_current_cooldown / aurea.drone_cooldown);
+		return aurea.drone_current_cooldown / aurea.drone_cooldown;
 	case ORION:
-		return 1.0f - (orion.dash_recharge / orion.dash_cooldown);
+		return (orion.dash_is_in_use ? 0 : orion.dash_current_cooldown / orion.dash_cooldown);
 	case NEBULA:
-		return 1.0f - (nebula.blaster_current_cooldown / nebula.blaster_cooldown);
+		return nebula.blaster_current_cooldown / nebula.blaster_cooldown;
 	case PUDDLE_JUMPER:
-		return 1.0f - (puddle_jumper.wormhole_current_cooldown / puddle_jumper.wormhole_cooldown);
+		return (puddle_jumper.wormhole_enter_is_in_use ? 0 : puddle_jumper.wormhole_enter_current_cooldown / puddle_jumper.wormhole_enter_cooldown);
 	case VOID:
 	default:
 		return 0.0f;
+	}
+}
+
+float GetExtraGaugePct(int ship) {
+	switch (ship) {
+		case PUDDLE_JUMPER:
+			return (puddle_jumper.wormhole_spawn_is_in_use ? 0 : puddle_jumper.wormhole_spawn_current_cooldown / puddle_jumper.wormhole_spawn_cooldown);
+		case NEBULA: {
+			// Level 1
+			float gauge_1_completion = fminf(Normalize(nebula.blaster_current_charge_time, 0, nebula.blaster_charge_time_a), 1.0f);
+
+			if (gauge_1_completion < 1)
+				return gauge_1_completion;
+
+			// Level 2
+			float gauge_2_completion = fminf(Normalize(nebula.blaster_current_charge_time, nebula.blaster_charge_time_a, nebula.blaster_charge_time_b), 1.0f);
+
+			if (gauge_2_completion < 1)
+				return 1 + gauge_2_completion;
+
+			// Level 3
+			float gauge_3_completion = fminf(Normalize(nebula.blaster_current_charge_time, nebula.blaster_charge_time_b, nebula.blaster_charge_time_c), 1.0f);
+
+			return 2 + gauge_3_completion;
+		}
+		default:
+			return 0.0f;
 	}
 }
 
@@ -200,14 +232,19 @@ static void InitShipSpecifics(Ship* ship, int id) {
 	switch (id) {
 	case AUREA:
 		aurea.drone_shots = 5;
-		aurea.drone_cooldown = aurea.drone_current_cooldown = 10.0f;
+		aurea.drone_cooldown = 10.0f;
+		aurea.drone_current_cooldown = 0;
 		aurea.drone_firing_duration = 5.0f;
 		aurea.drone_dispatch_duration = 2.0f;
 		aurea.drone_max_range = (Vector2) { 0, -200 };
 		aurea.state = DRONE_INITIALIZED;
 		break;
 	case ORION:
-		orion.dash_cooldown = orion.dash_current_cooldown = 5.0f;
+		orion.dash_is_in_use = false;
+		
+		orion.dash_cooldown = 15.0f;
+		orion.dash_current_cooldown = 0;
+		
 		orion.dash_alpha_modifier = 0.8f;
 		orion.dash_speed_modifier = (Vector2){ 300, 300 };
 		orion.dash_alpha_current_modifier;
@@ -250,6 +287,9 @@ static void InitShipSpecifics(Ship* ship, int id) {
 	}
 	case PUDDLE_JUMPER:
 	{
+		puddle_jumper.wormhole_enter_is_in_use = false;
+		puddle_jumper.wormhole_spawn_is_in_use = false;
+
 		puddle_jumper.wormhole_base_damage = 20.0f;
 		puddle_jumper.wormhole_spawn_cooldown = 10.0f;
 
@@ -312,7 +352,7 @@ void InitShip(Ship* ship, int id) {
 static void UpdateAurea(Ship* ship) { 
 	bool is_ability_ready = false;
 
-	aurea.drone_cooldown = ClampWithFlagsF(
+	aurea.drone_current_cooldown = ClampWithFlagsF(
 		aurea.drone_current_cooldown + GetFrameTime(),
 		0, aurea.drone_cooldown,
 		NULL, &is_ability_ready);
@@ -440,6 +480,8 @@ static void UpdateOrion(Ship* ship) {
 				NULL, &is_dash_ready);
 
 			if (is_dash_ready && IsActionButtonPressed()) {
+				orion.dash_is_in_use = true;
+
 				orion.dash_state = DASH_ACCELERATING;
 				// Create disruption field for a bit over than the total time
 				orion.dash_disruption_field = CreateManagedEffectDuration(ORION_DISRUPTION_FIELD, (Vector2) { 0 }, orion.dash_total_time + 1.0f);
@@ -528,6 +570,9 @@ static void UpdateOrion(Ship* ship) {
 				orion.dash_state = DASH_INACTIVE;
 				orion.dash_disruption_field->color = Fade(WHITE, 0);
 				orion.dash_disruption_field = NULL;
+
+				orion.dash_current_cooldown = 0.0f;
+				orion.dash_is_in_use = false;
 			}
 			
 			break;
@@ -587,9 +632,10 @@ static void UpdateNebula(Ship* ship) {
 	float time_factor = is_skill_ready ? 1 : -5;
 	float prev_charge_time = nebula.blaster_current_charge_time;
 
-	float current_charge_time = nebula.blaster_current_charge_time = Clamp(
+	bool is_charge_complete = false;
+	float current_charge_time = nebula.blaster_current_charge_time = ClampWithFlagsF(
 		nebula.blaster_current_charge_time + frame_time * time_factor,
-		0, nebula.blaster_charge_time_c); 
+		0, nebula.blaster_charge_time_c, NULL, &is_charge_complete); 
 
 	// Updating particles
 	UpdateNebula_UpdateParticle(&nebula.a_particles, NEBULA_PARTICLE_A_COUNT, 0, current_charge_time, nebula.blaster_charge_time_a);
@@ -624,7 +670,7 @@ static void UpdateNebula(Ship* ship) {
 		return;
 	}
 	
-	bool is_level_3 = is_absorbing_c_particles;
+	bool is_level_3 = is_charge_complete;
 	bool is_level_2 = is_absorbing_b_particles;
 
 	if (is_level_3) {
@@ -692,6 +738,9 @@ static void UpdatePuddleJumper(Ship* ship) {
 				NULL, &is_skill_ready);
 
 			if (puddle_jumper.wormhole_out_active && is_skill_ready && IsActionButtonPressed()) {
+				puddle_jumper.wormhole_enter_is_in_use = true;
+				puddle_jumper.wormhole_spawn_is_in_use = true;
+
 				ship->is_able_to_act = false;
 
 				// Opening IN wormhole
@@ -761,6 +810,11 @@ static void UpdatePuddleJumper(Ship* ship) {
 			puddle_jumper.wormhole_state = WORMHOLE_INACTIVE;
 			puddle_jumper.wormhole_puddle_jumper->size = (Vector2) {0, 0};
 			WormholeClearList();
+
+			puddle_jumper.wormhole_enter_is_in_use = false;
+			puddle_jumper.wormhole_spawn_is_in_use = false;
+			puddle_jumper.wormhole_enter_current_cooldown = 0.0f;
+			puddle_jumper.wormhole_spawn_current_cooldown = 0.0f;
 			break;
 
 		default:

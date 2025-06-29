@@ -181,13 +181,34 @@ static float GetSpecialBarAlpha(int bar_pos_x, int bar_pos_y, int bar_width) {
 
 
 static void DrawShipSpecialCooldown(void) {
+    int player_ship = GetPlayerShip();
+
     float pos_x = GAME_SCREEN_END - GAME_SCREEN_END * 0.2;
     float pos_y = GAME_SCREEN_HEIGHT - GAME_SCREEN_HEIGHT * 0.1;
     float scale = 5;
     float alpha = GetSpecialBarAlpha(pos_x, pos_y, 210);
 
+    // Cooldown
     DrawContainerBar(CONTAINER_BAR_Z_GRAY, pos_x, pos_y, scale, alpha);
-    DrawProgressBar(PROGRESS_BAR_Z_RED, CONTAINER_BAR_Z_GRAY, pos_x, pos_y, scale, GetShipCooldownPct(GetPlayerShip()), alpha);
+    DrawProgressBar(PROGRESS_BAR_Z_GREEN, CONTAINER_BAR_Z_GRAY, pos_x, pos_y, scale, GetShipCooldownPct(player_ship), alpha);
+
+    // Extra Bar 1
+    if (player_ship == PUDDLE_JUMPER || player_ship == NEBULA) {
+        float offset_y_extra_gauge = 60;
+        float gauge_completion = GetExtraGaugePct(player_ship);
+
+        DrawContainerBar(CONTAINER_BAR_Z_GRAY, pos_x, pos_y - offset_y_extra_gauge, scale, alpha);
+
+        if (gauge_completion <= 1) {
+            DrawProgressBar(PROGRESS_BAR_Z_RED, CONTAINER_BAR_Z_GRAY, pos_x, pos_y - offset_y_extra_gauge, scale, GetExtraGaugePct(player_ship), alpha);
+        } else if (gauge_completion <= 2) {
+            DrawProgressBar(PROGRESS_BAR_Z_BLUE, CONTAINER_BAR_Z_GRAY, pos_x, pos_y - offset_y_extra_gauge, scale, 1.0f, alpha);
+            DrawProgressBar(PROGRESS_BAR_Z_YELLOW, CONTAINER_BAR_Z_GRAY, pos_x, pos_y - offset_y_extra_gauge, scale, gauge_completion - 1.0f, alpha);
+        } else {
+            DrawProgressBar(PROGRESS_BAR_Z_YELLOW, CONTAINER_BAR_Z_GRAY, pos_x, pos_y - offset_y_extra_gauge, scale, 1.0f, alpha);
+            DrawProgressBar(PROGRESS_BAR_Z_RED, CONTAINER_BAR_Z_GRAY, pos_x, pos_y - offset_y_extra_gauge, scale, gauge_completion - 2.0f, alpha);
+        }
+    }
 }
 
 void DrawUserInterface(void) {

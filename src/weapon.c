@@ -149,7 +149,6 @@ static void UpdatePulse(Ship* ship) {
 	pulse.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
 
     if (pulse.weapon.cooldown_charge <= 0 && ship->is_able_to_act) {
-        return;
 		pulse.weapon.cooldown_charge = pulse.weapon.cooldown_time;
 		InitPulseShoot(ship);
     }
