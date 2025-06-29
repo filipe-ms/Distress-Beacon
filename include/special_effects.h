@@ -19,6 +19,8 @@ typedef enum EffectType {
 	NEBULA_PARTICLE_C,
 	NEBULA_ENERGY_FIELD,
 	ORION_DISRUPTION_FIELD,
+	WORMHOLE_PUDDLE_JUMPER_SHIP,
+	WORMHOLE_TETHER,
 } EffectType;
 
 typedef enum ParticleRenderingOrder {

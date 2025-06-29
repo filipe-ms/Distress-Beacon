@@ -216,7 +216,7 @@ static SpecialEffect InitWormhole(Vector2 position, float duration) {
 	hit.source = (Rectangle) { 24, 8, 8, 8 };
 	hit.position = position;
 	hit.size = (Vector2){ 0 };
-	hit.original_size = (Vector2){ 8 * 10, 8 * 10 };
+	hit.original_size = (Vector2){ 8 * 12, 8 * 12 };
 	hit.duration = 0;
 	hit.max_duration = duration;
 	hit.current_frame = 0;
@@ -394,6 +394,40 @@ static SpecialEffect InitOrionDisruptionField(Vector2 position, float duration) 
 	return hit;
 }
 
+static SpecialEffect InitWormholePuddleJumper(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = WORMHOLE_PUDDLE_JUMPER_SHIP;
+	hit.source = (Rectangle) { 8 * 1, 8 * 2, 8, 8 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 48, 48 };
+	hit.duration = 0;
+	hit.max_duration = 0;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_ships;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	return hit;
+}
+
+static SpecialEffect InitWormholeTether(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = WORMHOLE_TETHER;
+	hit.source = (Rectangle) { 8 * 1, 8 * 8 + 2, 4, 4 };
+	hit.position = position;
+	hit.size = hit.original_size = (Vector2){ 48, 48 };
+	hit.duration = 0;
+	hit.max_duration = 0;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_projectiles;
+	hit.color = WHITE;
+	hit.order = RENDERING_ORDER_BEFORE_SHIP;
+	return hit;
+}
+
 static void UpdateOrionDisruptionField(SpecialEffect* hit) {
 	hit->duration += GetFrameTime();
 	hit->current_frame = (int)(fmodf(hit->duration, 0.2f * 8.0f) / 0.2f);
@@ -404,7 +438,6 @@ static void UpdateOrionDisruptionField(SpecialEffect* hit) {
 SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, float duration) {
 	SpecialEffect effect;
 	switch (type) {
-		case WORMHOLE:                    effect = InitWormhole(position, duration); break;
 		case WORMHOLE_TELEPORT_ANIMATION: effect = InitWormholeTeleportAnimation(position, duration); break;
 		case ORION_DISRUPTION_FIELD:	  effect = InitOrionDisruptionField(position, duration); break;
 	}
@@ -415,12 +448,15 @@ SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, fl
 SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration) {
 	SpecialEffect effect;
 	switch (type) {
-		case DRONE:						effect = InitDrone(position, duration); break;
-		case DRONE_THRUSTER:			effect = InitDroneThruster(position); break;
-		case NEBULA_PARTICLE_A:			effect = InitNebulaParticleA(position); break;
-		case NEBULA_PARTICLE_B:			effect = InitNebulaParticleB(position); break;
-		case NEBULA_PARTICLE_C:			effect = InitNebulaParticleC(position); break;
-		case NEBULA_ENERGY_FIELD:		effect = InitNebulaEnergyField(position); break;
+		case WORMHOLE:						effect = InitWormhole(position, duration); break;
+		case DRONE:							effect = InitDrone(position, duration); break;
+		case DRONE_THRUSTER:				effect = InitDroneThruster(position); break;
+		case NEBULA_PARTICLE_A:				effect = InitNebulaParticleA(position); break;
+		case NEBULA_PARTICLE_B:				effect = InitNebulaParticleB(position); break;
+		case NEBULA_PARTICLE_C:				effect = InitNebulaParticleC(position); break;
+		case NEBULA_ENERGY_FIELD:			effect = InitNebulaEnergyField(position); break;
+		case WORMHOLE_PUDDLE_JUMPER_SHIP:	effect = InitWormholePuddleJumper(position); break;
+		case WORMHOLE_TETHER:				effect = InitWormholeTether(position); break;
 	}
 	List_Add(unmanaged_effects, &effect);
 	return (SpecialEffect*)List_GetByIndex(unmanaged_effects, 0);

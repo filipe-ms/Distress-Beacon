@@ -82,10 +82,19 @@ bool IsPauseButtonPressed(void) {
 }
 
 bool IsActionButtonPressed(void) {
-	bool keyboard = IsKeyPressed(KEY_SPACE);
+	bool keyboard = IsKeyPressed(KEY_Z);
 	bool gamepad = false;
 	if (IsGamepadAvailable(GAMEPAD_ID)) {
 		gamepad = IsGamepadButtonPressed(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
+	}
+	return keyboard || gamepad;
+}
+
+bool IsActionButton2Pressed(void) {
+	bool keyboard = IsKeyPressed(KEY_X);
+	bool gamepad = false;
+	if (IsGamepadAvailable(GAMEPAD_ID)) {
+		gamepad = IsGamepadButtonPressed(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_UP);
 	}
 	return keyboard || gamepad;
 }

@@ -21,6 +21,8 @@ typedef struct Ship {
     bool isInvincible;
     float invincibilityTimer;
     float is_alive;
+    bool should_render;
+    bool is_able_to_act;
 } Ship;
 
 extern Ship ship;
