@@ -36,7 +36,7 @@
           "pipeProgram": "distrobox", // O comando que inicia o pipe
           "pipeArgs": [
             "enter",
-            "WPDev-Ubuntu-24.04", // Nome da sua Distrobox
+            "Dev-Ubuntu-24.04", // Nome da sua Distrobox
             "--",
             "bash",
             "-c"
@@ -80,7 +80,7 @@
           "pipeProgram": "distrobox",
           "pipeArgs": [
             "enter",
-            "WPDev-Ubuntu-24.04", // Nome da sua Distrobox
+            "Dev-Ubuntu-24.04", // Nome da sua Distrobox
             "--",
             "bash",
             "-c"

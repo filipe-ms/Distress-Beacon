@@ -1,86 +1,52 @@
 # Space Invaders - Roguelike Edition
 
-
-
 Este é um clássico desenvolvido por nossa equipe usando a biblioteca **raylib** (v1.3). O jogo é uma recriação moderna do clássico, com a adição de funcionalidades como waves progressivas de inimigos e disparos automáticos. O jogador controla uma nave espacial e deve derrotar os inimigos que aparecem em ondas, enquanto tenta evitar colisões.
-# Instruções para Configuração do Jogo
 
-Para executar este jogo em uma distribuição Linux, siga os passos abaixo para instalar as dependências necessárias:
+## Instruções para build/run em outros sistemas operacionais
 
-### Pré-requisitos
-Certifique-se de que você tenha acesso root (sudo) e uma conexão com a internet.
+- [Ubuntu 24.04](Build-Tools/Ubuntu-2024.04/README.md)
+- [ArchLinux (SteamOS)](Build-Tools/Arch-SteamOS/README.md)
 
-### Passos
-1. Clonar nosso repositório numa pasta chamada "Space" (case sensitive)
+# Instruções para Configuração do Builder para (Windows MSVC)
 
-Segue o diagrama de pastas:
+Abra o arquivo de solução (.sln) no Visual Studio.
 
-```
-\Space
-├── .vscode/
-├── bin/
-├── build/
-├── include/
-├── resources/
-├── src/
-├── .gitignore
-├── build-MinGW-W64.bat
-├── build-VisualStudio2022.bat
-├── linux.sh
-├── Makefile
-├── New Text Document.txt
-├── README.md
-└── Space.sln
-
-```
-
-2. **Atualize os pacotes do sistema**  
-   Execute os seguintes comandos para garantir que seu sistema esteja atualizado:
-   ```bash
-   sudo apt-get upgrade && sudo apt-get update
-   ```
-
-3. **Instale o `make`**  
-   O `make` é necessário para compilar o jogo. Instale-o com o comando:
-   ```bash
-   sudo apt-get install make
-   ```
-
-4. **Instale o `cmake` e outras ferramentas de build**  
-   O `cmake` e o `build-essential` são usados para compilar o código do jogo. Instale-os com:
-   ```bash
-   sudo apt-get update && sudo apt-get install cmake build-essential
-   ```
-
-5. **Instale as dependências gráficas**  
-   Certifique-se de que as bibliotecas necessárias para gráficos estejam instaladas:
-   ```bash
-   sudo apt-get install libx11-dev xserver-xorg-dev xorg-dev
-   ```
-
-6. **Execute o arquivo .sh**
+Aperte Iniciar para iniciar a depuração.
 
 
-Para facilitar a instalação e execução do jogo, você pode usar o script `linux.sh` disponível no diretório raiz do projeto.
+# Desenvolvimento do Projeto Distress Call no Ubuntu 24.04
 
-1. **Torne o script executável (apenas uma vez):**  
-   Execute o seguinte comando no terminal enquanto estiver no diretório raiz do projeto:
-   ```bash
-   chmod +x linux.sh
-   ```
+## 📌 Pré-requisitos
 
-2. **Execute o script:**  
-   Após tornar o script executável, rode:
-   ```bash
-   ./linux.sh
-   ```
+- **Conexão com a Internet**: Necessária para baixar pacotes e imagens de contêiner.
+- **Máquina Windows**: Necessária para instalar a IDE exclusiva para windows.
 
-3. **Caso prefira não usar o `chmod`:**  
-   Você pode executar o script diretamente com o comando:
-   ```bash
-   sh linux.sh
-   ```
+---
 
-### Observações
-- Se você enfrentar algum problema, verifique se todas as dependências foram instaladas corretamente.
-- Certifique-se de ter permissões adequadas no diretório onde o jogo será executado.
+## 1. Visual Studio 2022 Community no seu Ambiente Atual. Lembrar de incluir "Desenvolvimento em C/C++" durante o setup.
+
+---
+
+## 2. (Opcional) Após a instalação, associe os arquivos ".sln" com o Visual Studio
+
+---
+
+## 3. Iniciar o Desenvolvimento - Inicie o Visual Studio ao clicar no arquivo .sln:
+
+---
+
+## 4. Compilar e Depurar seu Projeto
+
+### 🔧 Compilar (Debug/Release)
+
+- No canto superior da tela, podemos ver uma dropdown que dá opções para gerar versões de Debug e Release
+  - **Build Debug**
+  - **Build Release**
+
+---
+
+Para mais informações sobre como configurar o MinGW64, consultar documentação da raylib: https://github.com/raysan5/raylib/wiki/Working-on-Windows
+
+Pronto! Agora você tem um ambiente de desenvolvimento isolado, persistente e pronto para compilar e depurar o **Distress Call** no Windows. 🚀
+
+---

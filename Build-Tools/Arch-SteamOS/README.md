@@ -48,7 +48,12 @@ chmod +x ~/setup_dev_ubuntu.sh
 ~/setup_dev_ubuntu.sh
 ```
 
-Ele criará a Distrobox e adicionará a função `vscodedev` ao `~/.bashrc`.
+Para "entrar" no ubuntu, execute:
+
+```bash
+# Assumindo que o nome Dev-Ubuntu-24.04 foi mantido
+distrobox enter "Dev-Ubuntu-24.04"
+```
 
 ---
 
@@ -74,7 +79,7 @@ Essas bibliotecas são essenciais para garantir o suporte gráfico e de áudio u
 
 ## 4. Copiar Arquivos de Configuração do VS Code
 
-Copie os arquivos `launch.json`, `tasks.json` e `settings.json` para a pasta `.vscode` na raiz do projeto.
+Copie os arquivos `launch.json` e `tasks.json` para a pasta `.vscode` na raiz do projeto.
 
 ```
 root/
@@ -132,6 +137,8 @@ distrobox list
 distrobox stop Dev-Ubuntu-24.04
 distrobox rm Dev-Ubuntu-24.04
 ```
+
+Para mais informações, acesse: https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux
 
 ---
 

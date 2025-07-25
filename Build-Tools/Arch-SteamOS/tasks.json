@@ -15,7 +15,7 @@
             },
             "linux": {
                 // Comando para entrar na Distrobox e executar 'make'
-                "command": "distrobox enter WPDev-Ubuntu-24.04 -- bash -c \"make\"",
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make\"",
                 "args": [] // Args vazios, pois o 'make' já está no bash -c
             },
             "osx": {
@@ -43,7 +43,7 @@
             },
             "linux": {
                 // Comando para entrar na Distrobox e executar 'make config=release_x64'
-                "command": "distrobox enter WPDev-Ubuntu-24.04 -- bash -c \"make config=release_x64\"",
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make config=release_x64\"",
                 "args": []
             },
             "osx": {
@@ -70,7 +70,7 @@
             },
             "linux": {
                 // Comando para entrar na Distrobox e executar 'make clean'
-                "command": "distrobox enter WPDev-Ubuntu-24.04 -- bash -c \"make clean\"",
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make clean\"",
                 "args": []
             },
             "osx": {
@@ -99,7 +99,7 @@
             },
             "linux": {
                 // Comando para entrar na Distrobox e executar './premake5 gmake2'
-                "command": "distrobox enter WPDev-Ubuntu-24.04 -- bash -c \"${workspaceFolder}/build/premake5 gmake2\"",
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"${workspaceFolder}/build/premake5 gmake2\"",
                 "args": [] // Os argumentos já estão embutidos no bash -c
             },
             "osx": {
