@@ -4,7 +4,7 @@ Este é um clássico desenvolvido por nossa equipe usando a biblioteca **raylib*
 
 ## Instruções para build/run em outros sistemas operacionais
 
-- [Ubuntu 24.04](Build-Tools/Ubuntu-2024.04/README.md)
+- [Ubuntu 24.04](Build-Tools/Ubuntu-24.04/README.md)
 - [ArchLinux (SteamOS)](Build-Tools/Arch-SteamOS/README.md)
 
 # Instruções para Configuração do Builder para (Windows MSVC)
