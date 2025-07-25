@@ -13,29 +13,17 @@ Abra o arquivo de solução (.sln) no Visual Studio.
 
 Aperte Iniciar para iniciar a depuração.
 
-
-# Desenvolvimento do Projeto Distress Call no Ubuntu 24.04
-
-## 📌 Pré-requisitos
+### 📌 Pré-requisitos
 
 - **Conexão com a Internet**: Necessária para baixar pacotes e imagens de contêiner.
 - **Máquina Windows**: Necessária para instalar a IDE exclusiva para windows.
 
----
+### Instalação
 
-## 1. Visual Studio 2022 Community no seu Ambiente Atual. Lembrar de incluir "Desenvolvimento em C/C++" durante o setup.
-
----
-
-## 2. (Opcional) Após a instalação, associe os arquivos ".sln" com o Visual Studio
-
----
-
-## 3. Iniciar o Desenvolvimento - Inicie o Visual Studio ao clicar no arquivo .sln:
-
----
-
-## 4. Compilar e Depurar seu Projeto
+- 1. Visual Studio 2022 Community no seu Ambiente Atual. Lembrar de incluir "Desenvolvimento em C/C++" durante o setup.
+- 2. (Opcional) Após a instalação, associe os arquivos ".sln" com o Visual Studio
+- 3. Iniciar o Desenvolvimento - Inicie o Visual Studio ao clicar no arquivo .sln:
+- 4. Compilar e Depurar seu Projeto
 
 ### 🔧 Compilar (Debug/Release)
 
