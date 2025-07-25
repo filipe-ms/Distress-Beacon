@@ -1,0 +1,117 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug (Distrobox)", // Nome alterado para clareza
+      "type": "cppdbg",
+      "request": "launch",
+      // O 'program' aqui é o caminho *dentro* da Distrobox, mapeado pelo pipeTransport
+      "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}", // O CWD (Current Working Directory) é o seu projeto
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": false
+        }
+      ],
+      "windows": {
+        "miDebuggerPath": "gdb.exe"
+      },
+      "osx": {
+        "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
+        "MIMode": "lldb"
+      },
+      "linux": {
+        // --- Início das mudanças para Distrobox ---
+        "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}", // Caminho do executável dentro da Distrobox
+        "miDebuggerPath": "/usr/bin/gdb", // Caminho do GDB *dentro* da Distrobox Ubuntu
+        "pipeTransport": {
+          "pipeCwd": "${workspaceFolder}", // Diretório de trabalho do pipe (seu projeto)
+          "pipeProgram": "distrobox", // O comando que inicia o pipe
+          "pipeArgs": [
+            "enter",
+            "Dev-Ubuntu-24.04", // Nome da sua Distrobox
+            "--",
+            "bash",
+            "-c"
+          ],
+          "debuggerPath": "/usr/bin/gdb" // Caminho do GDB *dentro* da Distrobox novamente
+        },
+        // O "sourceFileMap" é importante para o depurador encontrar seus arquivos fonte
+        "sourceFileMap": {
+          "/": "${workspaceFolder}" // Mapeia a raiz do contêiner para o seu workspace
+        }
+        // --- Fim das mudanças para Distrobox ---
+      },
+      "preLaunchTask": "Build Debug (Distrobox)" // Garante que a tarefa de build correta seja executada
+    },
+    {
+      "name": "Run (Distrobox)", // Nome alterado para clareza
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      // O 'program' aqui é o caminho *dentro* da Distrobox, mapeado pelo pipeTransport
+      "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
+      "MIMode": "gdb",
+      "windows": {
+        "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}.exe",
+        "miDebuggerPath": "gdb.exe"
+      },
+      "osx": {
+        "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
+        "MIMode": "lldb"
+      },
+      "linux": {
+        // --- Início das mudanças para Distrobox ---
+        "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}", // Caminho do executável dentro da Distrobox
+        "miDebuggerPath": "/usr/bin/gdb", // Caminho do GDB *dentro* da Distrobox Ubuntu
+        "pipeTransport": {
+          "pipeCwd": "${workspaceFolder}",
+          "pipeProgram": "distrobox",
+          "pipeArgs": [
+            "enter",
+            "Dev-Ubuntu-24.04", // Nome da sua Distrobox
+            "--",
+            "bash",
+            "-c"
+          ],
+          "debuggerPath": "/usr/bin/gdb" // Caminho do GDB *dentro* da Distrobox novamente
+        },
+        "sourceFileMap": {
+          "/": "${workspaceFolder}"
+        }
+        // --- Fim das mudanças para Distrobox ---
+      },
+      "preLaunchTask": "Build Release (Distrobox)" // Garante que a tarefa de build correta seja executada
+    },
+    {
+      "name": "C/C++ Runner: Debug Session", // Mantido como está, para referência (provavelmente para Windows)
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/gabri/Developer/spaceinvaders/src",
+      "program": "c:/Users/gabri/Developer/spaceinvaders/src/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

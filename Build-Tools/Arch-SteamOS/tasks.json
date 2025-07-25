@@ -1,0 +1,111 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Debug (Distrobox)", // Renomeado para clareza
+            "type": "shell", // Mudado para 'shell' para usar 'distrobox enter'
+            "command": "make", // Comando genérico, será substituído no Linux
+            "windows": {
+                "command": "mingw32-make.exe",
+                "args": [
+                    "SHELL=cmd"
+                ],
+            },
+            "linux": {
+                // Comando para entrar na Distrobox e executar 'make'
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make\"",
+                "args": [] // Args vazios, pois o 'make' já está no bash -c
+            },
+            "osx": {
+                "args": [], // Sem argumentos adicionais para make de debug no OSX
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn":["UpdateMake (Distrobox)"] // Depende da tarefa de UpdateMake da Distrobox
+        },
+        {
+            "label": "Build Release (Distrobox)", // Renomeado para clareza
+            "type": "shell", // Mudado para 'shell'
+            "command": "make", // Comando genérico
+            "windows": {
+                "command": "mingw32-make.exe",
+                "args": [
+                    "SHELL=cmd",
+                    "config=release_x64"
+                ],
+            },
+            "linux": {
+                // Comando para entrar na Distrobox e executar 'make config=release_x64'
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make config=release_x64\"",
+                "args": []
+            },
+            "osx": {
+                "args": [
+                    "config=release_ARM64"
+                ],
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn":["UpdateMake (Distrobox)"] // Depende da tarefa de UpdateMake da Distrobox
+        },
+        {
+            "label": "Clean (Distrobox)", // Renomeado para clareza
+            "type": "shell", // Mudado para 'shell'
+            "command": "make", // Comando genérico
+            "windows": {
+                "command": "mingw32-make.exe",
+                "args": [
+                    "SHELL=cmd",
+                    "clean"
+                ],
+            },
+            "linux": {
+                // Comando para entrar na Distrobox e executar 'make clean'
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make clean\"",
+                "args": []
+            },
+            "osx": {
+                "args": [
+                    "clean"
+                ],
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn":["UpdateMake (Distrobox)"] // Depende da tarefa de UpdateMake da Distrobox
+        },
+        {
+            "label": "UpdateMake (Distrobox)", // Renomeado para clareza
+            "type": "shell", // Mudado para 'shell'
+            "command": "./premake5", // Comando genérico, será substituído no Linux
+            "options": {
+                "cwd": "${workspaceFolder}/build/" // Continua a ser o diretório base do projeto
+            },
+            "args": [
+                "gmake2"
+            ],
+            "windows": {
+                "command": "./premake5.exe"
+            },
+            "linux": {
+                // Comando para entrar na Distrobox e executar './premake5 gmake2'
+                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"${workspaceFolder}/build/premake5 gmake2\"",
+                "args": [] // Os argumentos já estão embutidos no bash -c
+            },
+            "osx": {
+                "command": "premake5.osx"
+            },
+            "group": "build"
+        }
+    ]
+}
