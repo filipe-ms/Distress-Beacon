@@ -9,12 +9,14 @@ typedef enum PowerUpType {
     SHOOT_COOLDOWN,
     SHOOT_DAMAGE,
     SHOOT_SIZE,
+    SHOOT_SPEED,
 
     // Armas
     WEAPON_PULSE,
     WEAPON_PHOTON,
     WEAPON_SHOTGUN,
     WEAPON_HOMING,
+    WEAPON_PRISM,
 
     // Shield
     SHIELD,

@@ -54,20 +54,30 @@ char* GetPilotName(int ship_id) {
 }
 
 char* GetShipSpecial(int ship_id) {
-	if (ship_id == ORION)          return "Dash";
-	if (ship_id == PUDDLE_JUMPER)  return "Portal";
+	if (ship_id == ORION)			return "Dash";
+	if (ship_id == PUDDLE_JUMPER)	return "Portal";
+	if (ship_id == AUREA)			return "Drones de Ataque";
+	if (ship_id == NEBULA)			return "Disparo de Blaster";
+	if (ship_id == VOID)			return "Horizonte de Eventos";
 	return "Abilidade desconhecida";
 }
 
 char* GetShipSpecialDescription(int ship_id) {
-    if (ship_id == ORION) return "Impulsiona a nave\nem alta velocidade para\na direção escolhida.";
+	if (ship_id == ORION)			return "Envolve a nave em chamas e\ntorna-a invulnerável pela\nduração.";
+	if (ship_id == PUDDLE_JUMPER)	return "Cria portais e é capaz de\nviajar entre eles.";
+	if (ship_id == AUREA)			return "Ativa dois drones que\ndisparam contra os inimigos!";
+	if (ship_id == NEBULA)			return "Carrega um tiro de blaster.\nPossui três níveis\nde intensidade.";
+	if (ship_id == VOID)			return "Cria um horizonte de eventos\nque danifica as naves inimigas.";
     return "Descrição faltando.";
 }
 
 char* GetPilotPresentation(int ship_id) {
-    if (ship_id == ORION) return "Sou o vencedor do grand\nprix de Rio Doce.";
-    if (ship_id == NEBULA) return "Dorem dipsum dolor dit\ndmet donsectetur dipiscing\ndelit. Dolor dit damet\ndonsectetur dipiscing.";
-    return "Lorem ipsum dolor sit\namet consectetur adipiscing\nelit. Dolor sit amet\nconsectetur adipiscing.";
+    if (ship_id == ORION) return "Sou o piloto mais\nrápido da galáxia!";
+    if (ship_id == NEBULA) return "Sou capaz de ver\nmelhor do que qualquer\nhumano.";
+	if (ship_id == VOID) return "Afastarei os invasores\ncom minhas próprias mãos!";
+	if (ship_id == AUREA) return "Kounill no volante,\nemoção constante!";
+	if (ship_id == PUDDLE_JUMPER) return "Possuo a melhor tecnologia!\nMeus portais nos levarão\nà vitória!";
+    return "Vamos defender o planeta\nda horda inimiga!";
 }
 
 Color GetShipColorByName(const char* ship_name) {

@@ -21,6 +21,7 @@ typedef enum EffectType {
 	ORION_DISRUPTION_FIELD,
 	WORMHOLE_PUDDLE_JUMPER_SHIP,
 	WORMHOLE_TETHER,
+	VOID_EVENT_HORIZON
 } EffectType;
 
 typedef enum ParticleRenderingOrder {

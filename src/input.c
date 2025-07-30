@@ -82,7 +82,7 @@ bool IsPauseButtonPressed(void) {
 }
 
 bool IsActionButtonPressed(void) {
-	bool keyboard = IsKeyPressed(KEY_Z);
+	bool keyboard = IsKeyPressed(KEY_Z) || IsKeyPressed(KEY_SPACE);
 	bool gamepad = false;
 	if (IsGamepadAvailable(GAMEPAD_ID)) {
 		gamepad = IsGamepadButtonPressed(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
@@ -196,7 +196,7 @@ bool IsPauseButtonDown(void) {
 }
 
 bool IsActionButtonDown(void) {
-	bool keyboard = IsKeyDown(KEY_SPACE);
+	bool keyboard = IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_Z);
 	bool gamepad = false;
 	if (IsGamepadAvailable(GAMEPAD_ID)) {
 		gamepad = IsGamepadButtonDown(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
@@ -291,7 +291,7 @@ bool IsPauseButtonReleased(void) {
 }
 
 bool IsActionButtonReleased(void) {
-	bool keyboard = IsKeyReleased(KEY_SPACE);
+	bool keyboard = IsKeyReleased(KEY_SPACE) || IsKeyReleased(KEY_Z);
 	bool gamepad = false;
 	if (IsGamepadAvailable(GAMEPAD_ID)) {
 		gamepad = IsGamepadButtonReleased(GAMEPAD_ID, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);

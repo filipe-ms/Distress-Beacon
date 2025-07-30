@@ -185,7 +185,7 @@ void GenerateWaves(bool is_endless_mode) {
     int waves_to_create = is_endless_mode ? 10 : MAX_WAVES;
 
     for(int i = 0; i < waves_to_create + 1; i++) {
-        int wave_type = GetRandomValue(99, 99);
+        int wave_type = GetRandomValue(0, 9);
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {

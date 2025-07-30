@@ -143,7 +143,7 @@ static void DrawRightSideInfo() {
 
     DrawCenteredOutlinedText("Abilidade especial", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.3f, 40, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.365, UI_WIDTH * 0.7, SCREEN_HEIGHT*0.05f, Fade(WHITE, 0.2f));
+    DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.365, UI_WIDTH * 0.75, SCREEN_HEIGHT*0.05f, Fade(WHITE, 0.2f));
 
     DrawCenteredText(GetShipSpecial(GetPlayerShip()), UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.35f, 35, WHITE);
 
