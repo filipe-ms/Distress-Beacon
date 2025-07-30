@@ -53,15 +53,22 @@ const Rectangle ORION_DISRUPTION_FIELD_FRAME[] = {
 	{24 * 23, 24 * 3, 24, 24},   // Frame 8
 };
 
-List* managed_effects;
-
-List* unmanaged_effects;
+List* managed_effects = NULL;
+List* unmanaged_effects = NULL;
 
 void InitEffects(void) {
 	texture_ship_assets = LoadTexture("playerassets.png");
+	
+	if (managed_effects)
+		List_Destroy(managed_effects);
+
+	if (unmanaged_effects)
+		List_Destroy(unmanaged_effects);
+
 	managed_effects = List_Create(sizeof(SpecialEffect));
 	unmanaged_effects = List_Create(sizeof(SpecialEffect));
 }
+
 void UnloadEffects(void) {
 	UnloadTexture(texture_ship_assets);
 }
@@ -445,6 +452,60 @@ SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, fl
 	return (SpecialEffect*)List_GetByIndex(managed_effects, 0);
 }
 
+static SpecialEffect InitPlanet(Vector2 position, EffectType type) {
+	Texture* texture;
+
+	switch (type) {
+		case PLANET_BLACK_HOLE:
+			texture = &texture_planet_black_hole;
+			break;
+
+		case PLANET_GALAXY:
+			texture = &texture_planet_galaxy;
+			break;
+		
+		case PLANET_MOON_1:
+			texture = &texture_planet_moon_1;
+			break;
+
+		case PLANET_MOON_2:
+			texture = &texture_planet_moon_2;
+			break;
+			
+		case PLANET_1:
+			texture = &texture_planet_planet_1;
+			break;
+
+		case PLANET_2:
+			texture = &texture_planet_planet_2;
+			break;
+
+		case PLANET_3:
+			texture = &texture_planet_planet_3;
+			break;
+
+		case PLANET_SUN:
+			texture = &texture_planet_sun;
+			break;
+	}
+
+	SpecialEffect effect = { 0 };
+	effect.type = type;
+	effect.source = (Rectangle) { 0, 0, texture->width / 20, texture->height / 20 };
+	effect.position = position;
+	effect.size = effect.original_size = (Vector2){ texture->width / 20, texture->height / 20 };
+	effect.duration = 0;
+	effect.max_duration = 0;
+	effect.current_frame = 0;
+	effect.ending_frame = 0;
+	effect.rotation = 0;
+	effect.texture = texture;
+	effect.color = WHITE;
+	effect.order = RENDERING_ORDER_BEFORE_SHIP;
+
+	return effect;
+}
+
 SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration) {
 	SpecialEffect effect;
 	switch (type) {
@@ -457,6 +518,16 @@ SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float du
 		case NEBULA_ENERGY_FIELD:			effect = InitNebulaEnergyField(position); break;
 		case WORMHOLE_PUDDLE_JUMPER_SHIP:	effect = InitWormholePuddleJumper(position); break;
 		case WORMHOLE_TETHER:				effect = InitWormholeTether(position); break;
+		
+		case PLANET_BLACK_HOLE:
+		case PLANET_GALAXY:
+		case PLANET_MOON_1:
+		case PLANET_MOON_2:
+		case PLANET_1:
+		case PLANET_2:
+		case PLANET_3:
+		case PLANET_SUN:
+			effect = InitPlanet(position, type); break;
 	}
 	List_Add(unmanaged_effects, &effect);
 	return (SpecialEffect*)List_GetByIndex(unmanaged_effects, 0);
@@ -475,16 +546,41 @@ void CreateManagedEffect(EffectType type, Vector2 position) {
 	List_Add(managed_effects, &hit);
 }
 
-void UpdateFrameTime(SpecialEffect* hit) {
-	switch (hit->type) {
-	case SHOCKWAVE:						UpdateShockwaveFrameTime(hit); break;
-	case EXPLOSION:						UpdateExplosionFrameTime(hit); break;
-	case ENERGY:						UpdateEnergyFrameTime(hit); break;
-	case CHAOS:							UpdateChaosFrameTime(hit); break;
-	case WORMHOLE:						UpdateWormholeAnimation(hit); break;
-	case WORMHOLE_TELEPORT_ANIMATION:	UpdateWormholeTeleportAnimation(hit); break;
-	case DRONE_THRUSTER:				UpdateThrusterAnimation(hit); break;
-	case ORION_DISRUPTION_FIELD:	  	UpdateOrionDisruptionField(hit); break;
+static void UpdatePlanetAnimation(SpecialEffect* effect) {
+	effect->duration += GetFrameTime();
+	effect->current_frame = fmodf((effect->duration * 10.0f), 400.0f);
+
+	int width = effect->texture->width / 20.0f;
+	int height = effect->texture->height / 20.0f;
+
+	effect->source = (Rectangle) {
+		(int)fmodf(effect->current_frame, 20) * width,
+		(int)(effect->current_frame / 20) * height,
+		width,
+		height,
+	};
+}
+
+void UpdateFrameTime(SpecialEffect* effect) {
+	switch (effect->type) {
+	case SHOCKWAVE:						UpdateShockwaveFrameTime(effect); break;
+	case EXPLOSION:						UpdateExplosionFrameTime(effect); break;
+	case ENERGY:						UpdateEnergyFrameTime(effect); break;
+	case CHAOS:							UpdateChaosFrameTime(effect); break;
+	case WORMHOLE:						UpdateWormholeAnimation(effect); break;
+	case WORMHOLE_TELEPORT_ANIMATION:	UpdateWormholeTeleportAnimation(effect); break;
+	case DRONE_THRUSTER:				UpdateThrusterAnimation(effect); break;
+	case ORION_DISRUPTION_FIELD:	  	UpdateOrionDisruptionField(effect); break;
+
+	case PLANET_BLACK_HOLE:
+	case PLANET_GALAXY:
+	case PLANET_MOON_1:
+	case PLANET_MOON_2:
+	case PLANET_1:
+	case PLANET_2:
+	case PLANET_3:
+	case PLANET_SUN:
+		UpdatePlanetAnimation(effect); break;
 	default:
 		break;
 	}

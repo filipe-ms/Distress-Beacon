@@ -27,6 +27,9 @@ static void LoadSelectedTexture(BackgroundTexture background_texture) {
 	case BACKGROUND_SELECT_SHIP:
 		background.texture = &background_stars_and_dust;
 		break;
+	case BACKGROUND_ENDING:
+		background.texture = &background_ending;
+		break;
 	default:
 		background.texture = &background_menubg;
 		break;

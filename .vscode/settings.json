@@ -30,6 +30,7 @@
 		"texture_manager.h": "c",
 		"hit_confirmation.h": "c",
 		"random": "c",
-		"special_effects.h": "c"
+		"special_effects.h": "c",
+		"scene_draw_effects.h": "c"
 	}
 }

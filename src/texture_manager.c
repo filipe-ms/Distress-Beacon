@@ -10,9 +10,19 @@ Texture background_stars;
 Texture background_dark_space;
 Texture background_stars_and_dust;
 Texture background_menubg;
+Texture background_ending;
 
 Texture texture_pilots;
 Texture texture_progress_bars;
+
+Texture texture_planet_black_hole;
+Texture texture_planet_galaxy;
+Texture texture_planet_moon_1;
+Texture texture_planet_moon_2;
+Texture texture_planet_planet_1;
+Texture texture_planet_planet_2;
+Texture texture_planet_planet_3;
+Texture texture_planet_sun;
 
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
@@ -24,14 +34,21 @@ void LoadAllTextures(void) {
 	background_stars = LoadTexture("background/stars.png");
 	background_dark_space = LoadTexture("background/dark_space.png");
 	background_stars_and_dust = LoadTexture("background/stars_and_dust.png");
+	background_ending = LoadTexture("background/ending.png");
 
 	texture_pilots = LoadTexture("pilots.png");
 
 	texture_progress_bars = LoadTexture("progress_bars.png");
+
+	texture_planet_black_hole = LoadTexture("ending_1/BlackHole.png");
+	texture_planet_galaxy = LoadTexture("ending_1/Galaxy.png");
+	texture_planet_moon_1 = LoadTexture("ending_1/Moon1.png");
+	texture_planet_moon_2 = LoadTexture("ending_1/Moon2.png");
+	texture_planet_planet_1 = LoadTexture("ending_1/Planet1.png");
+	texture_planet_planet_2 = LoadTexture("ending_1/Planet2.png");
+	texture_planet_planet_3 = LoadTexture("ending_1/Planet3.png");
+	texture_planet_sun = LoadTexture("ending_1/Sun.png");	
 }
-
-
-
 
 void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
@@ -43,7 +60,17 @@ void UnloadAllTextures(void) {
 	UnloadTexture(background_stars);
 	UnloadTexture(background_dark_space);
 	UnloadTexture(background_stars_and_dust);
+	UnloadTexture(background_ending);
 
 	UnloadTexture(texture_pilots);
 	UnloadTexture(texture_progress_bars);
+
+	UnloadTexture(texture_planet_black_hole);
+	UnloadTexture(texture_planet_galaxy);
+	UnloadTexture(texture_planet_moon_1);
+	UnloadTexture(texture_planet_moon_2);
+	UnloadTexture(texture_planet_planet_1);
+	UnloadTexture(texture_planet_planet_2);
+	UnloadTexture(texture_planet_planet_3);
+	UnloadTexture(texture_planet_sun);
 }
