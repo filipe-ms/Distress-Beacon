@@ -84,7 +84,12 @@ static void DrawActiveWeapons() {
     }
     if (GetHomingLevel()) {
         DrawAlignedWeapon("Homing", GetHomingLevel(), pos_x, next_line, width, font_size, WHITE);
+        next_line += font_size;
     }
+	if (GetPrismLevel()) {
+		DrawAlignedWeapon("Prism", GetPrismLevel(), pos_x, next_line, width, font_size, WHITE);
+		next_line += font_size;
+	}
     for (int i = GetActiveWeaponsAmount(); i < MAX_WEAPON_SLOTS; i++) {
         DrawAlignedWeapon("Empty", 0, pos_x, next_line, width, font_size, WHITE);
         next_line += font_size;

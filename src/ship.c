@@ -164,6 +164,36 @@ typedef struct Nebula {
 
 Nebula nebula;
 
+#define EVENT_HORIZON_SIZE 300.0f
+#define EVENT_HORIZON_PULSE_PERIOD 1.0f
+#define EVENT_HORIZON_MAX_PULSES 5
+
+typedef enum VoidSpecialState {
+	VOID_SPECIAL_INACTIVE,
+	VOID_SPECIAL_ACTIVE,
+	VOID_SPECIAL_ENDING,
+} VoidSpecialState;
+
+typedef struct Void {
+	float event_horizon_cooldown;
+	float event_horizon_current_cooldown;
+
+	float event_horizon_duration;
+	int event_horizon_pulse_count;
+
+	float event_horizon_base_damage;
+	float event_horizon_current_damage;
+
+	bool is_skill_ready;
+
+	//SpecialEffect* event_horizon_effect;
+	VoidSpecialState event_horizon_state;
+
+	Vector2 event_horizon_center;
+} Void;
+
+Void ship_void;
+
 Vector2 GetShipPosition(void) {
 	return ship.position;
 }
@@ -179,6 +209,8 @@ float GetShipCooldownPct(int ship) {
 	case PUDDLE_JUMPER:
 		return (puddle_jumper.wormhole_enter_is_in_use ? 0 : puddle_jumper.wormhole_enter_current_cooldown / puddle_jumper.wormhole_enter_cooldown);
 	case VOID:
+		return (ship_void.event_horizon_state > 0 ? 1 : 1.0 - (ship_void.event_horizon_current_cooldown / ship_void.event_horizon_cooldown));
+
 	default:
 		return 0.0f;
 	}
@@ -327,6 +359,20 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		puddle_jumper.wormhole_enter_current_cooldown = 15.0f;
 		break;
 	}
+
+	case VOID:
+		ship_void.event_horizon_cooldown = 5.0f;//30.0f;
+		ship_void.event_horizon_current_cooldown = 5.0f;//= 30.0f;
+		ship_void.event_horizon_duration = 0.0f;
+		ship_void.event_horizon_base_damage = 5.0f;
+		ship_void.event_horizon_current_damage = 5.0f;
+
+		ship_void.is_skill_ready = false;
+
+		ship_void.event_horizon_state = VOID_SPECIAL_INACTIVE;
+		ship_void.event_horizon_center = (Vector2){ 0 };
+		break;
+
 	default: break;
 	}
 }
@@ -822,7 +868,57 @@ static void UpdatePuddleJumper(Ship* ship) {
 	}
 }
 
-static void UpdateVoid(Ship* ship) {}
+static void UpdateVoid(Ship* ship) {
+	if (!ship) return;
+
+	if (!ship_void.is_skill_ready && !ship_void.event_horizon_state) {
+		ship_void.event_horizon_current_cooldown -= GetFrameTime();
+		if (ship_void.event_horizon_current_cooldown <= 0) {
+			ship_void.is_skill_ready = true;
+			ship_void.event_horizon_current_cooldown = 0;
+		}
+		else {
+			ship_void.is_skill_ready = false;
+		}
+	}
+
+	if (ship_void.is_skill_ready &&
+		IsActionButtonPressed() &&
+		!ship_void.event_horizon_state)
+	{
+		// Ativação
+		ship_void.event_horizon_center.x = ship->position.x;
+		ship_void.event_horizon_center.y = ship->position.y - EVENT_HORIZON_SIZE;
+		ship_void.event_horizon_state = VOID_SPECIAL_ACTIVE;
+		ship_void.event_horizon_current_damage = ship_void.event_horizon_base_damage + GetPlayerLevel();
+		ship_void.event_horizon_pulse_count = 0;
+		ship_void.event_horizon_duration = 0.0f; // Reseta o timer do pulso
+
+		CreateManagedEffect(VOID_EVENT_HORIZON, ship_void.event_horizon_center);
+
+		EventHorizonTick(ship_void.event_horizon_center, EVENT_HORIZON_SIZE / 2, ship_void.event_horizon_current_damage);
+		ship_void.event_horizon_pulse_count++;
+	}
+
+	else if (ship_void.event_horizon_state == VOID_SPECIAL_ACTIVE) {
+		ship_void.event_horizon_duration += GetFrameTime();
+
+		if (ship_void.event_horizon_duration >= EVENT_HORIZON_PULSE_PERIOD) {
+			ship_void.event_horizon_duration = 0.0f;
+
+			EventHorizonTick(ship_void.event_horizon_center, EVENT_HORIZON_SIZE / 2, ship_void.event_horizon_current_damage);
+			ship_void.event_horizon_pulse_count++;
+
+			if (ship_void.event_horizon_pulse_count == EVENT_HORIZON_MAX_PULSES) {
+				ship_void.event_horizon_state = VOID_SPECIAL_INACTIVE;
+				ship_void.event_horizon_duration = 0.0f;
+				ship_void.event_horizon_current_cooldown = ship_void.event_horizon_cooldown;
+				ship_void.is_skill_ready = false;
+			}
+		}
+	}
+}
+
 
 static void WallBehavior(Vector2* position) {
 	position->x = Clamp(position->x, GAME_SCREEN_START + DRAW_WH / 2, GAME_SCREEN_END - (DRAW_WH / 2));

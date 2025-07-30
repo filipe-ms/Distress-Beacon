@@ -30,9 +30,6 @@ void LoadAllTextures(void) {
 	texture_progress_bars = LoadTexture("progress_bars.png");
 }
 
-
-
-
 void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
 	UnloadTexture(texture_projectiles);

@@ -105,6 +105,7 @@ void SpawnEnemies(List* enemy_list);
 void InitEnemies(void);
 void DeInitEnemy(Enemy* enemy);
 void UpdateEnemies(Ship* ship);
+void CleanupEnemies(void);
 void DrawEnemies(void);
 void InitEnemySourceRects(void);
 void UnloadEnemyList(void);

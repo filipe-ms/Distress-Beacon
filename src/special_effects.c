@@ -53,8 +53,18 @@ const Rectangle ORION_DISRUPTION_FIELD_FRAME[] = {
 	{24 * 23, 24 * 3, 24, 24},   // Frame 8
 };
 
-List* managed_effects;
+const Rectangle VOID_EVENT_HORIZON_FRAME[] = {
+	{24 * 0, 24 * 6, 24, 24},   // Frame 1
+	{24 * 1, 24 * 6, 24, 24},   // Frame 2
+	{24 * 2, 24 * 6, 24, 24},   // Frame 3
+	{24 * 3, 24 * 6, 24, 24},   // Frame 4
+	{24 * 4, 24 * 6, 24, 24},   // Frame 5
+	{24 * 5, 24 * 6, 24, 24},   // Frame 6
+	{24 * 6, 24 * 6, 24, 24},   // Frame 7
+	{24 * 7, 24 * 6, 24, 24},   // Frame 8
+};
 
+List* managed_effects;
 List* unmanaged_effects;
 
 void InitEffects(void) {
@@ -428,6 +438,62 @@ static SpecialEffect InitWormholeTether(Vector2 position) {
 	return hit;
 }
 
+static SpecialEffect InitVoidEventHorizon(Vector2 position) {
+	SpecialEffect hit = { 0 };
+	hit.type = VOID_EVENT_HORIZON;
+	hit.source = (Rectangle){ 24 * 0, 24 * 6, 24, 24 };
+	hit.position = position;
+	hit.original_size = (Vector2){ 24, 24 };
+	hit.size = (Vector2){ 300, 300 };
+	hit.max_duration = 5.0f;
+	hit.duration = 0.0f;
+	hit.current_frame = 0;
+	hit.ending_frame = 0;
+	hit.rotation = 0;
+	hit.texture = &texture_special_effects_1;
+	hit.color = Fade(WHITE, 0.5f);
+	hit.order = RENDERING_ORDER_AFTER_ENEMY;
+	hit.reproduction_type = REPRODUCTION_TIMED_LOOP;
+	return hit;
+}
+
+static void UpdateVoidEventHorizon(SpecialEffect* hit) {
+	if (!hit) return;
+
+	hit->duration += GetFrameTime();
+	const int totalFrames = 8;
+	const float frameTime = 0.2f;
+	const float pulseCycle = 1.0f;
+
+	if (hit->duration <= 4.0f) {
+		hit->current_frame = (int)(fmodf(hit->duration, frameTime * totalFrames) / frameTime);
+
+		float t = fmodf(hit->duration, pulseCycle);
+		float pulseAlpha = 0.3f + 0.7f * (1.0f - t / pulseCycle);
+		hit->color = Fade(WHITE, pulseAlpha);
+
+		if (hit->current_frame >= 0 && hit->current_frame < totalFrames) {
+			hit->source = VOID_EVENT_HORIZON_FRAME[hit->current_frame];
+		}
+	}
+	else if (hit->duration <= 5.0f) {
+		float t = fmodf(4.0f, pulseCycle);
+		float alphaAtDecayStart = 0.3f + 0.7f * (1.0f - t / pulseCycle);
+
+		float decayTime = hit->duration - 4.0f;
+		float decayDuration = 1.0f;
+
+		float pulseAlpha = alphaAtDecayStart * (1.0f - (decayTime / decayDuration));
+		hit->color = Fade(WHITE, pulseAlpha);
+	}
+	else {
+		hit->color = Fade(WHITE, 0.0f);
+	}
+}
+
+
+
+
 static void UpdateOrionDisruptionField(SpecialEffect* hit) {
 	hit->duration += GetFrameTime();
 	hit->current_frame = (int)(fmodf(hit->duration, 0.2f * 8.0f) / 0.2f);
@@ -470,6 +536,7 @@ void CreateManagedEffect(EffectType type, Vector2 position) {
 	case ENERGY:			hit = InitEnergyHitConfirmation(position); break;
 	case CHAOS:				hit = InitChaosHitConfirmation(position); break;
 	case DRONE_EXPLOSION:   hit = InitExplosionHitConfirmation(position); hit.color = WHITE; break;
+	case VOID_EVENT_HORIZON:hit = InitVoidEventHorizon(position); break;
 	default:				hit = InitShockwaveHitConfirmation(position); break;
 	}
 	List_Add(managed_effects, &hit);
@@ -484,7 +551,8 @@ void UpdateFrameTime(SpecialEffect* hit) {
 	case WORMHOLE:						UpdateWormholeAnimation(hit); break;
 	case WORMHOLE_TELEPORT_ANIMATION:	UpdateWormholeTeleportAnimation(hit); break;
 	case DRONE_THRUSTER:				UpdateThrusterAnimation(hit); break;
-	case ORION_DISRUPTION_FIELD:	  	UpdateOrionDisruptionField(hit); break;
+	case ORION_DISRUPTION_FIELD:		UpdateOrionDisruptionField(hit); break;
+	case VOID_EVENT_HORIZON:			UpdateVoidEventHorizon(hit); break;
 	default:
 		break;
 	}

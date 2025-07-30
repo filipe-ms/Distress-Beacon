@@ -14,13 +14,15 @@
 Texture shoot_damage;
 Texture shoot_cooldown;
 Texture shoot_size;
+Texture shoot_speed; // faltando
 
 Texture weapon_pulse;
 Texture weapon_photon;
 Texture weapon_shotgun;
 Texture weapon_homing;
+Texture weapon_prism;
 
-Texture util_shield;
+Texture util_shield; // faltando
 
 
 PowerUpCard active_cards[3];
@@ -35,11 +37,15 @@ void InitPowerUps(void) {
     shoot_damage = LoadTexture("powerups/damage.png");
     shoot_cooldown = LoadTexture("powerups/speed.png");
     shoot_size = LoadTexture("powerups/size.png");
+	shoot_speed = LoadTexture("powerups/bullet_speed.png");
+
     weapon_pulse = LoadTexture("powerups/pulse.png");
     weapon_photon = LoadTexture("powerups/photon.png");
     weapon_shotgun = LoadTexture("powerups/shotgun.png");
     weapon_homing = LoadTexture("powerups/homing.png");
-    util_shield = LoadTexture(""); // Ainda vou colocar a textura
+	weapon_prism = LoadTexture("powerups/prism.png");
+
+    util_shield = LoadTexture("powerups/shield.png");
 
     power_up_type[SHOOT_COOLDOWN] = (PowerUpCard){
         .type = SHOOT_COOLDOWN, 
@@ -63,6 +69,14 @@ void InitPowerUps(void) {
         .name = "Bulkier Rounds",
         .description = "Aumenta o tamanho\nde seus projéteis\n+%d%%",
 		.texture = &shoot_size
+    };
+
+    power_up_type[SHOOT_SPEED] = (PowerUpCard){
+        .type = SHOOT_SPEED,
+        .name = "Ballistics",
+        .type_string = "ATRIBUTO",
+        .description = "Aumenta a velocidade\nde seus projéteis\n+%d%%",
+        .texture = &shoot_speed
     };
 
     power_up_type[WEAPON_PULSE] = (PowerUpCard){
@@ -101,13 +115,22 @@ void InitPowerUps(void) {
 		.texture = &weapon_homing
     };
 
+    power_up_type[WEAPON_PRISM] = (PowerUpCard){
+        .type = WEAPON_PRISM,
+        .name = "Prism",
+        .type_string = "ARMA",
+        .description = "Laser que refrata\nquando atinge o alvo\nNível: %d",
+        .value = HOMING,
+        .texture = &weapon_prism
+    };
+
     power_up_type[SHIELD] = (PowerUpCard){
-    .name = "Shield",
-    .type = SHIELD,
-    .type_string = "ESCUDO",
-    .description = "Vc tem protecao contra 3 hits",
-    .value = SHIELD,
-    .texture = &util_shield
+        .name = "Shield",
+        .type = SHIELD,
+        .type_string = "ESCUDO",
+        .description = "Garante proteção\ncontra 3 hits.",
+        .value = SHIELD,
+        .texture = &util_shield
     };
 }
 
@@ -115,6 +138,7 @@ void UnloadPowerUpTextures(void) {
 	UnloadTexture(shoot_damage);
 	UnloadTexture(shoot_cooldown);
 	UnloadTexture(shoot_size);
+	UnloadTexture(shoot_speed);
 	UnloadTexture(weapon_pulse);
 	UnloadTexture(weapon_photon);
 	UnloadTexture(weapon_shotgun);
@@ -157,28 +181,35 @@ void PowerRandomizer(void) {
 
         switch (powerup_type) {
         case SHOOT_COOLDOWN: {
-            int value = GetRandomValue(5, 10);
+            int value = GetRandomValue(7, 12);
             active_cards[i].value = value;
             sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
         }
         case SHOOT_DAMAGE: {
-            int value = GetRandomValue(10, 25);
+            int value = GetRandomValue(10, 20);
             active_cards[i].value = value;
             sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
         }
         case SHOOT_SIZE: {
-            int value = GetRandomValue(15, 30);
+            int value = GetRandomValue(5, 10);
             active_cards[i].value = value;
             sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
             break;
+        }
+        case SHOOT_SPEED: {
+			int value = GetRandomValue(8, 16);
+			active_cards[i].value = value;
+			sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
+			break;
         }
 
         case WEAPON_PULSE:
         case WEAPON_PHOTON:
         case WEAPON_SHOTGUN:
-        case WEAPON_HOMING: {
+        case WEAPON_HOMING:
+        case WEAPON_PRISM: {
             int level = GetWeaponLevel(active_cards[i].value) + 1;
             sprintf(active_cards[i].description_buffer, active_cards[i].description, level);
             break;
@@ -202,11 +233,13 @@ static void PickPowerUp(void) {
     case SHOOT_COOLDOWN: IncrementCooldownModifier(chosen_powerup.value); break;
     case SHOOT_DAMAGE:   IncrementDamageModifier(chosen_powerup.value);   break;
     case SHOOT_SIZE:     IncrementSizeModifier(chosen_powerup.value);     break;
+	case SHOOT_SPEED:    IncrementSpeedModifier(chosen_powerup.value);    break;
 
     case WEAPON_PULSE:   PulseLevelUp();   break;
     case WEAPON_PHOTON:  PhotonLevelUp();  break;
     case WEAPON_SHOTGUN: ShotgunLevelUp(); break;
     case WEAPON_HOMING:  HomingLevelUp();  break;
+	case WEAPON_PRISM:   PrismLevelUp();   break;
 
     case SHIELD: ActivateShield(); break;
 
