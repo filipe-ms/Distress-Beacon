@@ -34,28 +34,40 @@ typedef enum {
     STEP_1_GALAXY_ZOOMING_DIALOG_6,
     STEP_2_SUN_APPEARING,
     STEP_2_SUN_MOVING_OUT,
-    STEP_3_PLANET_3_APPEARING,
-    STEP_4_PLANET_2_APPEARING,
-    STEP_5_PLANET_1_APPEARING,
+    STEP_3_PLANET_3_MOVING_OUT,
+    STEP_3_PLANET_2_MOVING_OUT,
+    STEP_3_PLANET_1_ZOOMING_IN,
 } EndingScene_AnimationState;
+
+const Vector2 sun_original_size = (Vector2) {800, 800};
+const Vector2 planet3_original_size = (Vector2) {400, 400};
+const Vector2 planet2_original_size = (Vector2) {400, 400};
+const Vector2 planet1_original_size = (Vector2) {300, 300};
 
 const Vector2 center = (Vector2) { GAME_SCREEN_CENTER, SCREEN_HEIGHT / 2.0f };
 const Color transparent = (Color){ .r = 1, .g = 1, .b = 1, .a = 0 };
+
 EndingScene_AnimationState animation_state;
 float elapsed_time;
 
 static void EndingScene_InitEffects() {
     InitEffects();
     
+    planet_sun = CreateUnmanagedEffect(PLANET_SUN, center, 0);
+    planet_sun->size = sun_original_size;
+
+    planet_3 = CreateUnmanagedEffect(PLANET_3, center, 0);
+    planet_3->size = planet3_original_size;
+
+    planet_2 = CreateUnmanagedEffect(PLANET_2, center, 0);
+    planet_2->size = planet2_original_size;
+
+    planet_black_hole = CreateUnmanagedEffect(PLANET_BLACK_HOLE, center, 0);
+
     planet_moon_1 = CreateUnmanagedEffect(PLANET_MOON_1, center, 0);
     planet_moon_2 = CreateUnmanagedEffect(PLANET_MOON_2, center, 0);
     planet_1 = CreateUnmanagedEffect(PLANET_1, center, 0);
-    planet_black_hole = CreateUnmanagedEffect(PLANET_BLACK_HOLE, center, 0);
     
-    planet_2 = CreateUnmanagedEffect(PLANET_2, center, 0);
-    planet_3 = CreateUnmanagedEffect(PLANET_3, center, 0);
-    planet_sun = CreateUnmanagedEffect(PLANET_SUN, center, 0);
-
     planet_galaxy = CreateUnmanagedEffect(PLANET_GALAXY, center, 0);
 
     planet_moon_1->color = planet_moon_2->color =
@@ -75,11 +87,32 @@ void Ending1Scene_Init() {
     InitBackground(BACKGROUND_ENDING, WHITE, -1, 1, 4.0f);
 }
 
+float planet_increase_size_elapsed_time = 0.0f;
+
+static void Ending1Scene_IncreasePlanetSize() {
+
+    const Vector2 size = { 160, 160 };
+    const float total_time = 24.0f; // 12.0f
+
+    planet_increase_size_elapsed_time = Clamp(planet_increase_size_elapsed_time + GetFrameTime(), 0, total_time);
+    
+    float factor = planet_increase_size_elapsed_time / total_time;
+
+    planet_sun->size = Vector2Add(sun_original_size, Vector2MultiplyScalarF(size, factor));
+    planet_3->size = Vector2Add(planet3_original_size, Vector2MultiplyScalarF(size, factor));
+    planet_2->size = Vector2Add(planet2_original_size, Vector2MultiplyScalarF(size, factor));
+    planet_1->size = Vector2Add(planet1_original_size, Vector2MultiplyScalarF(size, factor));
+
+    planet_3->rotation = factor * 60.0f;
+}
+
 static void Ending1Scene_UpdatePlanetAnimation() {
     bool has_reached_max = false;
     const float dialog_time = 4.0f;
     const float fade_times = 5.0f;
-    const Vector2 sun_original_time = (Vector2) {900, 900};
+
+    const Vector2 offset_right = { 80 * 3, 0 };
+    const Vector2 offset_left = { -80 * 3, 0 };
 
     switch (animation_state) {
         case STEP_1_GALAXY_ZOOMING_IN:
@@ -121,7 +154,6 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 }
             }
             break;
-
         case STEP_1_GALAXY_ZOOMING_DIALOG_3:
             {
                 elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, dialog_time, NULL, &has_reached_max);
@@ -171,15 +203,18 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                     InitFadeInEffect(fade_times, BLACK, 1.0f);
                     animation_state = STEP_2_SUN_APPEARING;
                     planet_galaxy->color = transparent;
-                    planet_sun->size = sun_original_time;
+
                     planet_sun->color = WHITE;
+                    planet_3->color = WHITE;
+                    planet_2->color = WHITE;
+                    planet_1->color = WHITE;
+
                     elapsed_time = 0;
                 }
             }
             break;
         case STEP_2_SUN_APPEARING:
             {
-                const Vector2 offset = { 160, 80 };
                 const float total_time = 4.0f; // 12.0f
 
                 elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, total_time, NULL, &has_reached_max);
@@ -192,17 +227,60 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             break;
         case STEP_2_SUN_MOVING_OUT:
             {
-                const Vector2 size = { 160, 160 };
-                const Vector2 offset_right = { 0, -80 };
-                const Vector2 offset_left = { 80, 0 };
-                const float total_time = 4.0f; // 12.0f
+                const float total_time = 8.0f; // 12.0f
 
                 elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, total_time, NULL, &has_reached_max);
-                planet_sun->size = Vector2Add(sun_original_time, Vector2MultiplyScalarF(size, elapsed_time));
-                planet_sun->position = Vector2Add(center, Vector2MultiplyScalarF(size, elapsed_time));
+                planet_sun->position = Vector2Add(center, Vector2MultiplyScalarF(offset_right, elapsed_time));
+                
+                Ending1Scene_IncreasePlanetSize();
     
                 if (has_reached_max) {
-                    animation_state = STEP_2_SUN_MOVING_OUT;
+                    animation_state = STEP_3_PLANET_3_MOVING_OUT;
+                    elapsed_time = 0;
+                }
+            }    
+            break;
+        case STEP_3_PLANET_3_MOVING_OUT:
+            {
+                const float total_time = 8.0f; // 12.0f
+
+                elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, total_time, NULL, &has_reached_max);
+                planet_3->position = Vector2Add(center, Vector2MultiplyScalarF(offset_left, elapsed_time));
+                
+                Ending1Scene_IncreasePlanetSize();
+    
+                if (has_reached_max) {
+                    animation_state = STEP_3_PLANET_2_MOVING_OUT;
+                    elapsed_time = 0;
+                }
+            }    
+            break;
+        case STEP_3_PLANET_2_MOVING_OUT:
+            {
+                const float total_time = 8.0f; // 12.0f
+
+                elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, total_time, NULL, &has_reached_max);
+                planet_2->position = Vector2Add(center, Vector2MultiplyScalarF(offset_right, elapsed_time));
+                
+                Ending1Scene_IncreasePlanetSize();
+    
+                if (has_reached_max) {
+                    animation_state = STEP_3_PLANET_1_ZOOMING_IN;
+                    elapsed_time = 0;
+                }
+            }    
+            break;
+        case STEP_3_PLANET_1_ZOOMING_IN:
+            {
+                const Vector2 size = { 160, 160 };
+                const float total_time = 8.0f; // 12.0f
+
+                elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, total_time, NULL, &has_reached_max);
+                
+                Ending1Scene_IncreasePlanetSize();
+    
+                if (has_reached_max) {
+                    animation_state = STEP_3_PLANET_1_ZOOMING_IN;
                     elapsed_time = 0;
                 }
             }    
