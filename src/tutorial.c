@@ -70,6 +70,8 @@ void InitTutorial(void) {
 
 	tutorial.bar_fill = 0.0f;
 
+	tutorial.teleport_sfx = NULL;
+	tutorial.teleport_sfx2 = NULL;
     SetKeySources();
     InitEffects();
 	InitFadeInEffect(1.5f, BLACK, 1.0f);
@@ -145,6 +147,15 @@ void ShipSpecial() {
     switch (tutorial.cycle) {
 
     case 0: { // Wait (placing wormhole)
+		if (tutorial.teleport_sfx) {
+			DestroyEffect(tutorial.teleport_sfx);
+			tutorial.teleport_sfx = NULL;
+		}
+		if (tutorial.teleport_sfx2) {
+			DestroyEffect(tutorial.teleport_sfx2);
+			tutorial.teleport_sfx2 = NULL;
+		}
+
         tutorial.ship_special.direction = CENTER;
         tutorial.ship_special.position = pos1;
         tutorial.ship_special.should_render = true;
