@@ -161,7 +161,6 @@ void ClearBottomPilotText(void) {
 void InitLeftUIPanel(void) {
 	SetTopPilotDefault();
 	SetBottomPilotDefault(NONE);
-	TriggerTopPilotAnimation(5.0f);
 }
 
 void DrawLeftUIPanel(void) {

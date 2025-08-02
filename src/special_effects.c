@@ -210,19 +210,19 @@ static SpecialEffect InitChaosHitConfirmation(Vector2 position) {
 	return hit;
 }
 
-static void UpdateWormholeAnimation(SpecialEffect* hit) {
-	hit->duration += GetFrameTime();
+static void UpdateWormholeAnimation(SpecialEffect* effect) {
+	effect->duration += GetFrameTime();
 
 	//during the first second, expand
-	if (hit->duration < 1) {
-		hit->size = Vector2MultiplyScalarF(hit->original_size, fminf(hit->duration, 1));
-	} else if (hit->duration + 1 > hit->max_duration) {
-		hit->size = Vector2MultiplyScalarF(hit->original_size, fmaxf(hit->max_duration - hit->duration, 0));
+	if (effect->duration < 1) {
+		effect->size = Vector2MultiplyScalarF(effect->original_size, fminf(effect->duration, 1));
+	} else if (effect->duration + 1 > effect->max_duration) {
+		effect->size = Vector2MultiplyScalarF(effect->original_size, fmaxf(effect->max_duration - effect->duration, 0));
 	} else {
-		hit->size = hit->original_size;
+		effect->size = effect->original_size;
 	}
 
-	hit->rotation += RAD2DEG * 2 * PI * GetFrameTime();
+	effect->rotation += RAD2DEG * 2 * PI * GetFrameTime();
 }
 
 static SpecialEffect InitWormhole(Vector2 position, float duration) {
@@ -270,7 +270,7 @@ static SpecialEffect InitWormholeTeleportAnimation(Vector2 position, float durat
 	return hit;
 }
 
-static bool IsHitConfirmationFinished(void* context, SpecialEffect* hit) {
+static bool IsEffectFinished(void* context, SpecialEffect* hit) {
 	bool has_ended = false;
 	
 	if (hit->reproduction_type == REPRODUCTION_ONCE) {
@@ -508,6 +508,7 @@ SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, fl
 	switch (type) {
 		case WORMHOLE_TELEPORT_ANIMATION: effect = InitWormholeTeleportAnimation(position, duration); break;
 		case ORION_DISRUPTION_FIELD:	  effect = InitOrionDisruptionField(position, duration); break;
+		case WORMHOLE:					  effect = InitWormhole(position, duration); break;
 	}
 	List_Add(managed_effects, &effect);
 	return (SpecialEffect*)List_GetByIndex(managed_effects, 0);
@@ -633,7 +634,7 @@ void UpdateFrameTime(SpecialEffect* effect) {
 	case WORMHOLE_TELEPORT_ANIMATION:	UpdateWormholeTeleportAnimation(effect); break;
 	case DRONE_THRUSTER:				UpdateThrusterAnimation(effect); break;
 	case ORION_DISRUPTION_FIELD:	  	UpdateOrionDisruptionField(effect); break;
-	case VOID_EVENT_HORIZON:			UpdateVoidEventHorizon(hit); break;
+	case VOID_EVENT_HORIZON:			UpdateVoidEventHorizon(effect); break;
 	
 	case PLANET_BLACK_HOLE:
 	case PLANET_GALAXY:
@@ -651,7 +652,7 @@ void UpdateFrameTime(SpecialEffect* effect) {
 
 void UpdateEffects(void) {
 	List_ForEach(managed_effects, (Function)UpdateFrameTime);
-	List_RemoveWithFn(managed_effects, NULL, (MatchFunction)IsHitConfirmationFinished);
+	List_RemoveWithFn(managed_effects, NULL, (MatchFunction)IsEffectFinished);
 
 	List_ForEach(unmanaged_effects, (Function)UpdateFrameTime);
 }
