@@ -14,6 +14,8 @@ Texture background_menubg;
 Texture texture_pilots;
 Texture texture_progress_bars;
 
+Texture keyboard_buttons;
+
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
 	texture_custom_ships = LoadTexture("custom_ships.png");
@@ -28,6 +30,7 @@ void LoadAllTextures(void) {
 	texture_pilots = LoadTexture("pilots.png");
 
 	texture_progress_bars = LoadTexture("progress_bars.png");
+	keyboard_buttons = LoadTexture("keys/keyboard.png");
 }
 
 void UnloadAllTextures(void) {
@@ -43,4 +46,5 @@ void UnloadAllTextures(void) {
 
 	UnloadTexture(texture_pilots);
 	UnloadTexture(texture_progress_bars);
+	UnloadTexture(keyboard_buttons);
 }

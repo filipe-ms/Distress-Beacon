@@ -39,7 +39,7 @@ void ChangeSceneArgs(Scene scene, int id) {
         break;
 
     case TUTORIAL:
-        InitTutorial(id);
+        InitTutorial();
         break;
 
     case GAME:

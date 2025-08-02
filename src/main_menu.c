@@ -44,9 +44,10 @@ void UpdateMainMenu() {
         if      (IsInputUpPressed()) main_menu.option = (main_menu.option - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
         else if (IsInputDownPressed()) main_menu.option = (main_menu.option + 1) % MENU_OPTION_COUNT;
         else if (IsConfirmButtonPressed()) {
-            if      (main_menu.option == MENU_OPTION_START)   main_menu.next_scene = SELECT_SHIP;
-            else if (main_menu.option == MENU_OPTION_RANKING) main_menu.next_scene = RANKING;
-            else if (main_menu.option == MENU_OPTION_EXIT)    main_menu.next_scene = EXIT;
+            if      (main_menu.option == MENU_OPTION_START)     main_menu.next_scene = SELECT_SHIP;
+            else if (main_menu.option == MENU_OPTION_RANKING)   main_menu.next_scene = RANKING;
+            else if (main_menu.option == MENU_OPTION_TUTORIAL)  main_menu.next_scene = TUTORIAL;
+            else if (main_menu.option == MENU_OPTION_EXIT)      main_menu.next_scene = EXIT;
 		    // TODO: Implementar agradecimentos
 		    main_menu.option_picked = true;
 			InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
@@ -62,6 +63,7 @@ void DrawMainMenu() {
 
     Color color_game_start = (main_menu.option == MENU_OPTION_START)   ? RED : GRAY;
     Color color_ranking =    (main_menu.option == MENU_OPTION_RANKING) ? RED : GRAY;
+    Color color_tutorial =   (main_menu.option == MENU_OPTION_TUTORIAL)? RED : GRAY;
     Color color_credits =    (main_menu.option == MENU_OPTION_CREDITS) ? RED : GRAY;
     Color color_exit =       (main_menu.option == MENU_OPTION_EXIT)    ? RED : GRAY;
 
@@ -82,8 +84,9 @@ void DrawMainMenu() {
 
 	DrawCenteredText("Iniciar Jogo",    SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.45f,  30, Fade(color_game_start, main_menu.alpha));
 	DrawCenteredText("Ranking",         SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.5f,   30, Fade(color_ranking, main_menu.alpha));
-	DrawCenteredText("Créditos",        SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.55f,  30, Fade(color_credits, main_menu.alpha));
-	DrawCenteredText("Sair",            SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.6f,   30, Fade(color_exit, main_menu.alpha));
+    DrawCenteredText("Tutorial",        SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.55f,  30, Fade(color_tutorial, main_menu.alpha));
+	DrawCenteredText("Créditos",        SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.6f,   30, Fade(color_credits, main_menu.alpha));
+	DrawCenteredText("Sair",            SCREEN_WIDTH / 2,   SCREEN_HEIGHT * 0.65f,  30, Fade(color_exit, main_menu.alpha));
     
     EndDrawing();
 }

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#define DEBUG_FLAG 1 // Hitboxes e outras coisas
+#define DEBUG_FLAG 0 // Hitboxes e outras coisas
 
 //--------------------------------------------------------------
 //

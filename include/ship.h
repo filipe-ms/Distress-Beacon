@@ -23,6 +23,7 @@ typedef struct Ship {
     float is_alive;
     bool should_render;
     bool is_able_to_act;
+    bool is_tutorial;
 } Ship;
 
 extern Ship ship;

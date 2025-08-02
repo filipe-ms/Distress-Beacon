@@ -55,7 +55,10 @@ typedef struct SpecialEffect {
 
 void DestroyEffect(SpecialEffect* effect);
 
+// Managed = O próprio gestor remove o asset
 SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, float duration);
+
+// Unmanaged = Se criar tem que remover depois
 SpecialEffect* CreateUnmanagedEffect(EffectType type, Vector2 position, float duration);
 void CreateManagedEffect(EffectType type, Vector2 position);
 
