@@ -10,6 +10,7 @@
 #include "winner.h"
 #include "game_over.h"
 #include "audio_manager.h"
+#include "credits.h"
 
 Scene current_scene;
 Scene main_menu;
@@ -41,6 +42,9 @@ void ChangeSceneArgs(Scene scene, int id) {
     case TUTORIAL:
         InitTutorial();
         break;
+
+    case CREDITS:
+        InitCredits();
 
     case GAME:
         InitGame();
@@ -81,6 +85,10 @@ void UpdateCurrentScene(void) {
         UpdateTutorial();
         break;
 
+    case CREDITS:
+		UpdateCredits();
+		break;
+
     case GAME:
         UpdateGame();
         break;
@@ -120,6 +128,10 @@ void DrawCurrentScene(void) {
     case TUTORIAL:
         DrawTutorial();
         break;
+
+	case CREDITS:
+		DrawCredits();
+		break;
 
     case GAME:
         DrawGame();

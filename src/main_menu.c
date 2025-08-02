@@ -45,7 +45,8 @@ void UpdateMainMenu() {
         else if (IsInputDownPressed()) main_menu.option = (main_menu.option + 1) % MENU_OPTION_COUNT;
         else if (IsConfirmButtonPressed()) {
             if      (main_menu.option == MENU_OPTION_START)     main_menu.next_scene = SELECT_SHIP;
-            else if (main_menu.option == MENU_OPTION_RANKING)   main_menu.next_scene = RANKING;
+			else if (main_menu.option == MENU_OPTION_RANKING)   main_menu.next_scene = RANKING;
+			else if (main_menu.option == MENU_OPTION_CREDITS)   main_menu.next_scene = CREDITS;
             else if (main_menu.option == MENU_OPTION_TUTORIAL)  main_menu.next_scene = TUTORIAL;
             else if (main_menu.option == MENU_OPTION_EXIT)      main_menu.next_scene = EXIT;
 		    // TODO: Implementar agradecimentos
