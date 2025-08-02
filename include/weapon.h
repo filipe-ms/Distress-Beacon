@@ -12,6 +12,7 @@ typedef enum WeaponType {
 	PHOTON,
 	SHOTGUN,
     HOMING,
+    PRISM,
 	WEAPON_COUNT
 } WeaponType;
 
@@ -146,6 +147,35 @@ void ShotgunLevelUp(void);
 
 //--------------------------------------------------------------
 //
+//                         Prism
+// 
+//--------------------------------------------------------------
+
+typedef enum PrismState {
+	PRISM_INACTIVE,
+	PRISM_ACTIVE,
+} PrismState;
+
+typedef struct PrismShoot {
+    Shoot shoot;
+    float bounces;
+    List* segments;
+	float alpha;
+} PrismShoot;
+
+typedef struct Prism {
+    Weapon weapon;
+    PrismShoot prism_shoot;
+    PrismState state;
+} Prism;
+
+extern Prism prism;
+
+int GetPrismLevel(void);
+void PrismLevelUp(void);
+
+//--------------------------------------------------------------
+//
 //                    Blaster (Ship special)
 // 
 //--------------------------------------------------------------
@@ -189,6 +219,10 @@ void DrawWeapon(void);
 int GetWeaponLevel(int reference);
 const char* GetActiveWeaponsString(void);
 int GetActiveWeaponsAmount(void);
+
+// Skills
+
+void EventHorizonTick(Vector2 position, float radius, float base_damage);
 
 // Power Modifiers
 float GetCooldownModifier(void);

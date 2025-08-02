@@ -463,6 +463,9 @@ bool CheckForEnemyCollisions(Ship* ship) {
     return false;
 }
 
+static void EnemyPositionChecks(Enemy* enemy) {
+    enemy->is_on_screen = (E_POSY > -50);
+}
 
 static void UpdateEnemy(Ship* ship, Enemy* enemy) {
 
@@ -483,28 +486,39 @@ static void UpdateEnemy(Ship* ship, Enemy* enemy) {
 
     CheckForEnemyCollisions(ship);
     EnemyWallBehavior(enemy);
+	EnemyPositionChecks(enemy);
 }
 
-static void EnemyPositionChecks(Enemy* enemy) {
-	bool is_out_of_bounds = E_POSY > SCREEN_HEIGHT + E_SIZEY + 10;
+static bool IsEnemyOutOfBounds(Enemy* enemy) {
+    if (!enemy) return false;
+    float bottom = enemy->position.y + enemy->size.y / 2.0f;
+    return bottom > SCREEN_HEIGHT + 10.0f;
+}
 
-    if (is_out_of_bounds) {
-        DeInitEnemy(enemy);
-        return;
-    }
+static bool CheckForDeadEnemies(void* context, void* data) {
+	Enemy* enemy = (Enemy*)data;
+	bool expression = enemy->hp <= 0;
 
-    enemy->is_on_screen = E_POSY > -(enemy->size.y / 2.0f) - 10;
+	if (expression) {
+		AddExperience(enemy->exp);
+		AddScore(enemy->score);
+		DeInitEnemy(enemy);
+	}
 
-    if (enemy->is_on_screen) {
-        int i = 10;
-    }
+	return expression;
 }
 
 void UpdateEnemies(Ship* ship) {
     List_ForEachCtx(enemies, ship, UpdateEnemy);
+}
 
-    // Position-based updates
-    List_ForEach(enemies, (MatchFunction)EnemyPositionChecks);
+
+void CleanupEnemies() {
+    // Limpa inimigos fora da tela
+    List_RemoveWithFn(enemies, NULL, (MatchFunction)IsEnemyOutOfBounds);
+
+    // Limpa inimigos mortos
+    List_RemoveWithFn(enemies, NULL, (MatchFunction)CheckForDeadEnemies);
 }
 
 static void DrawGhostShade(Enemy* enemy) {
@@ -546,6 +560,7 @@ static void DrawEnemy(void* context, void* data) {
 void DrawEnemies(void) {
     List_ForEachCtx(enemies, NULL, DrawEnemy);
 }
+
 
 void InitEnemySourceRects(void) {
     

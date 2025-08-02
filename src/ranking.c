@@ -7,6 +7,7 @@
 #include "draw_utils.h"
 #include "ship_references.h"
 #include "input.h"
+#include "background.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -70,6 +71,7 @@ void InitRanking() {
         entries[i].score = -1;
     }
     LoadRanking();
+    InitBackground(BACKGROUND_STARS, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
 }
 void AddToRanking(const char* name, int shipType, int score) {
     LoadRanking();
@@ -107,7 +109,8 @@ void AddToRanking(const char* name, int shipType, int score) {
     SaveRanking();
 }
 void UpdateRanking() {
-    if (IsConfirmButtonPressed()) {
+    UpdateBackground();
+    if (IsConfirmButtonPressed() || IsReturnButtonPressed()) {
         if (enter_transition) {
             enter_transition = false;
             rec_alpha = 0;
@@ -134,6 +137,7 @@ void UpdateRanking() {
 void DrawRanking(void) {
     BeginDrawing();
     ClearBackground(BLACK);
+    DrawBackground();
 
     int col1 = SCREEN_WIDTH * 0.2;
     int col2 = SCREEN_WIDTH * 0.4;

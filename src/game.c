@@ -61,6 +61,9 @@ void InitGame(void) {
         case PUDDLE_JUMPER:
             HomingLevelUp();
             break;
+        case VOID:
+            PrismLevelUp();
+            break;
     }
 }
 
@@ -87,14 +90,15 @@ void UpdateGame(void)
         if (level_up_flag) {
             UpdateLevelUpSelectMenu(&level_up_flag);
         } else {
+            int player_level = GetPlayerLevel();
 			UpdateBackground();
             UpdateEffects();
             UpdateWaves();
             UpdateEnemies(&ship);
             EnemyProjectile_Update(&ship);
             UpdateShip(&ship);
-            int player_level = GetPlayerLevel();
             UpdateWeapon(&ship);
+            CleanupEnemies();
             if (!ship.is_alive) ChangeScene(GAME_OVER);
             if (GetPlayerLevel() > player_level) {
                 PowerRandomizer();

@@ -28,5 +28,7 @@ extern Texture texture_planet_planet_2;
 extern Texture texture_planet_planet_3;
 extern Texture texture_planet_sun;
 
+extern Texture keyboard_buttons;
+
 void LoadAllTextures(void);
 void UnloadAllTextures(void);

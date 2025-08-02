@@ -79,7 +79,6 @@ void LoadGame() {
     SearchAndSetResourceDir("resources");
     LoadAllTextures();
     InitEnemySourceRects();
-    LoadTutorialTextures();
     EnemyProjectile_Load();
     LoadAudioResources();
 }
@@ -89,7 +88,6 @@ void UnloadGame(void)
 {
     LoadAllTextures();
     UnloadEnemyList();
-    UnloadTutorialTextures();
     UnloadPowerUpTextures();
 	UnloadEffects();
 	List_FreeAll();

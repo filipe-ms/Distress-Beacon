@@ -24,6 +24,8 @@ Texture texture_planet_planet_2;
 Texture texture_planet_planet_3;
 Texture texture_planet_sun;
 
+Texture keyboard_buttons;
+
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
 	texture_custom_ships = LoadTexture("custom_ships.png");
@@ -48,6 +50,8 @@ void LoadAllTextures(void) {
 	texture_planet_planet_2 = LoadTexture("ending_1/Planet2.png");
 	texture_planet_planet_3 = LoadTexture("ending_1/Planet3.png");
 	texture_planet_sun = LoadTexture("ending_1/Sun.png");	
+	
+	keyboard_buttons = LoadTexture("keys/keyboard.png");
 }
 
 void UnloadAllTextures(void) {
@@ -73,4 +77,6 @@ void UnloadAllTextures(void) {
 	UnloadTexture(texture_planet_planet_2);
 	UnloadTexture(texture_planet_planet_3);
 	UnloadTexture(texture_planet_sun);
+	
+	UnloadTexture(keyboard_buttons);
 }

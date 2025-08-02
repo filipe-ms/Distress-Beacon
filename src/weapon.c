@@ -277,11 +277,13 @@ static void DrawPhotonShoot(PhotonShoot* photon_shoot) {
 static void DrawPhoton(void) {
     List_ForEach(photon.photon_shoots, (Function)DrawPhotonShoot);
 }
+#pragma endregion
 
+// Dash do Orion
 void DashDisruptionFieldTick(float radius, float base_damage) {
     float damage = ApplyMultiplier(damage_modifier, base_damage);
 
-    for(Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+    for (Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
         Enemy* enemy = (Enemy*)enemyNode->data;
 
         if (CheckCollisionCircles(ship.position, radius, enemy->position, enemy->size.x / 2.0f)) {
@@ -290,7 +292,7 @@ void DashDisruptionFieldTick(float radius, float base_damage) {
         }
     }
 }
-#pragma endregion
+
 #pragma region HOMING
 //--------------------------------------------------------------
 //
@@ -446,7 +448,7 @@ static void DrawHomingShoot(HomingShoot* homing_shoot) {
 static void DrawHoming(void) {
     List_ForEach(homing.homing_shoots, (Function)DrawHomingShoot);
 }
-#pragma endregion HOMING
+#pragma endregion
 #pragma region SHOTGUN
 //--------------------------------------------------------------
 //
@@ -565,7 +567,7 @@ static void DrawShotgunShoot(ShotgunShoot* shotgun_shoot) {
 static void DrawShotgun(void) {
     List_ForEach(shotgun.shotgun_shoots, (Function)DrawShotgunShoot);
 }
-#pragma endregion SHOTGUN
+#pragma endregion
 #pragma region BLAST
 List* blaster_shoots;
 
@@ -648,12 +650,6 @@ static bool BlasterShoot_CheckForHits(Enemy* enemy, BlasterShoot* shoot) {
         CreateManagedEffect(EXPLOSION, enemy_pos);
         
         List_Add(shoot->targets, &enemy->id);
-        
-        if (enemy->hp <= 0) {
-            AddExperience(enemy->exp);
-            AddScore(enemy->score);
-			DeInitEnemy(enemy);
-        }
 
         return true;
     }
@@ -725,6 +721,183 @@ static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos)
 }
 
 #pragma endregion
+#pragma region PRISM
+//--------------------------------------------------------------
+//
+//                         PRISM
+// 
+//--------------------------------------------------------------
+
+Prism prism;
+
+int GetPrismLevel(void) { return prism.weapon.level; }
+void PrismLevelUp(void) { prism.weapon.level += 1; }
+
+static void InitPrism(void) {
+    prism.weapon.id = PRISM;
+    prism.weapon.level = 0;
+
+    prism.weapon.source = (Rectangle){ 0, 0, 0, 0 };
+    prism.weapon.offset = (Vector2){ 0, 0 };
+    prism.weapon.color = BLUE;
+
+    prism.weapon.damage = 0.25f;
+    prism.weapon.shoot_speed = (Vector2){ 0, 0 };
+
+    prism.weapon.cooldown_time = 0.75f;
+    prism.weapon.cooldown_charge = 0.0f;
+
+    prism.prism_shoot.segments = NULL;
+    prism.state = PRISM_INACTIVE;
+}
+
+static void ApplyPrismHit(Enemy* target, float damage) {
+    if (!target) return;
+
+    target->hp -= damage;
+    CreateManagedEffect(EXPLOSION, target->position);
+}
+
+static Enemy* FindInitialPrismTarget(Ship* ship) {
+    Enemy* first_enemy = NULL;
+    float min_dist_sq = -1.0f;
+
+    for (Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+        if (!enemy->is_targetable || !enemy->is_on_screen) continue;
+
+        if (fabs(enemy->position.x - ship->position.x) < enemy->size.x && enemy->position.y < ship->position.y) {
+            float dist_sq = Vector2DistanceSqr(ship->position, enemy->position);
+            if (first_enemy == NULL || dist_sq < min_dist_sq) {
+                min_dist_sq = dist_sq;
+                first_enemy = enemy;
+            }
+        }
+    }
+    return first_enemy;
+}
+
+static Enemy* FindNextPrismTarget(Vector2 origin, List* hit_enemies_list) {
+    Enemy* next_closest_enemy = NULL;
+    float next_min_dist_sq = -1.0f;
+
+    for (Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+        if (!enemy->is_targetable || !enemy->is_on_screen) continue;
+
+        bool already_hit = false;
+        for (Node* hitNode = hit_enemies_list->head; hitNode != NULL; hitNode = hitNode->next) {
+            if (*(Enemy**)hitNode->data == enemy) {
+                already_hit = true;
+                break;
+            }
+        }
+        if (already_hit) continue;
+
+        float dist_sq = Vector2DistanceSqr(origin, enemy->position);
+        if (next_closest_enemy == NULL || dist_sq < next_min_dist_sq) {
+            next_min_dist_sq = dist_sq;
+            next_closest_enemy = enemy;
+        }
+    }
+    return next_closest_enemy;
+}
+
+static void InitPrismShoot(Ship* ship) {
+
+    prism.prism_shoot.shoot.damage = ApplyMultiplier(damage_modifier, prism.weapon.damage);
+    prism.prism_shoot.shoot.size = (Vector2){ 1.0f, 1.0f }; // Fixo
+    prism.prism_shoot.alpha = 1.0f;
+
+    if (prism.prism_shoot.segments != NULL) List_Destroy(prism.prism_shoot.segments);
+    prism.prism_shoot.segments = List_Create(sizeof(Vector2));
+    List_AddLast(prism.prism_shoot.segments, &ship->position);
+
+    Enemy* current_target = FindInitialPrismTarget(ship);
+
+    if (current_target == NULL) {
+        Vector2 end_point = { ship->position.x, -20.0f };
+        List_AddLast(prism.prism_shoot.segments, &end_point);
+        prism.state = PRISM_ACTIVE;
+        return;
+    }
+
+    List* hit_enemies_this_shot = List_Create(sizeof(Enemy*));
+    Vector2 current_origin = ship->position;
+    prism.prism_shoot.bounces = prism.weapon.level;
+
+    while (current_target != NULL && prism.prism_shoot.bounces >= 0) {
+
+        Vector2 hit_position = current_target->position;
+
+        ApplyPrismHit(current_target, prism.prism_shoot.shoot.damage);
+
+        List_AddLast(prism.prism_shoot.segments, &hit_position);
+        List_Add(hit_enemies_this_shot, &current_target);
+        current_origin = hit_position;
+
+        prism.prism_shoot.bounces--;
+
+        if (prism.prism_shoot.bounces < 0) break;
+
+        current_target = FindNextPrismTarget(current_origin, hit_enemies_this_shot);
+    }
+
+    List_Destroy(hit_enemies_this_shot);
+    prism.state = PRISM_ACTIVE;
+}
+
+static void UpdatePrism(Ship* ship) {
+    if (!prism.weapon.level) return;
+
+    if (prism.state == PRISM_ACTIVE) {
+        prism.prism_shoot.alpha -= 5.0f * GetFrameTime();
+        if (prism.prism_shoot.alpha <= 0) {
+            prism.state = PRISM_INACTIVE;
+            prism.prism_shoot.alpha = 0;
+        }
+    }
+
+    prism.weapon.cooldown_charge -= ApplyMultiplier(cooldown_modifier, GetFrameTime());
+
+    if (prism.weapon.cooldown_charge <= 0) {
+        InitPrismShoot(ship);
+        prism.weapon.cooldown_charge = prism.weapon.cooldown_time;
+    }
+}
+
+static void DrawPrism(void) {
+    if (prism.state != PRISM_ACTIVE) return;
+
+    for (int i = 0; i < prism.prism_shoot.segments->size - 1; i++) {
+        Vector2* start = (Vector2*)List_GetByIndex(prism.prism_shoot.segments, i);
+        Vector2* end = (Vector2*)List_GetByIndex(prism.prism_shoot.segments, i + 1);
+
+        if (start && end) {
+            if (DEBUG_FLAG) {
+                DrawCircleV(*start, 20, Fade(RED, 0.5f));
+                DrawCircleV(*end, 20, Fade(RED, 0.5f));
+            }
+            DrawLineV(*start, *end, Fade(prism.weapon.color, prism.prism_shoot.alpha));
+        }
+    }
+}
+
+#pragma endregion
+
+void EventHorizonTick(Vector2 position, float radius, float base_damage) {
+    float damage = ApplyMultiplier(damage_modifier, base_damage);
+
+    for (Node* enemyNode = enemies->head; enemyNode != NULL; enemyNode = enemyNode->next) {
+        Enemy* enemy = (Enemy*)enemyNode->data;
+
+        if (CheckCollisionCircles(position, radius, enemy->position, enemy->size.x / 2.0f)) {
+            enemy->hp -= damage;
+            CreateManagedEffect(CHAOS, enemy->position);
+        }
+    }
+}
+
 //--------------------------------------------------------------
 //
 //                         SHIELD
@@ -754,12 +927,6 @@ int GetShieldCapacity(void) {
 // 
 //--------------------------------------------------------------
 
-static bool CheckForDeadEnemies(void* context, void* data) {
-    Enemy* enemy = (Enemy*)data;
-    bool expression = enemy->hp <= 0;
-    return expression;
-}
-
 static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
     Vector2 enemy_pos = { enemy->position.x, enemy->position.y };
 
@@ -769,12 +936,6 @@ static bool CheckForHits(Enemy* enemy, Shoot* shoot) {
     if (CheckCollisionCircles(enemy_pos, enemy->size.x / 2.0f, shoot->position, shoot->size.x / 2.0f)) {
         enemy->hp -= shoot->damage;
         CreateManagedEffect(EXPLOSION, enemy_pos);
-
-        if (enemy->hp <= 0) {
-            AddExperience(enemy->exp);
-            AddScore(enemy->score);
-			DeInitEnemy(enemy);
-        }
 
         return true;
     }
@@ -814,9 +975,7 @@ bool CheckForProjectileCollisions(Ship* ship) {
         List_ForEachCtx(blaster_shoots, enemy, BlasterShoot_CheckForHits);
     }
 
-
     List_ForEach(enemies, UnbindHomingProjectiles);
-    List_RemoveWithFn(enemies, NULL, (MatchFunction)CheckForDeadEnemies);
 
     return false;
 }
@@ -827,6 +986,7 @@ int GetWeaponLevel(int reference) {
     case PHOTON:  return GetPhotonLevel();
     case SHOTGUN: return GetShotgunLevel();
     case HOMING:  return GetHomingLevel();
+	case PRISM:   return GetPrismLevel();
     default:      return false;
     }
 }
@@ -839,6 +999,7 @@ const char* GetActiveWeaponsString(void) {
     if (GetPhotonLevel())  strcat(active_weapons, "Photon\n");
     if (GetShotgunLevel()) strcat(active_weapons, "Shotgun\n");
     if (GetHomingLevel())  strcat(active_weapons, "Homing\n");
+	if (GetPrismLevel())   strcat(active_weapons, "Prism\n");
 
     if (strlen(active_weapons) == 0) {
         strcpy(active_weapons, "None");
@@ -857,6 +1018,7 @@ int GetActiveWeaponsAmount(void) {
     if (GetPhotonLevel()) owned_weapons++;
     if (GetShotgunLevel()) owned_weapons++;
     if (GetHomingLevel()) owned_weapons++;
+	if (GetPrismLevel()) owned_weapons++;
     return owned_weapons;
 }
 
@@ -865,6 +1027,7 @@ static void InitAllWeapons(void) {
     InitPhoton();
     InitShotgun();
     InitHoming();
+    InitPrism();
 
     blaster_shoots = List_Create(sizeof(BlasterShoot));
     wormhole_enemy_list = List_Create(sizeof(int));
@@ -880,6 +1043,7 @@ void UpdateWeapon(Ship* ship) {
     UpdatePhoton(ship);
     UpdateShotgun(ship);
     UpdateHoming(ship);
+	UpdatePrism(ship);
 
     UpdateBlaster(ship);
 
@@ -891,5 +1055,6 @@ void DrawWeapon(void) {
     DrawPhoton();
     DrawShotgun();
     DrawHoming();
+	DrawPrism();
     DrawBlasterShots();
 }
