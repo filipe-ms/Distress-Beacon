@@ -392,6 +392,7 @@ void InitShip(Ship* ship, int id) {
 	ship->speed_dash_modifier = (Vector2){ 0 };
 	ship->should_render = true;
 	ship->is_able_to_act = true;
+	ship->is_tutorial = false;
 	InitShipSpecifics(ship, id);
 }
 
@@ -929,7 +930,7 @@ void UpdateShip(Ship* ship) {
 	float movement_x = (ship->speed.x + ship->speed_dash_modifier.x) * GetFrameTime();
 	float movement_y = (ship->speed.y + ship->speed_dash_modifier.y) * GetFrameTime();
 
-	if (ship->is_able_to_act) {
+	if (!ship->is_tutorial && ship->is_able_to_act) {
 		if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
 			ship->position.x += movement_x;
 			ship->direction = RIGHT;
@@ -950,27 +951,31 @@ void UpdateShip(Ship* ship) {
 		ship->thruster_cycle = (ship->thruster_cycle + 1) % MAX_THRUSTER_CYCLE;
 	}
 
-	switch(ship->id) {
-		case AUREA:
-			UpdateAurea(ship);
-			break;
-		case ORION:
-			UpdateOrion(ship);
-			break;
-		case NEBULA:
-			UpdateNebula(ship);
-			break;
-		case PUDDLE_JUMPER:
-			UpdatePuddleJumper(ship);
-			break;
-		case VOID:
-			UpdateVoid(ship);
-			break;
-		default:
-			return;
+	if(!ship->is_tutorial) {
+		switch(ship->id) {
+			case AUREA:
+				UpdateAurea(ship);
+				break;
+			case ORION:
+				UpdateOrion(ship);
+				break;
+			case NEBULA:
+				UpdateNebula(ship);
+				break;
+			case PUDDLE_JUMPER:
+				UpdatePuddleJumper(ship);
+				break;
+			case VOID:
+				UpdateVoid(ship);
+				break;
+			default:
+				return;
+		}
 	}
 
-	WallBehavior(&ship->position);
+	if (!ship->is_tutorial) {
+		WallBehavior(&ship->position);
+	}
 }
 
 void Ship_TakeDamage(Ship *ship)

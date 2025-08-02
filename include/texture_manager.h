@@ -18,5 +18,7 @@ extern Texture texture_pilots;
 
 extern Texture texture_progress_bars;
 
+extern Texture keyboard_buttons;
+
 void LoadAllTextures(void);
 void UnloadAllTextures(void);

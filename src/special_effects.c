@@ -69,7 +69,11 @@ List* unmanaged_effects;
 
 void InitEffects(void) {
 	texture_ship_assets = LoadTexture("playerassets.png");
+
+	if (managed_effects) List_Destroy(managed_effects);
 	managed_effects = List_Create(sizeof(SpecialEffect));
+
+	if (unmanaged_effects) List_Destroy(unmanaged_effects);
 	unmanaged_effects = List_Create(sizeof(SpecialEffect));
 }
 void UnloadEffects(void) {
@@ -490,9 +494,6 @@ static void UpdateVoidEventHorizon(SpecialEffect* hit) {
 		hit->color = Fade(WHITE, 0.0f);
 	}
 }
-
-
-
 
 static void UpdateOrionDisruptionField(SpecialEffect* hit) {
 	hit->duration += GetFrameTime();
