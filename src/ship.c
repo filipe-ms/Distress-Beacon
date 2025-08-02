@@ -976,38 +976,51 @@ void UpdateShip(Ship* ship) {
 	if (!ship->is_tutorial) {
 		WallBehavior(&ship->position);
 	}
+
+	if (ship->invincibilityTimer > 0) {
+
+		ship->invincibilityTimer -= GetFrameTime();
+
+		if (ship->invincibilityTimer <= 0) {
+			ship->isInvincible = false;
+			ship->invincibilityTimer = 0;
+		}
+	}
 }
 
-void Ship_TakeDamage(Ship *ship)
+bool Ship_TakeDamage(Ship* ship)
 {
 	// se for orion e estiver invisível -> não tem dano (;
 	if (ship->id == ORION && orion.dash_state != DASH_INACTIVE)
-		return;
+		return true;
 
 	if (ship->id == PUDDLE_JUMPER && puddle_jumper.wormhole_state != WORMHOLE_INACTIVE)
-		return;
+		return true;
 
 	// --- VERIFICA SE A NAVE ESTÁ INVENCÍVEL ---
 	if (ship->isInvincible) {
-		return; // Se estiver, ignora a colisão e continua o loop
+		return true; // Se estiver, ignora a colisão e continua viva
 	}
 
 	if (IsShieldActive())
 	{
 		shield.capacity--;
-		
+
 		// --- ATIVA A INVENCIBILIDADE APÓS O HIT ---
 		ship->isInvincible = true;
 		ship->invincibilityTimer = 1.0f; // Duração de 1 segundo
-	
+
 		if (shield.capacity <= 0) {
 			DeactivateShield();
-			return;
 		}
+
+		return true;
 	}
-	
+
 	ship->is_alive = false;
+	return false;
 }
+
 
 static void DrawPuddleJumper(Ship* ship, Rectangle draw_pos) {
 	Rectangle puddle_jumper_sprite = { 8, 16, SOURCE_WH, SOURCE_WH }; // Sprite base, andando p/ cima
@@ -1200,18 +1213,6 @@ void DrawShip(Ship* ship) {
 	case VOID:
 		DrawVoid(ship, destination);
 		break;
-	}
-
-	if (ship->isInvincible) {
-		ship->invincibilityTimer -= GetFrameTime();
-
-		TraceLog(LOG_INFO, "tempo que falta eh %.2f", ship->invincibilityTimer);
-
-		if (ship->invincibilityTimer <= 0) {
-			ship->isInvincible = false;
-
-			TraceLog(LOG_INFO, "vulneravel");
-		}
 	}
 }
 
