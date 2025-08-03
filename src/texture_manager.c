@@ -30,7 +30,7 @@ Music main_music;
 Music in_game_music;
 Music ending_music;
 
-void LoadAllAssets(void) {
+void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
 	texture_custom_ships = LoadTexture("custom_ships.png");
 	texture_projectiles = LoadTexture("weapons.png");
@@ -58,7 +58,7 @@ void LoadAllAssets(void) {
 	keyboard_buttons = LoadTexture("keys/keyboard.png");
 }
 
-void UnloadAllAssets(void) {
+void UnloadAllTextures(void) {
 	UnloadTexture(texture_ships);
 	UnloadTexture(texture_projectiles);
 	UnloadTexture(texture_ship_assets);

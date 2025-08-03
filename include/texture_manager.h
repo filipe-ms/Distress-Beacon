@@ -34,5 +34,5 @@ extern Music main_music;
 extern Music in_game_music;
 extern Music ending_music;
 
-void LoadAllAssets(void);
-void UnloadAllAssets(void);
+void LoadAllTextures(void);
+void UnloadAllTextures(void);
