@@ -14,6 +14,7 @@
 #include "bars.h"
 #include "timer.h"
 #include "background.h"
+#include "stdlib.h"
 
 Rectangle keyboard_keys[84]; // 12 * 7 = 84
 
