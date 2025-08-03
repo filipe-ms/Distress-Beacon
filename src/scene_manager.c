@@ -61,6 +61,11 @@ void ChangeSceneArgs(Scene scene, int id) {
 	case GAME_OVER:
 		InitGameOver();
 		break;
+
+    case ENDING_1:
+        Ending1Scene_Init();
+        break;
+
     }
 }
 
@@ -103,6 +108,10 @@ void UpdateCurrentScene(void) {
 
     case GAME_OVER:
         UpdateGameOver();
+        break;
+        
+    case ENDING_1:
+        Ending1Scene_Update();
         break;
     }
 
@@ -147,6 +156,10 @@ void DrawCurrentScene(void) {
 
     case GAME_OVER:
         DrawGameOver();
+        break;
+                
+    case ENDING_1:
+        Ending1Scene_Draw();
         break;
     }
 }

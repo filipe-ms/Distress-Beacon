@@ -13,10 +13,20 @@ extern Texture background_stars;
 extern Texture background_dark_space;
 extern Texture background_stars_and_dust;
 extern Texture background_menubg;
+extern Texture background_ending;
 
 extern Texture texture_pilots;
 
 extern Texture texture_progress_bars;
+
+extern Texture texture_planet_black_hole;
+extern Texture texture_planet_galaxy;
+extern Texture texture_planet_moon_1;
+extern Texture texture_planet_moon_2;
+extern Texture texture_planet_planet_1;
+extern Texture texture_planet_planet_2;
+extern Texture texture_planet_planet_3;
+extern Texture texture_planet_sun;
 
 extern Texture keyboard_buttons;
 

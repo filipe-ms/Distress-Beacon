@@ -7,7 +7,8 @@ typedef enum BackgroundTexture {
 	BACKGROUND_STARS,
 	BACKGROUND_GAME,
 	BACKGROUND_SELECT_SHIP,
-	BACKGROUND_COUNT
+	BACKGROUND_ENDING,
+	BACKGROUND_COUNT,
 } BackgroundTexture;
 
 typedef enum BackgroundScaleOption {

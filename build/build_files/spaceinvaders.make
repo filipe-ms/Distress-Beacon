@@ -115,6 +115,7 @@ GENERATED += $(OBJDIR)/bars.o
 GENERATED += $(OBJDIR)/credits.o
 GENERATED += $(OBJDIR)/dev_interface_left_ui.o
 GENERATED += $(OBJDIR)/draw_utils.o
+GENERATED += $(OBJDIR)/ending_1.o
 GENERATED += $(OBJDIR)/enemy.o
 GENERATED += $(OBJDIR)/enemy_projectile.o
 GENERATED += $(OBJDIR)/enemy_wave.o
@@ -150,6 +151,7 @@ OBJECTS += $(OBJDIR)/bars.o
 OBJECTS += $(OBJDIR)/credits.o
 OBJECTS += $(OBJDIR)/dev_interface_left_ui.o
 OBJECTS += $(OBJDIR)/draw_utils.o
+OBJECTS += $(OBJDIR)/ending_1.o
 OBJECTS += $(OBJDIR)/enemy.o
 OBJECTS += $(OBJDIR)/enemy_projectile.o
 OBJECTS += $(OBJDIR)/enemy_wave.o
@@ -258,6 +260,9 @@ $(OBJDIR)/dev_interface_left_ui.o: ../../src/dev_interface_left_ui.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/draw_utils.o: ../../src/draw_utils.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ending_1.o: ../../src/ending_1.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/enemy.o: ../../src/enemy.c

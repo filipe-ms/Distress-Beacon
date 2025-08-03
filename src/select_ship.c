@@ -13,6 +13,7 @@
 #include "draw_utils.h"
 #include "ship_references.h"
 #include "input.h"
+#include "dev_interface_left_ui.h"
 
 #include "left_ui.h"
 
@@ -30,6 +31,7 @@ typedef struct ShipSelectMenu {
 } ShipSelectMenu;
 
 static ShipSelectMenu ship_menu;
+static const float pilot_speech_timer = 3.0f;
 
 void InitSelectMenu() {
 
@@ -56,6 +58,7 @@ void InitSelectMenu() {
 	InitBackground(BACKGROUND_SELECT_SHIP, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
 	InitFadeInEffect(1.5f, BLACK, 1.0f);
     SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
+    UI_TriggerTopPilotSpeech(pilot_speech_timer);
 }
 
 static int GetPrevShip() {
@@ -106,13 +109,13 @@ void UpdateShipSelectMenu() {
             SetPlayerShip(GetPrevShip());
 			SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
 			SetTopPilotDefault();
-            TriggerTopPilotAnimation(5.0f);
+            TriggerTopPilotAnimation(pilot_speech_timer);
         }
         else if (IsInputRightPressed()) {
             SetPlayerShip(GetNextShip());
             SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
             SetTopPilotDefault();
-            TriggerTopPilotAnimation(5.0f);
+            TriggerTopPilotAnimation(pilot_speech_timer);
         }
         else if (IsConfirmButtonPressed()) {
             ship_menu.is_ship_selected = true;

@@ -31,6 +31,7 @@
 		"hit_confirmation.h": "c",
 		"random": "c",
 		"special_effects.h": "c",
-		"stdlib.h": "c"
+		"scene_draw_effects.h": "c",
+		"background.h": "c"
 	}
 }

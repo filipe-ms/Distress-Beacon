@@ -19,6 +19,7 @@ typedef enum {
     CREDITS,
     WINNER,
     GAME_OVER,
+    ENDING_1,
     ENTER_NAME,
     RANKING,
     EXIT

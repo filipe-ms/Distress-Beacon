@@ -21,7 +21,16 @@ typedef enum EffectType {
 	ORION_DISRUPTION_FIELD,
 	WORMHOLE_PUDDLE_JUMPER_SHIP,
 	WORMHOLE_TETHER,
-	VOID_EVENT_HORIZON
+	VOID_EVENT_HORIZON,
+
+	PLANET_BLACK_HOLE,
+	PLANET_GALAXY,
+	PLANET_MOON_1,
+	PLANET_MOON_2,
+	PLANET_1,
+	PLANET_2,
+	PLANET_3,
+	PLANET_SUN
 } EffectType;
 
 typedef enum ParticleRenderingOrder {
@@ -55,7 +64,7 @@ typedef struct SpecialEffect {
 
 void DestroyEffect(SpecialEffect* effect);
 
-// Managed = O próprio gestor remove o asset
+// Managed = O prï¿½prio gestor remove o asset
 SpecialEffect* CreateManagedEffectDuration(EffectType type, Vector2 position, float duration);
 
 // Unmanaged = Se criar tem que remover depois
