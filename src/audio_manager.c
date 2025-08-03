@@ -3,6 +3,7 @@
 #include "list.h"
 #include "common.h"
 #include "player.h"
+#include "scene_manager.h"
 
 #define SPEECH_POOL_SIZE 8
 
@@ -38,7 +39,13 @@ static SpeechState speech = { 0 };
 
 static List* playing_sounds = NULL;
 
-// Declarando aqui em cima pra não me importar com a ordem que eu chamo embaixo
+static Music main_music;
+static Music in_game_music;
+static Music ending_music;
+
+static Music* playing_music;
+
+// Declarando aqui em cima pra nï¿½o me importar com a ordem que eu chamo embaixo
 #pragma region ForwardDeclarations
 static void ApplyFadeIn(Wave* wave, float fade_duration_ms);  // Para remover os clicks
 static void ApplyFadeOut(Wave* wave, float fade_duration_ms); // Para remover os clicks
@@ -84,9 +91,42 @@ void PlaySfx(SoundEffect sound) {
     PlaySoundInternal(GetSoundEffect(sound), AUDIO_TYPE_SFX);
 }
 
-#pragma region LOAD/UNLOAD
+void PlayMusic(Scene scene) {
+    switch(scene) {
+        case START:
+        case SELECT_SHIP:
+        case TUTORIAL:
+        case CREDITS:
+        case RANKING:
+        case GAME_OVER:
+        case WINNER:
+        case ENTER_NAME:
+        case EXIT:
+            playing_music = &main_music;
+            break;
+        case ENDING_1:
+            playing_music = &ending_music;
+            break;
+        case GAME:
+            playing_music = &in_game_music;
+            break;
+    }
 
+    if (!IsMusicStreamPlaying(*playing_music)) {
+        PlayMusicStream(*playing_music);
+        SetMusicVolume(*playing_music, 0.1);
+        SeekMusicStream(*playing_music, 0);
+        
+        (*playing_music).looping = true;
+    }
+}
+
+#pragma region LOAD/UNLOAD
 void LoadAudioResources(void) {
+    main_music = LoadMusicStream("music/Dani Stob - A Journey for Purpose - Loop.wav");
+    in_game_music = LoadMusicStream("music/Dani Stob - Unstoppable - Loop.wav");
+    ending_music = LoadMusicStream("music/Dani Stob - Beyond The Stars - Loop.wav");
+
     {
         nebula_speech.wave[0] = LoadWave("sound/speech/nebula/oboe1.wav");
         nebula_speech.wave[1] = LoadWave("sound/speech/nebula/oboe2.wav");
@@ -155,7 +195,7 @@ void LoadAudioResources(void) {
     }
 
     // Carrega cada nota no seu respectivo pool de sons
-    // Pool é necessário para evitar clicks no audio
+    // Pool ï¿½ necessï¿½rio para evitar clicks no audio
     for (int i = 0; i < SPEECH_POOL_SIZE; i++) {
         nebula_speech.sound_pool[0][i] = LoadSoundFromWave(nebula_speech.wave[0]);
         nebula_speech.sound_pool[1][i] = LoadSoundFromWave(nebula_speech.wave[1]);
@@ -173,7 +213,7 @@ void LoadAudioResources(void) {
 		aurea_speech.sound_pool[1][i] = LoadSoundFromWave(aurea_speech.wave[1]);
     }
 
-    // O Wave já foi copiado para os Sounds.
+    // O Wave jï¿½ foi copiado para os Sounds.
     UnloadWave(nebula_speech.wave[0]);
     UnloadWave(nebula_speech.wave[1]);
 
@@ -219,10 +259,10 @@ static void ApplyFadeIn(Wave* wave, float fade_duration_ms) {
     if (fade_frame_count == 0) return;
     if (fade_frame_count > wave->frameCount) fade_frame_count = wave->frameCount;
 
-    // O número total de amostras a serem processadas (frames * canais).
+    // O nï¿½mero total de amostras a serem processadas (frames * canais).
     unsigned int sample_count_to_fade = fade_frame_count * wave->channels;
 
-    // Processa as amostras com base no tamanho (bits). 16-bit é o mais comum.
+    // Processa as amostras com base no tamanho (bits). 16-bit ï¿½ o mais comum.
     if (wave->sampleSize == 16) {
         short* samples = (short*)wave->data;
         for (unsigned int i = 0; i < sample_count_to_fade; i++) {
@@ -294,7 +334,7 @@ static void ResetSpeech(void) {
 
 static Sound* GetPilotSound(int ship) {
     switch (ship) {
-    // Avança o índice do pool e retorna o ponteiro para o som
+    // Avanï¿½a o ï¿½ndice do pool e retorna o ponteiro para o som
     case ORION: {
 		int note_index = GetRandomValue(0, 1);
 		int pool_idx = orion_speech.sound_pool_index[note_index];
@@ -339,4 +379,13 @@ static Sound* GetPilotSound(int ship) {
 void UpdateAudio(void) {
     UpdateAudioCleanup();
     UpdateSpeech();
+    
+    if (playing_music != NULL)
+        UpdateMusicStream(*playing_music);
+}
+
+void UnloadMusics(void) {
+	UnloadMusicStream(main_music);
+	UnloadMusicStream(in_game_music);
+	UnloadMusicStream(ending_music);
 }

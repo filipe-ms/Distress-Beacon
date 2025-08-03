@@ -2,6 +2,7 @@
 #pragma once
 
 #include "raylib.h"
+#include "scene_manager.h"
 
 // Load/Unload
 void LoadAudioResources(void);
@@ -18,4 +19,7 @@ typedef enum {
 void PlaySfx(SoundEffect sound);
 
 // Update
+void PlayMusic(Scene scene);
+
 void UpdateAudio(void);
+void UnloadMusics(void);

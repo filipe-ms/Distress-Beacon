@@ -26,7 +26,11 @@ Texture texture_planet_sun;
 
 Texture keyboard_buttons;
 
-void LoadAllTextures(void) {
+Music main_music;
+Music in_game_music;
+Music ending_music;
+
+void LoadAllAssets(void) {
 	texture_ships = LoadTexture("ships.png");
 	texture_custom_ships = LoadTexture("custom_ships.png");
 	texture_projectiles = LoadTexture("weapons.png");
@@ -54,7 +58,7 @@ void LoadAllTextures(void) {
 	keyboard_buttons = LoadTexture("keys/keyboard.png");
 }
 
-void UnloadAllTextures(void) {
+void UnloadAllAssets(void) {
 	UnloadTexture(texture_ships);
 	UnloadTexture(texture_projectiles);
 	UnloadTexture(texture_ship_assets);

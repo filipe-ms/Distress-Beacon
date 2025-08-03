@@ -77,7 +77,7 @@ int main(void)
 // Inicializa as texturas no jogo
 void LoadGame() {
     SearchAndSetResourceDir("resources");
-    LoadAllTextures();
+    LoadAllAssets();
     InitEnemySourceRects();
     EnemyProjectile_Load();
     LoadAudioResources();
@@ -86,7 +86,7 @@ void LoadGame() {
 // Unload game variables
 void UnloadGame(void)
 {
-    LoadAllTextures();
+    LoadAllAssets();
     UnloadEnemyList();
     UnloadPowerUpTextures();
 	UnloadEffects();
