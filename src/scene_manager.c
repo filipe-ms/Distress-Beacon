@@ -67,6 +67,8 @@ void ChangeSceneArgs(Scene scene, int id) {
         break;
 
     }
+
+    PlayMusic(current_scene);
 }
 
 

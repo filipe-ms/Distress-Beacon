@@ -32,6 +32,7 @@
 		"random": "c",
 		"special_effects.h": "c",
 		"scene_draw_effects.h": "c",
-		"background.h": "c"
+		"background.h": "c",
+		"scene_manager.h": "c"
 	}
 }

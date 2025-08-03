@@ -30,5 +30,10 @@ extern Texture texture_planet_sun;
 
 extern Texture keyboard_buttons;
 
+extern Music main_music;
+extern Music in_game_music;
+extern Music ending_music;
+
 void LoadAllTextures(void);
 void UnloadAllTextures(void);
+void UnloadMusics(void);

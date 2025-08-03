@@ -26,6 +26,10 @@ Texture texture_planet_sun;
 
 Texture keyboard_buttons;
 
+Music main_music;
+Music in_game_music;
+Music ending_music;
+
 void LoadAllTextures(void) {
 	texture_ships = LoadTexture("ships.png");
 	texture_custom_ships = LoadTexture("custom_ships.png");
