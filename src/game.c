@@ -17,6 +17,7 @@
 #include "timer.h"
 #include "input.h"
 
+
 // Waves
 #define FIRST_WAVE 0
 #define SECOND_WAVE 1
@@ -28,6 +29,7 @@ bool pause;
 bool pause_flag;
 bool victory;
 bool level_up_flag;
+bool player_has_died;
 
 void InitGame(void) {
     // Flags
@@ -35,6 +37,7 @@ void InitGame(void) {
     pause_flag = false;
     victory = false;
     level_up_flag = false;
+	player_has_died = false;
 
     // Other inits
     InitEffects();
@@ -77,44 +80,63 @@ void InitGame(void) {
 
 void UpdateGame(void)
 {
-    if (IsPauseButtonPressed() && !pause_flag) {
-        pause = !pause;
-        pause_flag = true;
-    }
-    if (IsPauseButtonReleased()) {
-        pause_flag = false;
-    }
+    UpdateEffects();
 
-    if (!pause)
-    {
-        if (level_up_flag) {
-            UpdateLevelUpSelectMenu(&level_up_flag);
-        } else {
-            int player_level = GetPlayerLevel();
-			UpdateBackground();
-            UpdateEffects();
-            UpdateWaves();
-            UpdateEnemies(&ship);
-            EnemyProjectile_Update(&ship);
-            UpdateShip(&ship);
-            UpdateWeapon(&ship);
-            CleanupEnemies();
-            if (!ship.is_alive) ChangeScene(GAME_OVER);
-            if (GetPlayerLevel() > player_level) {
-                PowerRandomizer();
-                level_up_flag = true;
+    if (player_has_died) {
+        
+        if (GetElapsedTime() > 0.5f && ship.should_render) {
+            ship.should_render = false;
+            CreateManagedEffect(EXPLOSION, ship.position);
+        }
+        if (UpdateTimer()) {
+            ChangeScene(GAME_OVER);
+        }
+    } else {
+        if (IsPauseButtonPressed() && !pause_flag) {
+            pause = !pause;
+            pause_flag = true;
+        }
+        if (IsPauseButtonReleased()) {
+            pause_flag = false;
+        }
+
+        if (!pause)
+        {
+            if (level_up_flag) {
+                UpdateLevelUpSelectMenu(&level_up_flag);
+            } else {
+                int player_level = GetPlayerLevel();
+
+			    UpdateBackground();
+                
+                UpdateWaves();
+                UpdateEnemies(&ship);
+                EnemyProjectile_Update(&ship);
+                UpdateShip(&ship);
+                UpdateWeapon(&ship);
+                CleanupEnemies();
+
+                if (!ship.is_alive) {
+				    InitTimer(1.0f);
+				    player_has_died = true;
+                }
+
+                if (GetPlayerLevel() > player_level) {
+                    PowerRandomizer();
+                    level_up_flag = true;
+                }
             }
         }
-    }
 
-	if (AreAllWavesCompleted() && !victory) {
-		victory = true;
-		ChangeSceneArgs(WINNER, GetPlayerScore());
-        InitTimer(10.0f);
-	}
+	    if (AreAllWavesCompleted() && !victory) {
+		    victory = true;
+		    ChangeSceneArgs(WINNER, GetPlayerScore());
+            InitTimer(10.0f);
+	    }
 
-    if (victory && UpdateTimer()) {
-        ChangeScene(WINNER);
+        if (victory && UpdateTimer()) {
+            ChangeScene(WINNER);
+        }
     }
 }
 
