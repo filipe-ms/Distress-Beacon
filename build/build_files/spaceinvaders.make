@@ -112,6 +112,7 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/audio_manager.o
 GENERATED += $(OBJDIR)/background.o
 GENERATED += $(OBJDIR)/bars.o
+GENERATED += $(OBJDIR)/credits.o
 GENERATED += $(OBJDIR)/dev_interface_left_ui.o
 GENERATED += $(OBJDIR)/draw_utils.o
 GENERATED += $(OBJDIR)/ending_1.o
@@ -147,6 +148,7 @@ GENERATED += $(OBJDIR)/winner.o
 OBJECTS += $(OBJDIR)/audio_manager.o
 OBJECTS += $(OBJDIR)/background.o
 OBJECTS += $(OBJDIR)/bars.o
+OBJECTS += $(OBJDIR)/credits.o
 OBJECTS += $(OBJDIR)/dev_interface_left_ui.o
 OBJECTS += $(OBJDIR)/draw_utils.o
 OBJECTS += $(OBJDIR)/ending_1.o
@@ -249,6 +251,9 @@ $(OBJDIR)/background.o: ../../src/background.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/bars.o: ../../src/bars.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/credits.o: ../../src/credits.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/dev_interface_left_ui.o: ../../src/dev_interface_left_ui.c

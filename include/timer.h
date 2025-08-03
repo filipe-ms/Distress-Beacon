@@ -5,3 +5,4 @@
 
 void InitTimer(float duration);
 bool UpdateTimer(void);
+float GetElapsedTime(void);

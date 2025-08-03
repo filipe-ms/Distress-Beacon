@@ -456,7 +456,7 @@ bool CheckForEnemyCollisions(Ship* ship) {
 
         Vector2 enemy_pos_vect = { enemy->position.x, enemy->position.y };
         if (CheckEnemyCollisionWithPlayer(&ship->position, &enemy_pos_vect)) {
-            Ship_TakeDamage(ship);
+			if (!Ship_TakeDamage(ship)) ship->is_alive = false;
         }
     }
 

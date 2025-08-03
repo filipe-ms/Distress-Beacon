@@ -141,6 +141,9 @@
     <ClInclude Include="..\..\include\bars.h">
       <Filter>Header Files\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\credits.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.c">
@@ -241,6 +244,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\bars.c">
       <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\credits.c">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

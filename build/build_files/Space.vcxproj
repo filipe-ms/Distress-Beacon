@@ -267,6 +267,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\audio_manager.h" />
     <ClInclude Include="..\..\include\bars.h" />
+    <ClInclude Include="..\..\include\credits.h" />
     <ClInclude Include="..\..\include\enemy_projectile.h" />
     <ClInclude Include="..\..\include\general_utils.h" />
     <ClInclude Include="..\..\include\input.h" />
@@ -309,6 +310,7 @@
     <ClCompile Include="..\..\src\audio_manager.c" />
     <ClCompile Include="..\..\src\background.c" />
     <ClCompile Include="..\..\src\bars.c" />
+    <ClCompile Include="..\..\src\credits.c" />
     <ClCompile Include="..\..\src\enemy_projectile.c" />
     <ClCompile Include="..\..\src\general_utils.c" />
     <ClCompile Include="..\..\src\input.c" />

@@ -16,6 +16,7 @@ typedef enum {
     SELECT_SHIP,
     TUTORIAL,
     GAME,
+    CREDITS,
     WINNER,
     GAME_OVER,
     ENDING_1,
