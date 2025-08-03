@@ -86,10 +86,11 @@ void LoadGame() {
 // Unload game variables
 void UnloadGame(void)
 {
-    LoadAllTextures();
+    UnloadAllTextures();
     UnloadEnemyList();
     UnloadPowerUpTextures();
 	UnloadEffects();
+    UnloadMusics();
 	List_FreeAll();
     UnloadAudioResources();
 }

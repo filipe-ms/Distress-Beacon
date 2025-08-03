@@ -36,3 +36,4 @@ extern Music ending_music;
 
 void LoadAllTextures(void);
 void UnloadAllTextures(void);
+void UnloadMusics(void);
