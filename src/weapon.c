@@ -14,6 +14,8 @@
 #include "general_utils.h"
 #include "texture_manager.h"
 
+#include "audio_manager.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -130,6 +132,8 @@ static void InitPulseShoot(Ship* ship) {
 	}
 
     List_AddLast(pulse.pulse_shoots, &new_pulse_shoot);
+
+    PlaySoundFxWithVolumeAndRandomPitch(&sound1, 1.0f, 1.0f, 1.5f);
 }
 
 static void PulseShootPositionUpdate(PulseShoot* pulse_shoot) {
@@ -755,7 +759,7 @@ static void ApplyPrismHit(Enemy* target, float damage) {
     if (!target) return;
 
     target->hp -= damage;
-    CreateManagedEffect(EXPLOSION, target->position);
+    CreateManagedEffect(ENERGY, target->position);
 }
 
 static Enemy* FindInitialPrismTarget(Ship* ship) {
@@ -862,6 +866,7 @@ static void UpdatePrism(Ship* ship) {
 
     if (prism.weapon.cooldown_charge <= 0) {
         InitPrismShoot(ship);
+        PlaySoundFxWithVolumeAndRandomPitch(&sound1, 0.4f, 2.0f, 2.5f);
         prism.weapon.cooldown_charge = prism.weapon.cooldown_time;
     }
 }

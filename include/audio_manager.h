@@ -18,6 +18,19 @@ typedef enum {
 
 void PlaySfx(SoundEffect sound);
 
+// Sound Effects
+Sound* PlaySoundFx(Sound* sound);
+Sound* PlaySoundFxPitch(Sound* sound, float pitch);
+Sound* PlaySoundFxRandomPitch(Sound* sound, float minPitch, float maxPitch);
+Sound* PlaySoundFxWithVolumeAndRandomPitch(Sound* sound, float volume, float minPitch, float maxPitch);
+
+extern Sound sound1;
+extern Sound sound5;
+extern Sound sound6;
+extern Sound sound11;
+extern Sound sound12;
+extern Sound sound15;
+
 // Update
 void PlayMusic(Scene scene);
 

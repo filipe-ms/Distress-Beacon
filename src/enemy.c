@@ -464,7 +464,12 @@ bool CheckForEnemyCollisions(Ship* ship) {
 }
 
 static void EnemyPositionChecks(Enemy* enemy) {
-    enemy->is_on_screen = (E_POSY > -50);
+    bool is_out_of_screen_up = (E_POSY < -DRAW_WH);
+	bool is_out_of_scren_down = (E_POSY > SCREEN_HEIGHT + DRAW_WH);
+	bool is_out_of_screen_left = (E_POSX < GAME_SCREEN_START - DRAW_WH);
+	bool is_out_of_screen_right = (E_POSX > GAME_SCREEN_END + DRAW_WH);
+
+    enemy->is_on_screen = !(is_out_of_screen_up || is_out_of_scren_down || is_out_of_screen_left || is_out_of_screen_right);
 }
 
 static void UpdateEnemy(Ship* ship, Enemy* enemy) {

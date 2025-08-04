@@ -1,4 +1,4 @@
-﻿// select_ship.c
+﻿// ending_1.h
 
 void Ending1Scene_Init(void);
 void Ending1Scene_Update(void);

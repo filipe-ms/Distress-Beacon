@@ -51,17 +51,17 @@ typedef enum {
     STEP_5_WARPDRIVE_ENGAGE_4,
 } EndingScene_AnimationState;
 
-static const Vector2 black_hole_original_size = (Vector2) {260, 260};
-static const Vector2 sun_original_size = (Vector2) {800, 800};
-static const Vector2 planet3_original_size = (Vector2) {400, 400};
-static const Vector2 planet2_original_size = (Vector2) {400, 400};
-static const Vector2 planet1_original_size = (Vector2) {300, 300};
+static Vector2 black_hole_original_size;
+static Vector2 sun_original_size;
+static Vector2 planet3_original_size;
+static Vector2 planet2_original_size;
+static Vector2 planet1_original_size;
 
-static const Vector2 center = (Vector2) { GAME_SCREEN_CENTER, SCREEN_HEIGHT / 2.0f };
-static const Color transparent = (Color){ .r = 1, .g = 1, .b = 1, .a = 0 };
+static Vector2 center;
+static Color transparent;
 
 static EndingScene_AnimationState animation_state;
-static const float galaxy_expansion_timer = 16.0f; // 12.0f
+static float galaxy_expansion_timer = 16.0f;
 static float galaxy_expansion_elapsed_time;
 
 static float elapsed_time;
@@ -104,6 +104,16 @@ static void EndingScene_InitEffects() {
 }
 
 void Ending1Scene_Init() {
+    black_hole_original_size = (Vector2){ 260, 260 };
+    sun_original_size = (Vector2){ 800, 800 };
+    planet3_original_size = (Vector2){ 400, 400 };
+    planet2_original_size = (Vector2){ 400, 400 };
+    planet1_original_size = (Vector2){ 300, 300 };
+    center = (Vector2){ GAME_SCREEN_CENTER, SCREEN_HEIGHT / 2.0f };
+    transparent = (Color){ .r = 1, .g = 1, .b = 1, .a = 0 };
+    galaxy_expansion_timer = 16.0f;
+
+
     InitLeftUIPanel();
     EndingScene_InitEffects();
     InitBackground(BACKGROUND_ENDING, WHITE, -1, 1, 4.0f);
@@ -374,7 +384,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 }
             }    
             break;
-        case STEP_4_BLACKHOLE_APPEARING:
+        case STEP_4_BLACKHOLE_APPEARING: {
             const Vector2 offset = { 40, -40 };
 
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, blackhole_appearing_total_time, NULL, &has_reached_max);
@@ -391,6 +401,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 elapsed_time = 0;
             }
             break;
+        }
         case STEP_4_BLACKHOLE_APPEARING_DIALOG_2:            
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, dialog_time, NULL, &has_reached_max);
 
@@ -457,11 +468,11 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 elapsed_time = 0;
             }
             break;
-        case STEP_5_WARPDRIVE_ENGAGE_1:
+        case STEP_5_WARPDRIVE_ENGAGE_1: {
             const float warpdrive_begin_time = 3.0f;
 
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, warpdrive_begin_time, NULL, &has_reached_max);
- 
+
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
@@ -471,11 +482,12 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 elapsed_time = 0;
             }
             break;
-        case STEP_5_WARPDRIVE_ENGAGE_2:
+        }
+        case STEP_5_WARPDRIVE_ENGAGE_2: {
             const float warpdrive = 5.0f;
 
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, warpdrive, NULL, &has_reached_max);
- 
+
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
@@ -484,20 +496,22 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 elapsed_time = 0;
             }
             break;
-        case STEP_5_WARPDRIVE_ENGAGE_3:
+        }
+        case STEP_5_WARPDRIVE_ENGAGE_3: {
             const float warpdrive_end = 5.0f;
 
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, warpdrive_end, NULL, &has_reached_max);
 
             Ending1Scene_IncreasePlanetSize();
-            
+
             if (has_reached_max) {
                 InitFadeOutEffect(fade_times, BLACK, 0);
                 animation_state = STEP_5_WARPDRIVE_ENGAGE_4;
                 elapsed_time = 0;
             }
-            
+
             break;
+        }
         case STEP_5_WARPDRIVE_ENGAGE_4:
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, fade_times, NULL, &has_reached_max);
 

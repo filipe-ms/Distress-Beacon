@@ -120,7 +120,7 @@ void InitPowerUps(void) {
         .name = "Prism",
         .type_string = "ARMA",
         .description = "Laser que refrata\nquando atinge o alvo\nNível: %d",
-        .value = HOMING,
+        .value = PRISM,
         .texture = &weapon_prism
     };
 
@@ -153,20 +153,29 @@ void PowerRandomizer(void) {
     }
 
     List* available_powerups = List_Create(sizeof(PowerUpType));
-    
+
     for (int i = 0; i < POWERUP_COUNT; i++) {
         PowerUpType current_type = (PowerUpType)i;
-        bool is_weapon = (current_type >= WEAPON_PULSE && current_type <= WEAPON_HOMING);
+        bool is_weapon = (current_type >= WEAPON_PULSE && current_type <= WEAPON_PRISM);
 
-        if (current_type == SHIELD && IsShieldActive()) { // se ele ja tiver sido pego pelo player e ainda nao acabou as 3 charges, n vai paprecer na pool
+        if (current_type == SHIELD && IsShieldActive()) {
             continue;
         }
 
         if (is_weapon) {
-            if (GetWeaponLevel(power_up_type[current_type].value) < 3) {
+            int weapon_level = GetWeaponLevel(power_up_type[current_type].value);
+
+            if (weapon_level == 0) {
+                if (GetActiveWeaponsAmount() < 3) {
+                    List_Add(available_powerups, &current_type);
+                }
+            }
+
+            else if (weapon_level < 3) {
                 List_Add(available_powerups, &current_type);
             }
-        } else {
+        }
+        else {
             List_Add(available_powerups, &current_type);
         }
     }
@@ -199,10 +208,10 @@ void PowerRandomizer(void) {
             break;
         }
         case SHOOT_SPEED: {
-			int value = GetRandomValue(8, 16);
-			active_cards[i].value = value;
-			sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
-			break;
+            int value = GetRandomValue(8, 16);
+            active_cards[i].value = value;
+            sprintf(active_cards[i].description_buffer, active_cards[i].description, value);
+            break;
         }
 
         case WEAPON_PULSE:
