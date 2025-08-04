@@ -11,6 +11,7 @@
 #include "game_over.h"
 #include "audio_manager.h"
 #include "credits.h"
+#include "ending_1.h"
 
 Scene current_scene;
 Scene main_menu;
@@ -68,7 +69,7 @@ void ChangeSceneArgs(Scene scene, int id) {
 
     }
 
-    PlayMusic(current_scene);
+    //PlayMusic(current_scene);
 }
 
 

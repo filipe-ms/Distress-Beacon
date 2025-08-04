@@ -91,6 +91,7 @@ void UnloadGame(void)
     UnloadPowerUpTextures();
 	UnloadEffects();
     UnloadMusics();
-	List_FreeAll();
+	
     UnloadAudioResources();
+    List_FreeAll();
 }

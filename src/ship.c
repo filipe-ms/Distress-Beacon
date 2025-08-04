@@ -8,6 +8,7 @@
 #include "general_utils.h"
 #include "special_effects.h"
 #include "input.h"
+#include "audio_manager.h"
 
 #define SOURCE_WH 8
 
@@ -361,8 +362,8 @@ static void InitShipSpecifics(Ship* ship, int id) {
 	}
 
 	case VOID:
-		ship_void.event_horizon_cooldown = 5.0f;//30.0f;
-		ship_void.event_horizon_current_cooldown = 5.0f;//= 30.0f;
+		ship_void.event_horizon_cooldown = 30.0f;
+		ship_void.event_horizon_current_cooldown = 0.0f;
 		ship_void.event_horizon_duration = 0.0f;
 		ship_void.event_horizon_base_damage = 5.0f;
 		ship_void.event_horizon_current_damage = 5.0f;
@@ -765,6 +766,8 @@ static void UpdatePuddleJumper(Ship* ship) {
 	// Wormhole Spawn Logic
 	if (is_wormhole_out_ready && IsActionButton2Pressed()) {
 		// When it activates
+		PlaySoundFxWithVolumeAndRandomPitch(&sound11, 1.0f, 1.0f, 1.0f);
+
 		puddle_jumper.wormhole_out_active = true;
 		puddle_jumper.wormhole_spawn_current_cooldown = 0;
 
@@ -791,6 +794,9 @@ static void UpdatePuddleJumper(Ship* ship) {
 				ship->is_able_to_act = false;
 
 				// Opening IN wormhole
+				PlaySoundFxWithVolumeAndRandomPitch(&sound11, 1.0f, 1.0f, 1.0f);
+				PlaySoundFxWithVolumeAndRandomPitch(&sound12, 1.0f, 1.5f, 1.5f);
+
 				puddle_jumper.wormhole_in_active = true;
 				puddle_jumper.wormhole_in_effect->position = ship->position;
 
@@ -899,6 +905,8 @@ static void UpdateVoid(Ship* ship) {
 
 		EventHorizonTick(ship_void.event_horizon_center, EVENT_HORIZON_SIZE / 2, ship_void.event_horizon_current_damage);
 		ship_void.event_horizon_pulse_count++;
+
+		PlaySoundFxWithVolumeAndRandomPitch(&sound15, 0.4f, 1.0f, 1.0f);
 	}
 
 	else if (ship_void.event_horizon_state == VOID_SPECIAL_ACTIVE) {
@@ -1140,6 +1148,17 @@ static void DrawNebula(Ship* ship, Rectangle draw_pos) {
 	Rectangle left_thruster_position = { draw_pos.x - 24, draw_pos.y + 36, ship->draw_size.x, ship->draw_size.y };
 	Rectangle center_thruster_position = { draw_pos.x, draw_pos.y + 48, ship->draw_size.x, ship->draw_size.y };
 	Rectangle right_thruster_position = { draw_pos.x + 18, draw_pos.y + 36, ship->draw_size.x, ship->draw_size.y };
+
+	if (ship->direction == LEFT) {
+		nebula_sprite.x -= 8;
+		right_thruster_position.x -= 12;
+		center_thruster_position.x -= 6;
+	}
+	else if (ship->direction == RIGHT) {
+		nebula_sprite.x += 8;
+		left_thruster_position.x += 12;
+		center_thruster_position.x += 6;
+	}
 
 	if (ship->thruster_cycle == 1) {
 		left_thruster_sprite.x = 88;

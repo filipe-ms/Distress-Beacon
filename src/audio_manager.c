@@ -4,6 +4,8 @@
 #include "common.h"
 #include "player.h"
 #include "scene_manager.h"
+#include "stdlib.h"
+#include "raymath.h"
 
 #define SPEECH_POOL_SIZE 8
 
@@ -44,6 +46,16 @@ static Music in_game_music;
 static Music ending_music;
 
 static Music* playing_music;
+
+// Sound effects
+static List* audio_samples = NULL;
+
+Sound sound1;
+Sound sound5;
+Sound sound6;
+Sound sound11;
+Sound sound12;
+Sound sound15;
 
 // Declarando aqui em cima pra n�o me importar com a ordem que eu chamo embaixo
 #pragma region ForwardDeclarations
@@ -87,6 +99,37 @@ static Sound* GetSoundEffect(SoundEffect sound) {
 	}
 }
 
+Sound* PlaySoundFx(Sound* sound) {
+    Sound* sound_alias = (Sound*)malloc(sizeof(Sound));
+    if (!sound_alias) return NULL;
+
+    *sound_alias = LoadSoundAlias(*sound);
+    List_Add(audio_samples, &sound_alias);
+    PlaySound(*sound_alias);
+
+    return sound_alias;
+}
+
+Sound* PlaySoundFxPitch(Sound* sound, float pitch) {
+    // Allocate memory for the Sound alias on the heap
+    Sound* sound_alias = PlaySoundFx(sound);
+    SetSoundPitch(*sound_alias, pitch);
+    SetSoundVolume(*sound_alias, 0.3);
+    return sound_alias;
+}
+
+Sound* PlaySoundFxRandomPitch(Sound* sound, float minPitch, float maxPitch) {
+    float randomValue = GetRandomValue(1, 1000) / 1000.0f;
+    return PlaySoundFxPitch(sound, Lerp(minPitch, maxPitch, randomValue));
+}
+
+Sound* PlaySoundFxWithVolumeAndRandomPitch(Sound* sound, float volume, float minPitch, float maxPitch) {
+    Sound* new_sound = PlaySoundFxRandomPitch(sound, minPitch, maxPitch);
+    SetSoundVolume(*new_sound, volume);
+    return new_sound;
+}
+
+
 void PlaySfx(SoundEffect sound) {
     PlaySoundInternal(GetSoundEffect(sound), AUDIO_TYPE_SFX);
 }
@@ -123,9 +166,38 @@ void PlayMusic(Scene scene) {
 
 #pragma region LOAD/UNLOAD
 void LoadAudioResources(void) {
+
+    if (audio_samples) {
+        List_Destroy(audio_samples);
+    }
+
+    audio_samples = List_Create(sizeof(Sound*));
+
+    // Music
     main_music = LoadMusicStream("music/Dani Stob - A Journey for Purpose - Loop.wav");
     in_game_music = LoadMusicStream("music/Dani Stob - Unstoppable - Loop.wav");
     ending_music = LoadMusicStream("music/Dani Stob - Beyond The Stars - Loop.wav");
+
+    // Sounds
+    sound1 = LoadSound("sound/effect/laser-45816.mp3"); // Projéteis de AUREA e VOID
+    //sound2 = LoadSound("sound/effect/explosion-47163.mp3");
+    //sound3 = LoadSound("sound/effect/explosion-8-bit-14-314686.mp3");
+    //sound4 = LoadSound("sound/effect/laser-45816.mp3");
+    sound5 = LoadSound("sound/effect/laser-bolt-89300.mp3");
+    sound6 = LoadSound("sound/effect/lasergun-152375.mp3"); // Ainda sem uso
+    //sound7 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-plasma-ku-05-233818.mp3");
+    //sound8 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-pulse-dn-05-233832.mp3");
+    //sound9 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-pulse-tm-04-233827.mp3");
+    //sound10 = LoadSound("sound/effect/swish-swoosh-woosh-sfx-48-357150.mp3");
+    sound11 = LoadSound("sound/effect/teleport-14639.mp3"); // Wormhole (Abrindo)
+    sound12 = LoadSound("sound/effect/teleport-90137.mp3"); // Wormhole (Atravessando)
+    //sound13 = LoadSound("sound/effect/transition-futuristic-ufo-121421.mp3");
+    //sound14 = LoadSound("sound/effect/warp-306033.mp3");
+    sound15 = LoadSound("sound/effect/warp-sfx-6897.mp3");
+
+    
+
+    // Speech
 
     {
         nebula_speech.wave[0] = LoadWave("sound/speech/nebula/oboe1.wav");
@@ -245,6 +317,11 @@ void UnloadAudioResources(void) {
 		UnloadSound(aurea_speech.sound_pool[0][i]);
 		UnloadSound(aurea_speech.sound_pool[1][i]);
     }
+
+    UnloadSound(sound1);
+    UnloadSound(sound6);
+    UnloadSound(sound11);
+    UnloadSound(sound12);
 }
 
 #pragma endregion LOAD/UNLOAD
@@ -321,9 +398,28 @@ static bool IsSoundFinished(void* context, void* data) {
     return !IsSoundPlaying(*(active_sound->sound));
 }
 
+static bool IsSoundFXFinished(void* context, void* data) {
+    // The data in the list is a pointer to the Sound pointer
+    Sound** sound_ptr_ptr = (Sound**)data;
+    Sound* sound_ptr = *sound_ptr_ptr;
+
+    if (!IsSoundPlaying(*sound_ptr)) {
+        UnloadSoundAlias(*sound_ptr);
+        free(sound_ptr);
+        return true;
+    }
+
+    return false;
+}
+
 static void UpdateAudioCleanup(void) {
-    if (!playing_sounds) return;
-    List_RemoveWithFn(playing_sounds, NULL, IsSoundFinished);
+    if (playing_sounds) {
+        List_RemoveWithFn(playing_sounds, NULL, IsSoundFinished);
+    }
+
+    if (audio_samples) {
+        List_RemoveWithFn(audio_samples, NULL, IsSoundFXFinished);
+    }
 }
 
 static void ResetSpeech(void) {
@@ -388,4 +484,19 @@ void UnloadMusics(void) {
 	UnloadMusicStream(main_music);
 	UnloadMusicStream(in_game_music);
 	UnloadMusicStream(ending_music);
+    /*
+    UnloadSound(sound2);
+    UnloadSound(sound3);
+    UnloadSound(sound4);
+    UnloadSound(sound5);
+    
+    UnloadSound(sound7);
+    UnloadSound(sound8);
+    UnloadSound(sound9);
+    UnloadSound(sound10);
+    
+    UnloadSound(sound13);
+    UnloadSound(sound14);
+    UnloadSound(sound15);
+    */
 }
