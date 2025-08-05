@@ -15,6 +15,7 @@
 #include "timer.h"
 #include "background.h"
 #include "stdlib.h"
+#include "audio_manager.h"
 
 Rectangle keyboard_keys[84]; // 12 * 7 = 84
 
@@ -284,6 +285,7 @@ void UpdateTutorial(void) {
         if (UpdateTimer()) ChangeScene(START);
     } else if (IsReturnButtonPressed() || IsConfirmButtonPressed()) {
         InitTimer(2.0f);
+        PlaySoundFxWithVolumeAndRandomPitch(&sound22, 1, 1, 1);
         InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         tutorial.backspace_pressed = true;
     }

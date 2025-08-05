@@ -51,11 +51,27 @@ static Music* playing_music;
 static List* audio_samples = NULL;
 
 Sound sound1;
+Sound sound2;
+Sound sound4;
 Sound sound5;
 Sound sound6;
+Sound sound7;
+Sound sound8;
+Sound sound9;
+Sound sound10;
 Sound sound11;
 Sound sound12;
+Sound sound14;
 Sound sound15;
+Sound sound16;
+Sound sound17;
+Sound sound18;
+Sound sound19;
+Sound sound20;
+Sound sound21;
+Sound sound22;
+Sound sound23;
+Sound sound24;
 
 // Declarando aqui em cima pra n�o me importar com a ordem que eu chamo embaixo
 #pragma region ForwardDeclarations
@@ -180,22 +196,30 @@ void LoadAudioResources(void) {
 
     // Sounds
     sound1 = LoadSound("sound/effect/laser-45816.mp3"); // Projéteis de AUREA e VOID
-    //sound2 = LoadSound("sound/effect/explosion-47163.mp3");
+    sound2 = LoadSound("sound/effect/explosion-47163.mp3");
     //sound3 = LoadSound("sound/effect/explosion-8-bit-14-314686.mp3");
-    //sound4 = LoadSound("sound/effect/laser-45816.mp3");
+    sound4 = LoadSound("sound/effect/laser-45816.mp3");
     sound5 = LoadSound("sound/effect/laser-bolt-89300.mp3");
     sound6 = LoadSound("sound/effect/lasergun-152375.mp3"); // Ainda sem uso
-    //sound7 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-plasma-ku-05-233818.mp3");
-    //sound8 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-pulse-dn-05-233832.mp3");
-    //sound9 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-pulse-tm-04-233827.mp3");
-    //sound10 = LoadSound("sound/effect/swish-swoosh-woosh-sfx-48-357150.mp3");
+    sound7 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-plasma-ku-05-233818.mp3");
+    sound8 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-pulse-dn-05-233832.mp3");
+    sound9 = LoadSound("sound/effect/sci-fi-weapon-shoot-firing-pulse-tm-04-233827.mp3");
+    sound10 = LoadSound("sound/effect/swish-swoosh-woosh-sfx-48-357150.mp3");
     sound11 = LoadSound("sound/effect/teleport-14639.mp3"); // Wormhole (Abrindo)
     sound12 = LoadSound("sound/effect/teleport-90137.mp3"); // Wormhole (Atravessando)
-    //sound13 = LoadSound("sound/effect/transition-futuristic-ufo-121421.mp3");
-    //sound14 = LoadSound("sound/effect/warp-306033.mp3");
-    sound15 = LoadSound("sound/effect/warp-sfx-6897.mp3");
-
     
+    sound14 = LoadSound("sound/effect/warp-306033.mp3"); // Puddle Jumper SHOOT
+    sound15 = LoadSound("sound/effect/warp-sfx-6897.mp3");
+    sound16 = LoadSound("sound/effect/futuristic-smg-sound-effect-100378.mp3");
+    sound17 = LoadSound("sound/effect/scifi-anime-whoosh-45-205264.mp3");
+    sound18 = LoadSound("sound/effect/designed-fire-winds-swoosh-04-116788.mp3");
+    sound19 = LoadSound("sound/effect/explosion-pas-61639.mp3");
+    sound20 = LoadSound("sound/effect/distant-explosion-90743.mp3");
+
+    sound21 = LoadSound("sound/effect/sample_confirm_success02_kofi_by_miraclei-360154.mp3");
+    sound22 = LoadSound("sound/effect/transition-futuristic-ufo-121421.mp3");
+    sound23 = LoadSound("sound/effect/game-start-6104.mp3");
+    sound24 = LoadSound("sound/effect/sci-fi-launch-5-351240.mp3");
 
     // Speech
 
@@ -319,9 +343,34 @@ void UnloadAudioResources(void) {
     }
 
     UnloadSound(sound1);
+    UnloadSound(sound2);
+    UnloadSound(sound4);
     UnloadSound(sound6);
+    UnloadSound(sound7);
+    UnloadSound(sound8);
+    UnloadSound(sound9);
+    UnloadSound(sound10);
     UnloadSound(sound11);
     UnloadSound(sound12);
+    UnloadSound(sound14);
+    UnloadSound(sound15);
+    UnloadSound(sound16);
+    UnloadSound(sound17);
+    UnloadSound(sound18);
+    UnloadSound(sound19);
+    UnloadSound(sound20);
+
+    UnloadSound(sound21);
+    UnloadSound(sound22);
+    UnloadSound(sound23);
+    UnloadSound(sound24);
+
+        /*
+    UnloadSound(sound3);
+    UnloadSound(sound5);
+    
+    
+    */
 }
 
 #pragma endregion LOAD/UNLOAD
@@ -484,19 +533,18 @@ void UnloadMusics(void) {
 	UnloadMusicStream(main_music);
 	UnloadMusicStream(in_game_music);
 	UnloadMusicStream(ending_music);
-    /*
-    UnloadSound(sound2);
-    UnloadSound(sound3);
-    UnloadSound(sound4);
-    UnloadSound(sound5);
-    
-    UnloadSound(sound7);
-    UnloadSound(sound8);
-    UnloadSound(sound9);
-    UnloadSound(sound10);
-    
-    UnloadSound(sound13);
-    UnloadSound(sound14);
-    UnloadSound(sound15);
-    */
+}
+
+void PlayExplosionSound(void) {
+    switch(GetRandomValue(0, 2)) {
+        case 0:
+            PlaySoundFxWithVolumeAndRandomPitch(&sound2, 1, 1.0f, 1.5f);
+            break;
+        case 1:
+            PlaySoundFxWithVolumeAndRandomPitch(&sound19, 1, 1.0f, 1.5f);
+            break;
+        case 2:
+            PlaySoundFxWithVolumeAndRandomPitch(&sound20, 1, 1.0f, 1.5f);
+            break;
+    }
 }

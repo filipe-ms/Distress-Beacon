@@ -33,6 +33,8 @@
 		"special_effects.h": "c",
 		"scene_draw_effects.h": "c",
 		"background.h": "c",
-		"scene_manager.h": "c"
+		"scene_manager.h": "c",
+		"audio_manager.h": "c",
+		"bars.h": "c"
 	}
 }

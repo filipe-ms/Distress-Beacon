@@ -8,6 +8,7 @@
 #include "timer.h"
 #include "draw_utils.h"
 #include "input.h"
+#include "audio_manager.h"
 
 #include "raymath.h"
 
@@ -33,6 +34,7 @@ void UpdateMainMenu() {
 
     if (main_menu.option_picked) {
         float acceleration = 1500.0f;
+
         SetBackgroundScrollSpeed(GetBackgroundScrollSpeed() + acceleration * GetFrameTime());
 		if (UpdateTimer()) {
 			ChangeScene(main_menu.next_scene);
@@ -44,6 +46,8 @@ void UpdateMainMenu() {
         if      (IsInputUpPressed()) main_menu.option = (main_menu.option - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
         else if (IsInputDownPressed()) main_menu.option = (main_menu.option + 1) % MENU_OPTION_COUNT;
         else if (IsConfirmButtonPressed()) {
+            PlaySoundFxWithVolumeAndRandomPitch(&sound21, 1, 1, 1);
+
             if      (main_menu.option == MENU_OPTION_START)     main_menu.next_scene = SELECT_SHIP;
 			else if (main_menu.option == MENU_OPTION_RANKING)   main_menu.next_scene = RANKING;
 			else if (main_menu.option == MENU_OPTION_CREDITS)   main_menu.next_scene = CREDITS;

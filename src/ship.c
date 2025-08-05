@@ -426,6 +426,10 @@ static void UpdateAurea(Ship* ship) {
 			aurea.drone_dispatch_current_duration = 0;
 			aurea.drone_current_cooldown = 0;
 			aurea.state = DRONE_DISPATCHED;
+
+			PlaySoundFxWithVolumeAndRandomPitch(&sound10, 1.0f, 1.2f, 1.8f);
+			PlaySoundFxWithVolumeAndRandomPitch(&sound10, 1.0f, 1.6f, 2.0f);
+
 			break;
 
 		case DRONE_DISPATCHED:
@@ -499,6 +503,9 @@ static void UpdateAurea(Ship* ship) {
 			DestroyEffect(aurea.drone_left);
 			DestroyEffect(aurea.drone_right);
 
+			PlaySoundFxWithVolumeAndRandomPitch(&sound2, 1.0f, 1.0f, 1.4f);
+			PlaySoundFxWithVolumeAndRandomPitch(&sound2, 1.0f, 1.4f, 1.8f);
+
 			aurea.drone_left = aurea.drone_right = NULL;
 			aurea.state = DRONE_INITIALIZED;
 			break;
@@ -534,6 +541,9 @@ static void UpdateOrion(Ship* ship) {
 				// Create disruption field for a bit over than the total time
 				orion.dash_disruption_field = CreateManagedEffectDuration(ORION_DISRUPTION_FIELD, (Vector2) { 0 }, orion.dash_total_time + 1.0f);
 				orion.dash_disruption_field->size = orion.dash_disruption_field_area;
+
+				PlaySoundFxWithVolumeAndRandomPitch(&sound17, 1.0f, 1.0f, 1.0f);
+				PlaySoundFxWithVolumeAndRandomPitch(&sound18, 1.0f, 3.0f, 3.5f);
 			}
 
 			break;
@@ -560,6 +570,8 @@ static void UpdateOrion(Ship* ship) {
 			if (has_changed_state) {
 				orion.dash_state = DASH_FULL_SPEED;
 				orion.dash_disruption_field_current_damage_tick = 0;
+
+				PlaySoundFxWithVolumeAndRandomPitch(&sound18, 1.0f, 3.0f, 3.5f);
 			}
 
 			break;
@@ -582,10 +594,14 @@ static void UpdateOrion(Ship* ship) {
 				// Dividing the area by 2.4 to better suit the animation range
 				DashDisruptionFieldTick(orion.dash_disruption_field_area.x / 2.4f, orion.dash_disruption_field_base_damage);
 				orion.dash_disruption_field_current_damage_tick = 0;
+
+				PlaySoundFxWithVolumeAndRandomPitch(&sound18, 1.0f, 3.0f, 3.5f);
 			}
 			
 			if (has_changed_state) {
 				orion.dash_state = DASH_DEACCELERATING;
+
+				PlaySoundFxWithVolumeAndRandomPitch(&sound17, 1.0f, 1.0f, 1.0f);
 			}
 			
 			break;

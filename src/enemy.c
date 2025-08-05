@@ -5,6 +5,7 @@
 #include "general_utils.h"
 #include "texture_manager.h"
 #include "stdlib.h"
+#include "audio_manager.h"
 
 static const int SPAWN_Y_MIN = -200;
 
@@ -298,6 +299,8 @@ static void BehaviorPidgeonOfPrey(Enemy* enemy, Ship* ship) {
 
             EnemyProjectile_SpawnPosition(enemy, PROJECTILE_PIDGEON_OF_PREY_1, left_proj);
             EnemyProjectile_SpawnPosition(enemy, PROJECTILE_PIDGEON_OF_PREY_1, right_proj);
+
+            PlaySoundFxWithVolumeAndRandomPitch(&sound7, 1, 2.0, 2.0);
         }
     }
 }
@@ -508,6 +511,8 @@ static bool CheckForDeadEnemies(void* context, void* data) {
 		AddExperience(enemy->exp);
 		AddScore(enemy->score);
 		DeInitEnemy(enemy);
+
+        PlayExplosionSound();
 	}
 
 	return expression;

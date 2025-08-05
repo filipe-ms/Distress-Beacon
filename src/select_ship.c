@@ -14,6 +14,7 @@
 #include "ship_references.h"
 #include "input.h"
 #include "dev_interface_left_ui.h"
+#include "audio_manager.h"
 
 #include "left_ui.h"
 
@@ -106,24 +107,29 @@ void UpdateShipSelectMenu() {
 
     if (!ship_menu.is_ship_selected) {
         if (IsInputLeftPressed()) {
+            PlaySoundFxWithVolumeAndRandomPitch(&sound23, 1, 1, 1);
             SetPlayerShip(GetPrevShip());
 			SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
 			SetTopPilotDefault();
             TriggerTopPilotAnimation(pilot_speech_timer);
         }
         else if (IsInputRightPressed()) {
+            PlaySoundFxWithVolumeAndRandomPitch(&sound23, 1, 1, 1);
             SetPlayerShip(GetNextShip());
             SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
             SetTopPilotDefault();
             TriggerTopPilotAnimation(pilot_speech_timer);
         }
         else if (IsConfirmButtonPressed()) {
+            PlaySoundFxWithVolumeAndRandomPitch(&sound21, 1, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound24, 1, 1, 1);
             ship_menu.is_ship_selected = true;
             TriggerTopPilotAnimation(0.0f);
             InitTimer(2.0f);
             InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }
         else if (IsReturnButtonPressed()) {
+            PlaySoundFxWithVolumeAndRandomPitch(&sound22, 1, 1, 1);
             ship_menu.is_backspace_pressed = true;
             SetPlayerShip(ORION);
             InitTimer(2.0f);

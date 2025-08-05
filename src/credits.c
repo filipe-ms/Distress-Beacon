@@ -8,6 +8,7 @@
 #include "timer.h"
 #include "scene_manager.h"
 #include "common.h"
+#include "audio_manager.h"
 
 static bool return_to_menu;
 
@@ -28,6 +29,7 @@ void UpdateCredits(void) {
 	}
 
 	if (IsConfirmButtonPressed() || IsReturnButtonPressed()) {
+		PlaySoundFxWithVolumeAndRandomPitch(&sound22, 1, 1, 1);
 		return_to_menu = true;
 		InitTimer(2.0f);
 		InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());

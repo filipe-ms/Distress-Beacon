@@ -8,6 +8,7 @@
 #include "ship_references.h"
 #include "input.h"
 #include "background.h"
+#include "audio_manager.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -117,6 +118,7 @@ void UpdateRanking() {
         }
         else {
             leave_transition = true;
+            PlaySoundFxWithVolumeAndRandomPitch(&sound22, 1, 1, 1);
         }
     }
     if (enter_transition) {
