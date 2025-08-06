@@ -38,7 +38,14 @@
 //
 //--------------------------------------------------------------
 
-#define AUDIO_FLAG 1; // Ativa os sons do jogo
+#define AUDIO_FLAG 1 // Ativa os sons do jogo
+
+#define ENEMY_DEATH_SFX_VOLUME 0.25f
+#define BASE_WEAPON_SFX_VOLUME 0.25f
+#define MENU_SFX_VOLUME 0.5f
+
+#define BASE_MUSIC_VOLUME 0.75f // Utilizar esse valor
+
 
 //--------------------------------------------------------------
 //
@@ -46,18 +53,9 @@
 //
 //--------------------------------------------------------------
 
-#define BASE_EXP_TO_LEVEL 100       // EXP base necessária para o primeiro level
-#define EXP_TO_LEVEL_INCREMENT 10   // Incremento de EXP necessário por level subsequente
-
-#define BASE_ENEMY_SPAWN_TIMER 5.0f // Tempo base entre spawns de inimigos
-#define BASE_WAVE_DURATION 60.0f    // Duração base de cada wave em segundos
-
-#define MAX_ENEMY_NUMBER 100        // Número máximo de inimigos
-#define MAX_WAVES 50                // Número máximo de waves
-
-#define ENEMY_LINE_SPAWN_START -80
-
-#define MAX_WEAPON_SLOTS 3
+#define MAX_WAVES				50		// Número máximo de waves
+#define ENEMY_LINE_SPAWN_START	-80
+#define MAX_WEAPON_SLOTS		3
 
 //--------------------------------------------------------------
 //
@@ -110,4 +108,39 @@
 //
 //--------------------------------------------------------------
 
-#define GHOST_INVIS_TIMER 3.0f
+// Levels e EXP
+#define BASE_EXP_TO_LEVEL		100		// EXP base necessária para o primeiro level
+#define EXP_TO_LEVEL_INCREMENT	25		// Incremento de EXP necessário por level subsequente
+#define EXP_MULTIPLIER			1.0f	// Multiplicador de EXP ganho por inimigo abatido
+
+// Spawns e waves
+#define FIRST_WAVE_SPAWN_TIMER	5.0f	// Tempo base entre spawns de inimigos
+#define TIME_BETWEEN_WAVES		3.0f	// Tempo base entre spawns de inimigos em waves
+#define BASE_WAVE_DURATION		60.0f	// Duração base de cada wave em segundos
+
+
+// ------------------ Inimigos ------------------
+
+#define INTENSITY_GROWTH 1.0f			// Multiplicador que atua sobre inimigos, afetando HP, número de spawns etc 
+#define INTENSITY_SPAWN_FACTOR 0.25f	// Multiplicador que atua sobre o número de inimigos por wave
+
+// HP
+#define BASIC_HP_BASE 1.0f
+
+// Específicos
+#define GHOST_INVIS_TIMER		3.0f	// Tempo que o ghost fica invisível
+#define GHOST_DISTANCE_RANGE	100.0f	// Raio de spawn do ghost ao redor do jogador
+
+
+// Cálculos
+
+/* Intensity */
+#define INTENSITY_UPDATE_EQUATION (intensity = INTENSITY_GROWTH > 0 ? current_wave_number * INTENSITY_GROWTH : 1.0f) // Atualiza a intensity no update
+
+/* DENSITY 
+Density só é relevante no modo endless, pois as waves são geradas de 10 em 10.
+Para jogo normal, as waves são geradas todas de uma vez. */
+#define DENSITY_UPDATE_EQUATION (density = 0.0f) // Atualiza a density no update
+
+/* NEXT WAVE */
+#define NEXT_WAVE_TIMER_EQUATION (next_wave_start_time += TIME_BETWEEN_WAVES - density);

@@ -555,13 +555,13 @@ void UnloadMusics(void) {
 void PlayExplosionSound(void) {
     switch(GetRandomValue(0, 2)) {
         case 0:
-            PlaySoundFxWithVolumeAndRandomPitch(&sound2, 1, 1.0f, 1.5f);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound2, ENEMY_DEATH_SFX_VOLUME, 1.0f, 1.5f);
             break;
         case 1:
-            PlaySoundFxWithVolumeAndRandomPitch(&sound19, 1, 1.0f, 1.5f);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound19, ENEMY_DEATH_SFX_VOLUME, 1.0f, 1.5f);
             break;
         case 2:
-            PlaySoundFxWithVolumeAndRandomPitch(&sound20, 1, 1.0f, 1.5f);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound20, ENEMY_DEATH_SFX_VOLUME, 1.0f, 1.5f);
             break;
     }
 }

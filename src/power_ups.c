@@ -49,7 +49,7 @@ void InitPowerUps(void) {
 
     power_up_type[SHOOT_COOLDOWN] = (PowerUpCard){
         .type = SHOOT_COOLDOWN, 
-        .name = "Rapid Fire",
+        .name = "Fogo Rápido",
         .type_string = "ATRIBUTO",
         .description = "Reduz o tempo\nentre tiros\n+%d%%",
 		.texture = &shoot_cooldown
@@ -57,7 +57,7 @@ void InitPowerUps(void) {
 
     power_up_type[SHOOT_DAMAGE] = (PowerUpCard){
         .type = SHOOT_DAMAGE, 
-        .name = "Potency",
+        .name = "Potência",
 		.type_string = "ATRIBUTO",
         .description = "Aumenta o dano\nde suas armas\n+%d%%",
 		.texture = &shoot_damage
@@ -73,7 +73,7 @@ void InitPowerUps(void) {
 
     power_up_type[SHOOT_SPEED] = (PowerUpCard){
         .type = SHOOT_SPEED,
-        .name = "Ballistics",
+        .name = "Balística",
         .type_string = "ATRIBUTO",
         .description = "Aumenta a velocidade\nde seus projéteis\n+%d%%",
         .texture = &shoot_speed
@@ -125,7 +125,7 @@ void InitPowerUps(void) {
     };
 
     power_up_type[SHIELD] = (PowerUpCard){
-        .name = "Shield",
+        .name = "Escudo",
         .type = SHIELD,
         .type_string = "ESCUDO",
         .description = "Garante proteção\ncontra 3 hits.",

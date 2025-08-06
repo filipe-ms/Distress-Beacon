@@ -109,7 +109,7 @@ void InitPulseShootAtCoords(Ship* ship, Vector2 position, float angle_in_deg) {
 
     List_AddLast(pulse.pulse_shoots, &shot);
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound1, 1.0f, 2.0f, 2.2f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound1, BASE_WEAPON_SFX_VOLUME, 2.0f, 2.2f);
 }
 
 static void InitPulseShoot(Ship* ship) {
@@ -135,7 +135,7 @@ static void InitPulseShoot(Ship* ship) {
 
     List_AddLast(pulse.pulse_shoots, &new_pulse_shoot);
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound1, 1.0f, 1.0f, 1.5f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound1, BASE_WEAPON_SFX_VOLUME, 1.0f, 1.5f);
 }
 
 static void PulseShootPositionUpdate(PulseShoot* pulse_shoot) {
@@ -237,7 +237,7 @@ static void InitPhotonShoot(Ship* ship) {
 		List_AddLast(photon.photon_shoots, &new_photon_shoot);
     }
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound4, 1.0f, 1.8f, 2.2f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound4, BASE_WEAPON_SFX_VOLUME, 1.8f, 2.2f);
 }
 
 static void PhotonShootPositionUpdate(PhotonShoot* photon_shoot) {
@@ -344,7 +344,7 @@ static void InitHomingShoot(Ship* ship) {
     new_homing_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, homing_shoot_speed_base.x), ApplyMultiplier(speed_modifier, homing_shoot_speed_base.y) };
     List_AddLast(homing.homing_shoots, &new_homing_shoot);
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound14, 1.0f, 1.6f, 2.0f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound14, BASE_WEAPON_SFX_VOLUME, 1.6f, 2.0f);
 }
 
 static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
@@ -520,7 +520,7 @@ static void InitShotgunShoot(Ship* ship) {
         List_AddLast(shotgun.shotgun_shoots, &new_shotgun_shoot);
     }
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound16, 1.0f, 3.0f, 3.5f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound16, BASE_WEAPON_SFX_VOLUME, 3.0f, 3.5f);
 }
 
 static void UpdateShotgunShoot(ShotgunShoot* shotgun_shoot) {
@@ -596,13 +596,13 @@ void InitBlasterShoot(Ship* ship, int level, float base_damage) {
 
     if (level == 0) {
         shot.source = (Rectangle){ 8 * 1, 8 * 5, 8, 8 };
-        PlaySoundFxWithVolumeAndRandomPitch(&sound7, 1.0f, 1.5f, 1.5f);
+        PlaySoundFxWithVolumeAndRandomPitch(&sound7, BASE_WEAPON_SFX_VOLUME, 1.5f, 1.5f);
     } else if (level == 1) {
         shot.source = (Rectangle){ 8 * 2, 8 * 5, 8, 8 };
-        PlaySoundFxWithVolumeAndRandomPitch(&sound8, 1.0f, 1.5f, 1.5f);
+        PlaySoundFxWithVolumeAndRandomPitch(&sound8, BASE_WEAPON_SFX_VOLUME, 1.5f, 1.5f);
     } else if (level == 2) {
         shot.source = (Rectangle){ 8 * 1, 8 * 7, 8, 8 };
-        PlaySoundFxWithVolumeAndRandomPitch(&sound9, 1.0f, 1.5f, 1.5f);
+        PlaySoundFxWithVolumeAndRandomPitch(&sound9, BASE_WEAPON_SFX_VOLUME, 1.5f, 1.5f);
     }
 
     List_AddLast(blaster_shoots, &shot);
@@ -877,7 +877,7 @@ static void UpdatePrism(Ship* ship) {
 
     if (prism.weapon.cooldown_charge <= 0) {
         InitPrismShoot(ship);
-        PlaySoundFxWithVolumeAndRandomPitch(&sound1, 0.4f, 2.0f, 2.5f);
+        PlaySoundFxWithVolumeAndRandomPitch(&sound1, BASE_WEAPON_SFX_VOLUME, 2.0f, 2.5f);
         prism.weapon.cooldown_charge = prism.weapon.cooldown_time;
     }
 }

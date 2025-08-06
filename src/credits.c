@@ -10,12 +10,78 @@
 #include "common.h"
 #include "audio_manager.h"
 
+static Camera2D camera;
+static float scroll_offset;
+static float scroll_speed;
+static float loading_time;
 static bool return_to_menu;
 
+static const char* content = "EQUIPE\n"
+"\n"
+"Luís Santos\n"
+"Anderson Gabriel\n"
+"Débora Souza\n"
+"\n"
+"\n"
+"ORIENTADORES\n"
+"\n"
+"Pamela Bezerra\n"
+"Tiago Barros\n"
+"\n"
+"\n"
+"COLABORADORES\n"
+"\n"
+"Carlos Santos\n"
+"\n"
+"\n"
+"ASSETS\n"
+"\n"
+"ansdor\n"
+"[ Botões de Teclado ]\n"
+"\n"
+"Gustavo Vituri\n"
+"[ Naves, Inimigos, Pilotos Projéteis e Efeitos Especiais ]\n"
+"\n"
+"Quintino Pixels\n"
+"[Ícones de Melhorias]\n"
+"\n"
+"BDragon1727\n"
+"[ Barras de Progresso e Efeitos Especiais ]\n"
+"\n"
+"Deep-Fold\n"
+"[ Planetas e Backgrounds ]\n"
+"\n"
+"\n"
+"SONS\n"
+"\n"
+"\n"
+"MÚSICAS\n"
+"\n"
+"\n"
+"Alguns assets e sons foram criados pela própria equipe\n"
+"\n"
+"\n"
+"\n"
+"Jogo desenvolvido com a Raylib 5.5\n"
+"(www.raylib.com)\n"
+"\n"
+"\n"
+"\n"
+"Obrigado por jogar nosso jogo!";
+
 void InitCredits(void) {
+	camera.offset = (Vector2){ 0, 0 };
+	camera.target = (Vector2){ 0, 0 };
+	camera.zoom = 1.0f;
+	camera.rotation = 0.0f;
+
+	scroll_offset = SCREEN_HEIGHT;
+	scroll_speed = 20.0f;
+	loading_time = 5.0f;
+
 	return_to_menu = false;
-	InitFadeInEffect(1.5f, BLACK, 1.0f);
-	InitBackground(BACKGROUND_STARS, WHITE, STRETCH_TO_SCREEN, 0.7f, 100.0f);
+
+	InitBackground(BACKGROUND_STARS, WHITE, -1, 1, 0);
 }
 
 void UpdateCredits(void) {
@@ -28,108 +94,35 @@ void UpdateCredits(void) {
 		return;
 	}
 
-	if (IsConfirmButtonPressed() || IsReturnButtonPressed()) {
-		PlaySoundFxWithVolumeAndRandomPitch(&sound22, 1, 1, 1);
+	scroll_offset += scroll_speed * GetFrameTime();
+	camera.target.y = scroll_offset;
+
+	if (IsActionButtonPressed() ||
+		IsReturnButtonPressed() ||
+		IsActionButton2Pressed() ||
+		IsConfirmButtonPressed() ||
+		scroll_offset >= 4250.0f) {
+
 		return_to_menu = true;
-		InitTimer(2.0f);
-		InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
+
+		InitTimer(1.5f);
+		InitFadeOutEffect(1.6f, BLACK, GetCurrentScreenEffectAlpha());
 	}
 }
 
 void DrawCredits(void) {
 	BeginDrawing();
+
 	ClearBackground(BLACK);
 	DrawBackground();
 
-	float h1 = 0.1;
-	float h2 = 0.25;
-	float h3 = 0.6;
-
-	int text_size = 32;
-	int spacing = SCREEN_HEIGHT * h2;
-
-	DrawCenteredOutlinedText("Agradecimentos", GAME_SCREEN_CENTER, SCREEN_HEIGHT * h1, 64, WHITE, Fade(RAYWHITE, 0.5f));
-
-	{ // Equipe
-		DrawCenteredOutlinedText("Equipe", UI_LEFT_CENTER, SCREEN_HEIGHT * h2, 48, WHITE, Fade(RAYWHITE, 0.5f));
-
-		DrawCenteredRectangle(UI_LEFT_CENTER, GAME_SCREEN_HEIGHT * 0.34, 500, 100, BLACK);
-		DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.34, 500, 100, 5, WHITE);
-		DrawCenteredText("Luís Santos", UI_LEFT_CENTER, spacing + text_size * 2.5, text_size, WHITE);
-
-		DrawCenteredRectangle(UI_LEFT_CENTER, GAME_SCREEN_HEIGHT * 0.44, 500, 100, BLACK);
-		DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.44, 500, 100, 5, WHITE);
-		DrawCenteredText("Anderson Gabriel", UI_LEFT_CENTER, spacing + text_size * 6, text_size, WHITE);
-
-		DrawCenteredRectangle(UI_LEFT_CENTER, GAME_SCREEN_HEIGHT * 0.54, 500, 100, BLACK);
-		DrawCenteredPixelBorder(UI_LEFT_CENTER, SCREEN_HEIGHT * 0.54, 500, 100, 5, WHITE);
-		DrawCenteredText("Débora Souza", UI_LEFT_CENTER, spacing + text_size * 9.3, text_size, WHITE);
+	BeginMode2D(camera);
+	{
+		DrawCenteredOutlinedText("AGRADECIMENTOS", GAME_SCREEN_CENTER, SCREEN_HEIGHT * 2.05, 60, WHITE, Fade(RAYWHITE, 0.5f));
+		DrawCenteredMultilineText(content, GAME_SCREEN_CENTER, SCREEN_HEIGHT * 3.2, 40, WHITE);
 	}
-
-	{ // Orientadores
-		DrawCenteredOutlinedText("Orientadores", GAME_SCREEN_CENTER, SCREEN_HEIGHT * h2, 48, WHITE, Fade(RAYWHITE, 0.5f));
-
-		DrawCenteredRectangle(GAME_SCREEN_CENTER, GAME_SCREEN_HEIGHT * 0.34, 500, 100, BLACK);
-		DrawCenteredPixelBorder(GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.34, 500, 100, 5, WHITE);
-		DrawCenteredText("Pamela Bezerra",			GAME_SCREEN_CENTER, spacing + text_size * 2.5, text_size, WHITE);
-
-		DrawCenteredRectangle(GAME_SCREEN_CENTER, GAME_SCREEN_HEIGHT * 0.44, 500, 100, BLACK);
-		DrawCenteredPixelBorder(GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.44, 500, 100, 5, WHITE);
-		DrawCenteredText("Tiago Barros",	GAME_SCREEN_CENTER, spacing + text_size * 6, text_size, WHITE);
-	}
-
-	{ // Colaboradores
-		DrawCenteredOutlinedText("Colaboradores", GAME_SCREEN_CENTER, SCREEN_HEIGHT * h3, 48, WHITE, Fade(RAYWHITE, 0.5f));
-
-		DrawCenteredRectangle(GAME_SCREEN_CENTER, GAME_SCREEN_HEIGHT * 0.7, 500, 100, BLACK);
-		DrawCenteredPixelBorder(GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.7, 500, 100, 5, WHITE);
-		DrawCenteredText("Carlos Santos", GAME_SCREEN_CENTER, SCREEN_HEIGHT * h3 + text_size * 3, text_size, WHITE);
-
-	}
-
-	{ // Assets
-		DrawCenteredOutlinedText("Assets", UI_RIGHT_CENTER, SCREEN_HEIGHT * h2, 48, WHITE, Fade(RAYWHITE, 0.5f));
-		
-		int left_start = UI_RIGHT_CENTER;
-		
-		{ // ansdor
-			DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.34, 500, 100, BLACK);
-			DrawCenteredPixelBorder(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.34, 500, 100, 5, WHITE);
-			DrawCenteredText("ansdor", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.3, 38, WHITE);
-			DrawCenteredText("Botões de teclado", left_start, SCREEN_HEIGHT * 0.34, text_size, WHITE);
-		}
-
-		{ // Gustavo Vituri
-			DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.47, 500, 170, BLACK);
-			DrawCenteredPixelBorder(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.47, 500, 170, 5, WHITE);
-			DrawCenteredText("Gustavo Vituri", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.41, 38, WHITE);
-			DrawCenteredMultilineText("Naves, Inimigos, Pilotos\nProjéteis e Efeitos Especiais", left_start, spacing + text_size * 8, text_size, WHITE);
-		}
-		
-		{ // Quintino Pixels
-			DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.6, 500, 100, BLACK);
-			DrawCenteredPixelBorder(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.6, 500, 100, 5, WHITE);
-			DrawCenteredText("Quintino Pixels", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.565, 38, WHITE);
-			DrawCenteredMultilineText("Ícones de Melhorias", left_start, spacing + text_size * 12.5, text_size, WHITE);
-		}
-
-		{ // BDragon1727
-			DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.73, 500, 170, BLACK);
-			DrawCenteredPixelBorder(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.73, 500, 170, 5, WHITE);
-			DrawCenteredText("BDragon1727", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.665, 38, WHITE);
-			DrawCenteredMultilineText("Barras de Progresso e\nEfeitos Especiais", left_start, spacing + text_size * 16.7, text_size, WHITE);
-		}
-
-		{ // Deep-Fold
-			DrawCenteredRectangle(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.86, 500, 100, BLACK);
-			DrawCenteredPixelBorder(UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.86, 500, 100, 5, WHITE);
-			DrawCenteredText("Deep-Fold", UI_RIGHT_CENTER, SCREEN_HEIGHT * 0.825, 38, WHITE);
-			DrawCenteredMultilineText("Backgrounds, Planetas", left_start, spacing + text_size * 21.3, text_size, WHITE);
-		}
-
-	}
-
-	DrawCenteredText("Pressione Enter ou Backspace para voltar ao menu principal.", GAME_SCREEN_CENTER, SCREEN_HEIGHT * 0.93, 48, WHITE);
+	EndMode2D();
 	UpdateAndDrawScreenEffects();
+
 	EndDrawing();
 }

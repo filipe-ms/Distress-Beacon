@@ -166,8 +166,8 @@ void DrawGame(void)
         DrawCircleV(ship.position, (DRAW_WH / 2.0f) + 10.0f, Fade(SKYBLUE, 0.5f));
     }
 
-    if (victory) DrawText("YOU WIN",   (int)GAME_SCREEN_CENTER - MeasureText("YOU WIN", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
-    if (pause) DrawText("GAME PAUSED", (int)GAME_SCREEN_CENTER - MeasureText("GAME PAUSED", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
+    if (victory) DrawText("VOCÊ VENCEU!",   (int)GAME_SCREEN_CENTER - MeasureText("VOCÊ VENCEU!", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
+    if (pause) DrawText("JOGO PAUSADO", (int)GAME_SCREEN_CENTER - MeasureText("JOGO PAUSADO", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);
 
     DrawUserInterface(); // Desenha por último, está agora em outro plano
     EndDrawing();

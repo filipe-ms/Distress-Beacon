@@ -24,6 +24,45 @@ static int id = 0;
 
 List* enemies;
 
+static int GetEnemyBaseExp(EnemyType type) {
+    int exp;
+    switch (type) {
+	case ENEMY_BASIC:
+		exp = 5;
+        break;
+	case ENEMY_ZIGZAG:
+        exp = 7;
+        break;
+	case ENEMY_BOOSTER:
+		exp = 10;
+        break;
+	case ENEMY_WALLER:
+		exp = 7;
+        break;
+	case ENEMY_SPINNER:
+		exp = 10;
+        break;
+	case ENEMY_STALKER:
+		exp = 15;
+        break;
+	case ENEMY_REVERSE_SPINNER:
+        exp = 10;
+        break;
+	case ENEMY_BOSS_PIDGEON_OF_PREY:
+		exp = 50;
+        break;
+	case ENEMY_GHOST:
+		exp = 15;
+        break;
+	default:
+		exp = 0;
+		break;
+    }
+
+    return exp * EXP_MULTIPLIER;
+}
+
+
 #pragma region ENEMY_BEHAVIORS
 static Vector2 GetPositionNearPlayer(Ship* ship, int rangexy) {
     rangexy = abs(rangexy);
@@ -204,7 +243,7 @@ static void BehaviorGhost(Enemy* enemy, Ship* ship) {
             else {
                 enemy->state = GHOST_INVISIBLE;
                 enemy->elapsed_time = 0.0f;
-                enemy->vector2_aux1 = GetPositionNearPlayer(ship, 200);
+                enemy->vector2_aux1 = GetPositionNearPlayer(ship, GHOST_DISTANCE_RANGE);
                 enemy->float_aux1 = -1;
             }
         }
@@ -312,7 +351,7 @@ static Rectangle GetEnemyRectangle(Enemy* enemy) {
 }
 
 static void InitBooster(Enemy* enemy) {
-    enemy->exp = 25.0f;
+    enemy->exp = GetEnemyBaseExp(ENEMY_BOOSTER);
     enemy->score = 200.0f;
 
     enemy->speed = (Vector2){ 40.0f, 40.0f };
@@ -320,7 +359,7 @@ static void InitBooster(Enemy* enemy) {
 }
 
 static void InitGhost(Enemy* enemy) {
-    enemy->exp = 25.0f;
+    enemy->exp = GetEnemyBaseExp(ENEMY_GHOST);
     enemy->score = 250.0f;
     enemy->speed = (Vector2){ 0, 0 };
     enemy->timer = 5.0f; // Tempo entre ciclos
@@ -335,7 +374,7 @@ static void InitGhost(Enemy* enemy) {
 static void InitEnemySpecifics(Enemy* enemy) {
     switch (enemy->type) {
     case ENEMY_ZIGZAG:
-        enemy->exp = 20.0f;
+        enemy->exp = GetEnemyBaseExp(ENEMY_ZIGZAG);;
 		enemy->score = 150.0f;
 		enemy->speed = (Vector2){ 0, 100.0f };
         break;
@@ -343,19 +382,19 @@ static void InitEnemySpecifics(Enemy* enemy) {
 		InitBooster(enemy);
         break;
     case ENEMY_WALLER:
-        enemy->exp = 15.0f;
+        enemy->exp = GetEnemyBaseExp(ENEMY_WALLER);
 		enemy->score = 100.0f;
 		enemy->speed = (Vector2){ 0, 50.0f };
         break;
 	case ENEMY_STALKER:
-		enemy->exp = 20.0f;
+		enemy->exp = GetEnemyBaseExp(ENEMY_STALKER);
 		enemy->score = 200.0f;
 		enemy->speed = (Vector2){ 0, 100.0f };
 		break;
     case ENEMY_SPINNER:
     case ENEMY_REVERSE_SPINNER:
         enemy->state = ENEMY_STATE_SPINNER_SPAWNING;
-        enemy->exp = 15.0f;
+        enemy->exp = GetEnemyBaseExp(ENEMY_REVERSE_SPINNER);
 		enemy->score = 100.0f;
 		enemy->speed = (Vector2){ 0, 120.0f };
         break;
@@ -363,7 +402,7 @@ static void InitEnemySpecifics(Enemy* enemy) {
 		InitGhost(enemy);
 		break;
     case ENEMY_BOSS_PIDGEON_OF_PREY:
-        enemy->exp = 100.0f;
+        enemy->exp = GetEnemyBaseExp(ENEMY_BOSS_PIDGEON_OF_PREY);
         enemy->score = 1000.0f;
         enemy->speed = (Vector2) { 0, 1000.0f };
         enemy->size = (Vector2) { 96, 96 };
@@ -371,7 +410,7 @@ static void InitEnemySpecifics(Enemy* enemy) {
         break;
     case ENEMY_BASIC:
     default:
-        enemy->exp = 10.0f;
+        enemy->exp = GetEnemyBaseExp(ENEMY_BASIC);
 		enemy->score = 50.0f;
 		enemy->speed = (Vector2){ 0, 80.0f };
         break;
@@ -522,7 +561,6 @@ void UpdateEnemies(Ship* ship) {
     List_ForEachCtx(enemies, ship, UpdateEnemy);
 }
 
-
 void CleanupEnemies() {
     // Limpa inimigos fora da tela
     List_RemoveWithFn(enemies, NULL, (MatchFunction)IsEnemyOutOfBounds);
@@ -557,7 +595,7 @@ static void DrawEnemy(void* context, void* data) {
         Vector2 origin = { E_SIZEX / 2, E_SIZEY / 2 };
 		Rectangle enemy_rect = GetEnemyRectangle(enemy);
 
-        if (enemy->type == ENEMY_GHOST) {
+        if (enemy->type == ENEMY_GHOST || enemy->type == ENEMY_STALKER) {
             DrawTexturePro(texture_custom_ships, source_rects[enemy->type], enemy_rect, origin, enemy->rotation, enemy->color);
             return;
         }
@@ -581,13 +619,13 @@ void InitEnemySourceRects(void) {
     source_rects[ENEMY_WALLER]               = (Rectangle){ 32, 8, 8, 8 };
     source_rects[ENEMY_SPINNER]              = (Rectangle){ 40, 8, 8, 8 };
     source_rects[ENEMY_REVERSE_SPINNER]      = (Rectangle){ 80, 0, 8, 8 };
-    source_rects[ENEMY_STALKER]              = (Rectangle){ 32, 0, 8, 8 };
     
     // Bosses
     source_rects[ENEMY_BOSS_PIDGEON_OF_PREY] = (Rectangle){ 8 * 8, 8 * 8, 16, 16 };
 
     // Outro arquivo de textura
     source_rects[ENEMY_GHOST] = (Rectangle){ 0, 0, 8, 8 };
+    source_rects[ENEMY_STALKER] = (Rectangle){ 8, 0, 8, 8 };
 }
 
 void UnloadEnemyList(void) {

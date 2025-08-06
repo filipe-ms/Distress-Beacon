@@ -107,29 +107,29 @@ void UpdateShipSelectMenu() {
 
     if (!ship_menu.is_ship_selected) {
         if (IsInputLeftPressed()) {
-            PlaySoundFxWithVolumeAndRandomPitch(&sound23, 1, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound23, MENU_SFX_VOLUME, 1, 1);
             SetPlayerShip(GetPrevShip());
 			SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
 			SetTopPilotDefault();
             TriggerTopPilotAnimation(pilot_speech_timer);
         }
         else if (IsInputRightPressed()) {
-            PlaySoundFxWithVolumeAndRandomPitch(&sound23, 1, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound23, MENU_SFX_VOLUME, 1, 1);
             SetPlayerShip(GetNextShip());
             SetTopPilotText(GetPilotPresentation(GetPlayerShip()));
             SetTopPilotDefault();
             TriggerTopPilotAnimation(pilot_speech_timer);
         }
         else if (IsConfirmButtonPressed()) {
-            PlaySoundFxWithVolumeAndRandomPitch(&sound21, 1, 1, 1);
-            PlaySoundFxWithVolumeAndRandomPitch(&sound24, 1, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound21, MENU_SFX_VOLUME, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound24, MENU_SFX_VOLUME, 1, 1);
             ship_menu.is_ship_selected = true;
             TriggerTopPilotAnimation(0.0f);
             InitTimer(2.0f);
             InitFadeOutEffect(2.1f, BLACK, GetCurrentScreenEffectAlpha());
         }
         else if (IsReturnButtonPressed()) {
-            PlaySoundFxWithVolumeAndRandomPitch(&sound22, 1, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound22, MENU_SFX_VOLUME, 1, 1);
             ship_menu.is_backspace_pressed = true;
             SetPlayerShip(ORION);
             InitTimer(2.0f);
@@ -139,6 +139,7 @@ void UpdateShipSelectMenu() {
 }
 
 #pragma region RIGHT_SIDE_INFO
+
 static void DrawRightSideInfo() {
     DrawRectangle(GAME_SCREEN_END, 0, UI_WIDTH, SCREEN_HEIGHT, BLACK);
 
