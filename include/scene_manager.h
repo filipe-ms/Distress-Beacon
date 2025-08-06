@@ -12,6 +12,7 @@
 #include "raylib.h"
 
 typedef enum {
+	INTRO,
     START,
     SELECT_SHIP,
     TUTORIAL,

@@ -1,8 +1,10 @@
 /*******************************************************************************************
 *
 *   Jogo desenvolvido por Luís Filipe Macedo, Anderson Gabriel e Débora Souza
+*   Colaboração:  Carlos Santos
+*   Orientadores: Pamela e Tiago Barros
 *
-*   Esse jogo foi criado usando Raylib (www.raylib.com)
+*   Criado usando Raylib v5.5 (www.raylib.com)
 *
 ********************************************************************************************/
 
@@ -40,7 +42,7 @@
 #include "audio_manager.h"
 #include "texture_manager.h"
 
-static Scene starting_scene = START;
+static Scene starting_scene = INTRO;
 
 void LoadGame(void);
 void UnloadGame(void);

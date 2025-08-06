@@ -1,4 +1,4 @@
-#include "winner.h"
+ï»¿#include "winner.h"
 #include "scene_manager.h"
 #include "raylib.h"
 #include "select_ship.h"
@@ -31,7 +31,7 @@ void UpdateWinner(void) {
 void DrawWinner(void) {
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawText("Parabéns, você venceu!", GetScreenWidth() / 2 - MeasureText("Parabéns, você venceu!", 40) / 2, GetScreenHeight() / 2 - 160, 40, WHITE);
+    DrawText("ParabÃ©ns, vocÃª venceu!", GetScreenWidth() / 2 - MeasureText("ParabÃ©ns, vocÃª venceu!", 40) / 2, GetScreenHeight() / 2 - 160, 40, WHITE);
     DrawText("Pressione ENTER para continuar", GetScreenWidth() / 2 - MeasureText("Pressione ENTER para continuar", 24) / 2, GetScreenHeight() / 2 + 20, 24, WHITE);
     EndDrawing();
 }

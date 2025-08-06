@@ -272,6 +272,7 @@
     <ClInclude Include="..\..\include\enemy_projectile.h" />
     <ClInclude Include="..\..\include\general_utils.h" />
     <ClInclude Include="..\..\include\input.h" />
+    <ClInclude Include="..\..\include\intro.h" />
     <ClInclude Include="..\..\include\left_ui.h" />
     <ClInclude Include="..\..\include\dev_interface_left_ui.h" />
     <ClInclude Include="..\..\include\special_effects.h" />
@@ -316,6 +317,7 @@
     <ClCompile Include="..\..\src\enemy_projectile.c" />
     <ClCompile Include="..\..\src\general_utils.c" />
     <ClCompile Include="..\..\src\input.c" />
+    <ClCompile Include="..\..\src\intro.c" />
     <ClCompile Include="..\..\src\left_ui.c" />
     <ClCompile Include="..\..\src\dev_interface_left_ui.c" />
     <ClCompile Include="..\..\src\special_effects.c" />
