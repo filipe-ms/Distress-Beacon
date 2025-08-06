@@ -45,7 +45,7 @@ char* GetPilotName(int ship_id) {
 
 	if (ship_id == DUCK)           return "Dodgers";
 	if (ship_id == ROBOT)          return "Epsilon";
-	if (ship_id == ALIEN)          return "Gronk";
+	if (ship_id == ALIEN)          return "General Altros";
 	if (ship_id == PIRATE)         return "Comandante";
 	if (ship_id == INVERSE)        return "Inverso";
 	if (ship_id == INTERFERENCE)   return "Interferência";

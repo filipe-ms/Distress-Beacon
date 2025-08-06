@@ -46,6 +46,9 @@ extern Sound sound21;
 extern Sound sound22;
 extern Sound sound23;
 extern Sound sound24;
+extern Sound sound25;
+extern Sound sound26;
+extern Sound sound27;
 
 // Update
 void PlayMusic(Scene scene);

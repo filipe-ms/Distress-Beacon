@@ -16,6 +16,7 @@
 #include "scene_manager.h"
 #include "dev_interface_left_ui.h"
 #include "user_interface.h"
+#include "audio_manager.h"
 
 static SpecialEffect* planet_black_hole;
 static SpecialEffect* planet_galaxy;
@@ -52,7 +53,7 @@ typedef enum {
     STEP_5_WARPDRIVE_ENGAGE_4,
 } EndingScene_AnimationState;
 
-static Vector2 black_hole_original_size;
+static Vector2 moon_original_size;
 static Vector2 sun_original_size;
 static Vector2 planet3_original_size;
 static Vector2 planet2_original_size;
@@ -81,11 +82,12 @@ static void EndingScene_InitEffects() {
     planet_2 = CreateUnmanagedEffect(PLANET_2, center, 0);
     planet_2->size = planet2_original_size;
 
-    planet_moon_1 = CreateUnmanagedEffect(PLANET_MOON_1, center, 0);
-    planet_moon_2 = CreateUnmanagedEffect(PLANET_MOON_2, center, 0);
     planet_1 = CreateUnmanagedEffect(PLANET_1, center, 0);
     
     planet_black_hole = CreateUnmanagedEffect(PLANET_BLACK_HOLE, center, 0);
+
+    planet_moon_1 = CreateUnmanagedEffect(PLANET_MOON_1, center, 0);
+    planet_moon_2 = CreateUnmanagedEffect(PLANET_MOON_2, center, 0);
 
     planet_galaxy = CreateUnmanagedEffect(PLANET_GALAXY, center, 0);
 
@@ -105,7 +107,7 @@ static void EndingScene_InitEffects() {
 }
 
 void Ending1Scene_Init() {
-    black_hole_original_size = (Vector2){ 260, 260 };
+    moon_original_size = (Vector2){ 40, 40 };
     sun_original_size = (Vector2){ 800, 800 };
     planet3_original_size = (Vector2){ 400, 400 };
     planet2_original_size = (Vector2){ 400, 400 };
@@ -127,6 +129,8 @@ void Ending1Scene_Init() {
     cutscene_ship.color = WHITE;
     cutscene_ship.should_render = false;
     cutscene_ship.is_tutorial = true;
+    
+    PlaySoundFxWithVolumeAndRandomPitch(&sound26, 1.6f, 0.8f, 0.8f);
 }
 
 void Ending1Scene_Unload() {
@@ -151,7 +155,7 @@ static void Ending1Scene_IncreasePlanetSize() {
     
     float factor = planet_increase_size_elapsed_time / total_time;
 
-    planet_black_hole->size = Vector2Add(black_hole_original_size, Vector2MultiplyScalarF(size, factor));
+    planet_moon_1->size = Vector2Add(moon_original_size, Vector2MultiplyScalarF(size, factor));
     planet_sun->size = Vector2Add(sun_original_size, Vector2MultiplyScalarF(size, factor));
     planet_3->size = Vector2Add(planet3_original_size, Vector2MultiplyScalarF(size, factor));
     planet_2->size = Vector2Add(planet2_original_size, Vector2MultiplyScalarF(size, factor));
@@ -221,7 +225,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 Ending1Scene_IncreaseGalaxySize();
 
                 if (has_reached_max) {
-                    UI_TopPilotSpeechAct("Inacreditável! sobrevivemos!\nFrota inimiga neutralizada.\nMissão cumprida.", audio_speech_time);
+                    UI_TopPilotSpeechAct("Perfeito.\nAbra um canal de\nde comunicação com o\ngeneral.", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_3;
                     elapsed_time = 0;
                 }
@@ -235,7 +239,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                 if (has_reached_max) {
                     UI_SetBottomPilot(ALIEN);
-                    UI_BottomPilotSpeechAct("Aqui é o General Altros.\nRelatório de missão,\nCapitão!", audio_speech_time);
+                    UI_BottomPilotSpeechAct("Aqui é o General Altros.\nAcredito que a missão,\num sucesso, capitão!", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_4;
                     elapsed_time = 0;
                 }
@@ -248,7 +252,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 Ending1Scene_IncreaseGalaxySize();
 
                 if (has_reached_max) {
-                    UI_TopPilotSpeechAct("Missão cumprida, senhor.\nAs forças inimigas foram\nimpedidas de alcançar a\nTerra.", audio_speech_time);
+                    UI_TopPilotSpeechAct("Sim, senhor.\nAs forças inimigas foram\nimpedidas de alcançar a\nTerra.", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_5;
                     elapsed_time = 0;
                 }
@@ -283,7 +287,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                     cutscene_ship.should_render = true;
                     planet_sun->color = WHITE;
-                    planet_black_hole->color = WHITE;
+                    planet_moon_1->color = WHITE;
                     planet_3->color = WHITE;
                     planet_2->color = WHITE;
                     planet_1->color = WHITE;
@@ -300,6 +304,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                     animation_state = STEP_2_SUN_MOVING_OUT;
                     elapsed_time = 0;
                     cutscene_ship.direction = LEFT;
+                    PlaySoundFxWithVolumeAndRandomPitch(&sound25, 1, 0.5f, 0.5f);
                 }
             }    
             break;
@@ -318,6 +323,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                     animation_state = STEP_3_PLANET_3_MOVING_OUT;
                     elapsed_time = 0;
                     cutscene_ship.direction = RIGHT;
+                    PlaySoundFxWithVolumeAndRandomPitch(&sound25, 1, 0.5f, 0.5f);
                 }
             }    
             break;
@@ -336,6 +342,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                     animation_state = STEP_3_PLANET_2_MOVING_OUT;
                     elapsed_time = 0;
                     cutscene_ship.direction = LEFT;
+                    PlaySoundFxWithVolumeAndRandomPitch(&sound25, 1, 0.5f, 0.5f);
                 }
             }    
             break;
@@ -363,7 +370,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                 if (has_reached_max) {
                     UI_SetBottomPilot(ALIEN);
-                    UI_BottomPilotSpeechAct("Capitão, você não salvou\napenas a Terra, mas\ndefendeu toda a Via Láctea!\nEstamos em dívida com você.", 3.0f);
+                    UI_BottomPilotSpeechAct("Saiba que não salvou\napenas a Terra, mas\ntoda a Via Láctea!\nEstamos em dívida com você.", 3.0f);
                     animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_1;
                     elapsed_time = 0;
                 }
@@ -376,7 +383,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 Ending1Scene_IncreasePlanetSize();
 
                 if (has_reached_max) {
-                    UI_TopPilotSpeechAct("Ainda há muito a ser\ncompreendido, senhor.\nSinto que foi apenas o\ncomeço.", audio_speech_time);
+                    UI_TopPilotSpeechAct("Ainda há muito a ser\ndiscutido, senhor.\nAchamos que algo maior\nestá por vir...", audio_speech_time);
 
                     animation_state = STEP_4_BLACKHOLE_APPEARING;
                     elapsed_time = 0;
@@ -388,13 +395,15 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
             elapsed_time = ClampWithFlagsF(elapsed_time + GetFrameTime(), 0, blackhole_appearing_total_time, NULL, &has_reached_max);
 
-            planet_black_hole->position = Vector2Add(center, Vector2MultiplyScalarF(offset, elapsed_time));
+            planet_moon_1->position = Vector2Add(center, Vector2MultiplyScalarF(offset, elapsed_time));
 
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
                 UI_SetBottomPilot(ROBOT);
                 UI_BottomPilotSpeechAct("Capitão! Detectamos um\npedido de socorro do\naglomerado de estrelas\nMessier 87.", audio_speech_time);
+
+                PlaySoundFxWithVolumeAndRandomPitch(&sound27, 1.0f, 1.0f, 1.0f);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_2;
                 elapsed_time = 0;
@@ -420,7 +429,6 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
             if (has_reached_max) {
                 UI_TopPilotSpeechAct("Mudança de planos!\nNão iremos à Terra!\nDefinir rota para\nMessier 87!", audio_speech_time);
-                InitFadeOutEffect(fade_times, BLACK, 0);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_4;
                 elapsed_time = 0;
@@ -432,7 +440,6 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                InitFadeInEffect(fade_times, BLACK, 1);
                 UI_SetBottomPilot(ALIEN);
                 UI_BottomPilotSpeechAct("Capitão, você merece\ndescanso e uma\npromoção primeiro.", audio_speech_time);
 
@@ -446,7 +453,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                UI_TopPilotSpeechAct("Prepare tudo para meu\nretorno, General\nO dever chama!", audio_speech_time);
+                UI_TopPilotSpeechAct("Prepare tudo para meu\nretorno, General.\nO dever chama!", audio_speech_time);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_6;
                 elapsed_time = 0;
@@ -458,8 +465,6 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                //UI_SetBottomPilot(ALIEN);
-                //UI_BottomPilotSpeechAct("Aye aye, captain.", audio_speech_time);
                 UI_ClearBottomPilot();
                 UI_ClearBottomPilotText();
 
@@ -479,6 +484,9 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             if (has_reached_max) {
                 SpecialEffect* sfx = CreateManagedEffectDuration(WORMHOLE, cutscene_ship.position, 10.0f);
                 sfx->order = RENDERING_ORDER_AFTER_SHIP;
+
+                PlaySoundFxWithVolumeAndRandomPitch(&sound11, 1.0f, 1.0f, 1.0f);
+
                 animation_state = STEP_5_WARPDRIVE_ENGAGE_2;
                 elapsed_time = 0;
             }
@@ -493,6 +501,9 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
             if (has_reached_max) {
                 cutscene_ship.should_render = false;
+
+                PlaySoundFxWithVolumeAndRandomPitch(&sound12, 1.0f, 1.5f, 1.5f);
+
                 animation_state = STEP_5_WARPDRIVE_ENGAGE_3;
                 elapsed_time = 0;
             }
@@ -506,6 +517,9 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
+
+                PlaySoundFxWithVolumeAndRandomPitch(&sound11, 1.0f, 1.0f, 1.0f);
+
                 InitFadeOutEffect(fade_times, BLACK, 0);
                 animation_state = STEP_5_WARPDRIVE_ENGAGE_4;
                 elapsed_time = 0;

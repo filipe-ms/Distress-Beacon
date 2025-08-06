@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug",
+      "name": "Debug (SteamOS)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}.exe",
+      "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -19,21 +19,14 @@
           "ignoreFailures": false
         }
       ],
-      "windows": {
-        "miDebuggerPath": "gdb.exe"
-      },
-      "osx": {
-        "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
-        "MIMode": "lldb"
-      },
       "linux": {
         "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
         "miDebuggerPath": "/usr/bin/gdb"
       },
-      "preLaunchTask": "build debug"
+      "preLaunchTask": "Build Debug (SteamOS)"
     },
     {
-      "name": "Run",
+      "name": "Run (SteamOS)",
       "type": "cppdbg",
       "request": "launch",
       "args": [],
@@ -41,21 +34,28 @@
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
-      "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}.exe",
+      "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
       "MIMode": "gdb",
-      "windows": {
-        "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}.exe",
-        "miDebuggerPath": "gdb.exe"
-      },
-      "osx": {
-        "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
-        "MIMode": "lldb"
-      },
       "linux": {
         "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
-        "miDebuggerPath": "/usr/bin/gdb"
+        "miDebuggerPath": "/usr/bin/gdb",
+        "pipeTransport": {
+          "pipeCwd": "${workspaceFolder}",
+          "pipeProgram": "SteamOS",
+          "pipeArgs": [
+            "enter",
+            "Dev-Ubuntu-24.04",
+            "--",
+            "bash",
+            "-c"
+          ],
+          "debuggerPath": "/usr/bin/gdb"
+        },
+        "sourceFileMap": {
+          "/": "${workspaceFolder}"
+        }
       },
-      "preLaunchTask": "build release"
-    }
+      "preLaunchTask": "Build Release (SteamOS)"
+    },
   ]
 }

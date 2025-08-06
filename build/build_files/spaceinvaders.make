@@ -125,6 +125,7 @@ GENERATED += $(OBJDIR)/game_behavior.o
 GENERATED += $(OBJDIR)/game_over.o
 GENERATED += $(OBJDIR)/general_utils.o
 GENERATED += $(OBJDIR)/input.o
+GENERATED += $(OBJDIR)/intro.o
 GENERATED += $(OBJDIR)/left_ui.o
 GENERATED += $(OBJDIR)/list.o
 GENERATED += $(OBJDIR)/main.o
@@ -161,6 +162,7 @@ OBJECTS += $(OBJDIR)/game_behavior.o
 OBJECTS += $(OBJDIR)/game_over.o
 OBJECTS += $(OBJDIR)/general_utils.o
 OBJECTS += $(OBJDIR)/input.o
+OBJECTS += $(OBJDIR)/intro.o
 OBJECTS += $(OBJDIR)/left_ui.o
 OBJECTS += $(OBJDIR)/list.o
 OBJECTS += $(OBJDIR)/main.o
@@ -290,6 +292,9 @@ $(OBJDIR)/general_utils.o: ../../src/general_utils.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/input.o: ../../src/input.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/intro.o: ../../src/intro.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/left_ui.o: ../../src/left_ui.c

@@ -42,7 +42,7 @@
 #include "audio_manager.h"
 #include "texture_manager.h"
 
-static Scene starting_scene = INTRO;
+static Scene starting_scene = ENDING_1;
 
 void LoadGame(void);
 void UnloadGame(void);

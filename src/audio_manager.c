@@ -72,6 +72,10 @@ Sound sound21;
 Sound sound22;
 Sound sound23;
 Sound sound24;
+Sound sound25;
+Sound sound26;
+Sound sound27;
+
 
 // Declarando aqui em cima pra n�o me importar com a ordem que eu chamo embaixo
 #pragma region ForwardDeclarations
@@ -220,6 +224,9 @@ void LoadAudioResources(void) {
     sound22 = LoadSound("sound/effect/transition-futuristic-ufo-121421.mp3");
     sound23 = LoadSound("sound/effect/game-start-6104.mp3");
     sound24 = LoadSound("sound/effect/sci-fi-launch-5-351240.mp3");
+    sound25 = LoadSound("sound/effect/slow-whoosh-118247.mp3");
+    sound26 = LoadSound("sound/effect/space-ship-bridge-loop-104525.mp3");
+    sound27 = LoadSound("sound/effect/sci-fi-alarm-95054.mp3");
 
     // Speech
 
@@ -364,6 +371,10 @@ void UnloadAudioResources(void) {
     UnloadSound(sound22);
     UnloadSound(sound23);
     UnloadSound(sound24);
+
+    UnloadSound(sound25);
+    UnloadSound(sound26);
+    UnloadSound(sound27);
 
         /*
     UnloadSound(sound3);
