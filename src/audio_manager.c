@@ -41,6 +41,7 @@ static SpeechState speech = { 0 };
 
 static List* playing_sounds = NULL;
 
+static Music intro_music;
 static Music main_music;
 static Music in_game_music;
 static Music ending_music;
@@ -156,6 +157,9 @@ void PlaySfx(SoundEffect sound) {
 
 void PlayMusic(Scene scene) {
     switch(scene) {
+        case INTRO:
+            playing_music = &intro_music;
+            break;
         case START:
         case SELECT_SHIP:
         case TUTORIAL:
@@ -194,6 +198,7 @@ void LoadAudioResources(void) {
     audio_samples = List_Create(sizeof(Sound*));
 
     // Music
+    intro_music = LoadMusicStream("music/Dani Stob - A New Begining - Full.wav");
     main_music = LoadMusicStream("music/Dani Stob - A Journey for Purpose - Loop.wav");
     in_game_music = LoadMusicStream("music/Dani Stob - Unstoppable - Loop.wav");
     ending_music = LoadMusicStream("music/Dani Stob - Beyond The Stars - Loop.wav");
@@ -541,6 +546,7 @@ void UpdateAudio(void) {
 }
 
 void UnloadMusics(void) {
+    UnloadMusicStream(intro_music);
 	UnloadMusicStream(main_music);
 	UnloadMusicStream(in_game_music);
 	UnloadMusicStream(ending_music);
