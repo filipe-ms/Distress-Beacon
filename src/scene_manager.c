@@ -12,6 +12,7 @@
 #include "audio_manager.h"
 #include "credits.h"
 #include "ending_1.h"
+#include "intro.h"
 
 Scene current_scene;
 Scene main_menu;
@@ -28,6 +29,9 @@ void ChangeSceneArgs(Scene scene, int id) {
     current_scene = scene;
 
     switch (current_scene) {
+	case INTRO:
+	    InitIntro();
+        break;
     case START:
         InitMainMenu();
         break;
@@ -66,7 +70,6 @@ void ChangeSceneArgs(Scene scene, int id) {
     case ENDING_1:
         Ending1Scene_Init();
         break;
-
     }
 
     //PlayMusic(current_scene);
@@ -76,6 +79,10 @@ void ChangeSceneArgs(Scene scene, int id) {
 void UpdateCurrentScene(void) {
 
     switch (current_scene) {
+
+	case INTRO:
+		UpdateIntro();
+		break;
 
     case START:
         UpdateMainMenu();
@@ -124,6 +131,10 @@ void UpdateCurrentScene(void) {
 void DrawCurrentScene(void) {
 
     switch (current_scene) {
+
+	case INTRO:
+		DrawIntro();
+		break;
 
     case START:
         DrawMainMenu();
