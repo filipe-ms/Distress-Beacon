@@ -15,6 +15,7 @@
 #include "stdlib.h"
 #include "scene_manager.h"
 #include "dev_interface_left_ui.h"
+#include "user_interface.h"
 
 static SpecialEffect* planet_black_hole;
 static SpecialEffect* planet_galaxy;
@@ -186,8 +187,6 @@ static void Ending1Scene_UpdatePlanetAnimation() {
     const Vector2 offset_right = { 80 * 3, 0 };
     const Vector2 offset_left = { -80 * 3, 0 };
 
-    TraceLog(LOG_WARNING, "%d", cutscene_ship.direction);
-
     switch (animation_state) {
         case STEP_1_GALAXY_ZOOMING_IN:
             {
@@ -209,7 +208,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                 if (has_reached_max) {
                     UI_SetBottomPilot(ROBOT);
-                    UI_BottomPilotSpeechAct("Captain, we are nearing\nsignal source!", audio_speech_time);
+                    UI_BottomPilotSpeechAct("Trajetória definida:\nIndo em direção à Terra!", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_2;
                     elapsed_time = 0;
                 }
@@ -222,7 +221,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 Ending1Scene_IncreaseGalaxySize();
 
                 if (has_reached_max) {
-                    UI_TopPilotSpeechAct("Scan the coordinates\nfor life forms!", audio_speech_time);
+                    UI_TopPilotSpeechAct("Inacreditável! sobrevivemos!\nFrota inimiga neutralizada.\nMissão cumprida.", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_3;
                     elapsed_time = 0;
                 }
@@ -236,7 +235,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                 if (has_reached_max) {
                     UI_SetBottomPilot(ALIEN);
-                    UI_BottomPilotSpeechAct("Found faint life\nsigns on P3X-ZHH.", audio_speech_time);
+                    UI_BottomPilotSpeechAct("Aqui é o General Altros.\nRelatório de missão,\nCapitão!", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_4;
                     elapsed_time = 0;
                 }
@@ -249,7 +248,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 Ending1Scene_IncreaseGalaxySize();
 
                 if (has_reached_max) {
-                    UI_TopPilotSpeechAct("Sublights engines at\n100%. Engage!", audio_speech_time);
+                    UI_TopPilotSpeechAct("Missão cumprida, senhor.\nAs forças inimigas foram\nimpedidas de alcançar a\nTerra.", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_5;
                     elapsed_time = 0;
                 }
@@ -364,7 +363,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                 if (has_reached_max) {
                     UI_SetBottomPilot(ALIEN);
-                    UI_BottomPilotSpeechAct("Detecting life signs\non the surface\nat the southern\nhemisphere.", 3.0f);
+                    UI_BottomPilotSpeechAct("Capitão, você não salvou\napenas a Terra, mas\ndefendeu toda a Via Láctea!\nEstamos em dívida com você.", 3.0f);
                     animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_1;
                     elapsed_time = 0;
                 }
@@ -377,7 +376,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
                 Ending1Scene_IncreasePlanetSize();
 
                 if (has_reached_max) {
-                    UI_TopPilotSpeechAct("Good job, ensign.\nAll hands to rescue.", audio_speech_time);
+                    UI_TopPilotSpeechAct("Ainda há muito a ser\ncompreendido, senhor.\nSinto que foi apenas o\ncomeço.", audio_speech_time);
 
                     animation_state = STEP_4_BLACKHOLE_APPEARING;
                     elapsed_time = 0;
@@ -395,7 +394,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
             if (has_reached_max) {
                 UI_SetBottomPilot(ROBOT);
-                UI_BottomPilotSpeechAct("Captain, the sensors are\ndetecting a massive graviton\nfield behind the planet.", audio_speech_time);
+                UI_BottomPilotSpeechAct("Capitão! Detectamos um\npedido de socorro do\naglomerado de estrelas\nMessier 87.", audio_speech_time);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_2;
                 elapsed_time = 0;
@@ -408,7 +407,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                UI_TopPilotSpeechAct("The pirates had\naritifical blackhole\nweapons. Huh?", audio_speech_time);
+                UI_TopPilotSpeechAct("Messier 87... 53 milhões de\nanos-luz de distância.\nSerá apenas coincidência?", audio_speech_time);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_3;
                 elapsed_time = 0;
@@ -420,7 +419,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                UI_TopPilotSpeechAct("Code RED. Beam them out\nof there A.S.A.P.", audio_speech_time);
+                UI_TopPilotSpeechAct("Mudança de planos!\nNão iremos à Terra!\nDefinir rota para\nMessier 87!", audio_speech_time);
                 InitFadeOutEffect(fade_times, BLACK, 0);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_4;
@@ -435,7 +434,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             if (has_reached_max) {
                 InitFadeInEffect(fade_times, BLACK, 1);
                 UI_SetBottomPilot(ALIEN);
-                UI_BottomPilotSpeechAct("Sir, everyone is safe\nand reporting to sickbay.", audio_speech_time);
+                UI_BottomPilotSpeechAct("Capitão, você merece\ndescanso e uma\npromoção primeiro.", audio_speech_time);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_5;
                 elapsed_time = 0;
@@ -447,7 +446,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                UI_TopPilotSpeechAct("Engage warpdrive before\nwe are caught by the\ngravitational pull, helmsman.", audio_speech_time);
+                UI_TopPilotSpeechAct("Prepare tudo para meu\nretorno, General\nO dever chama!", audio_speech_time);
 
                 animation_state = STEP_4_BLACKHOLE_APPEARING_DIALOG_6;
                 elapsed_time = 0;
@@ -459,8 +458,10 @@ static void Ending1Scene_UpdatePlanetAnimation() {
             Ending1Scene_IncreasePlanetSize();
 
             if (has_reached_max) {
-                UI_SetBottomPilot(ALIEN);
-                UI_BottomPilotSpeechAct("Aye aye, captain.", audio_speech_time);
+                //UI_SetBottomPilot(ALIEN);
+                //UI_BottomPilotSpeechAct("Aye aye, captain.", audio_speech_time);
+                UI_ClearBottomPilot();
+                UI_ClearBottomPilotText();
 
                 UI_TopPilotSpeechAct(NULL, 0);
                 
@@ -545,8 +546,6 @@ void Ending1Scene_Draw() {
     DrawEffects(RENDERING_ORDER_BEFORE_SHIP);
 
     DrawShip(&cutscene_ship);
-
-    TraceLog(LOG_WARNING, "%d", cutscene_ship.direction);
 
     DrawEffects(RENDERING_ORDER_AFTER_SHIP);
 
