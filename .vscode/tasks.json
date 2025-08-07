@@ -2,51 +2,96 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Debug (SteamOS)",
-            "type": "shell",
+            "label": "build debug",
+            "type": "process",
             "command": "make",
-            "linux": {
-                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make\"",
-                "args": []
+            "windows": {
+                "command": "mingw32-make.exe",
+                "args": [
+                    "SHELL=cmd"
+                ],
             },
-            "group": { "kind": "build", "isDefault": true },
-            "problemMatcher": [ "$gcc" ],
-            "dependsOn":["UpdateMake (SteamOS)"]
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn":["UpdateMake"]
         },
         {
-            "label": "Build Release (SteamOS)",
-            "type": "shell",
+            "label": "build release",
+            "type": "process",
             "command": "make",
+            "windows": {
+                "command": "mingw32-make.exe",
+                "args": [
+                    "SHELL=cmd",
+                    "config=release_x64"
+                ],
+            },
             "linux": {
-                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make config=release_x64\"",
-                "args": []
+                "args": [
+                    "config=release_x64"
+                ],
+            },
+            "osx": {
+                "args": [
+                    "config=release_ARM64"
+                ],
             },
             "group": "build",
-            "problemMatcher": [ "$gcc" ],
-            "dependsOn":["UpdateMake (SteamOS)"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn":["UpdateMake"]
         },
         {
-            "label": "Clean (SteamOS)",
-            "type": "shell",
+            "label": "Clean",
+            "type": "process",
             "command": "make",
-            "linux": {
-                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"make clean\"",
-                "args": []
+            "windows": {
+                "command": "mingw32-make.exe",
+                "args": [
+                    "SHELL=cmd",
+                    "clean"
+                ],
             },
-            "osx": { /* ... */ },
+            "linux": {
+                "args": [
+                    "clean"
+                ],
+            },
+            "osx": {
+                "args": [
+                    "clean"
+                ],
+            },
             "group": "build",
-            "problemMatcher": [ "$gcc" ],
-            "dependsOn":["UpdateMake (SteamOS)"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn":["UpdateMake"]
         },
         {
-            "label": "UpdateMake (SteamOS)",
-            "type": "shell",
+            "label": "UpdateMake",
+            "type": "process",
             "command": "./premake5",
-            "options": { "cwd": "${workspaceFolder}/build/" },
-            "args": [ "gmake2" ],
+            "options": {
+                "cwd": "${workspaceFolder}/build/"
+            },
+            "args": [
+                "gmake2"
+            ],
+            "windows": {
+                "command": "./premake5.exe"
+            },
             "linux": {
-                "command": "distrobox enter Dev-Ubuntu-24.04 -- bash -c \"${workspaceFolder}/build/premake5 gmake2\"",
-                "args": []
+                "command": "./premake5"
+            },
+            "osx": {
+                "command": "premake5.osx"
             },
             "group": "build"
         }

@@ -65,7 +65,12 @@ typedef struct {
     // More variables for custom movements
     Vector2 vector2_aux1;
     Vector2 vector2_aux2;
+
+    float spawn_time_aux;
     float float_aux1;
+
+    int boss_spawn_x;
+    int boss_spawn_y;
 } Enemy;
 
 typedef enum {

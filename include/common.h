@@ -53,7 +53,7 @@
 //
 //--------------------------------------------------------------
 
-#define MAX_WAVES				50		// Número máximo de waves
+#define MAX_WAVES 50 // NUMERO DE WAVES
 #define ENEMY_LINE_SPAWN_START	-80
 #define MAX_WEAPON_SLOTS		3
 
@@ -109,20 +109,19 @@
 //--------------------------------------------------------------
 
 // Levels e EXP
-#define BASE_EXP_TO_LEVEL		100		// EXP base necessária para o primeiro level
-#define EXP_TO_LEVEL_INCREMENT	25		// Incremento de EXP necessário por level subsequente
+#define BASE_EXP_TO_LEVEL		50		// EXP base necessária para o primeiro level
+#define EXP_TO_LEVEL_INCREMENT	15		// Incremento de EXP necessário por level subsequente
 #define EXP_MULTIPLIER			1.0f	// Multiplicador de EXP ganho por inimigo abatido
 
 // Spawns e waves
-#define FIRST_WAVE_SPAWN_TIMER	5.0f	// Tempo base entre spawns de inimigos
-#define TIME_BETWEEN_WAVES		3.0f	// Tempo base entre spawns de inimigos em waves
-#define BASE_WAVE_DURATION		60.0f	// Duração base de cada wave em segundos
+#define FIRST_WAVE_SPAWN_TIMER	6.0f	// Tempo base entre spawns de inimigos
+#define TIME_BETWEEN_WAVES		4.0f	// Tempo base entre spawns de inimigos em waves
 
 
 // ------------------ Inimigos ------------------
 
-#define INTENSITY_GROWTH 1.0f			// Multiplicador que atua sobre inimigos, afetando HP, número de spawns etc 
-#define INTENSITY_SPAWN_FACTOR 0.25f	// Multiplicador que atua sobre o número de inimigos por wave
+#define INTENSITY_GROWTH 0.25f			// Multiplicador que atua sobre inimigos, afetando HP, número de spawns etc 
+#define INTENSITY_SPAWN_FACTOR 0.1f	// Multiplicador que atua sobre o número de inimigos por wave
 
 // HP
 #define BASIC_HP_BASE 1.0f

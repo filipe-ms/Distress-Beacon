@@ -77,6 +77,8 @@ Sound sound25;
 Sound sound26;
 Sound sound27;
 
+Sound sound28;
+
 
 // Declarando aqui em cima pra n�o me importar com a ordem que eu chamo embaixo
 #pragma region ForwardDeclarations
@@ -153,6 +155,10 @@ Sound* PlaySoundFxWithVolumeAndRandomPitch(Sound* sound, float volume, float min
 
 void PlaySfx(SoundEffect sound) {
     PlaySoundInternal(GetSoundEffect(sound), AUDIO_TYPE_SFX);
+}
+
+void StopMusic() {
+    StopMusicStream(*playing_music);
 }
 
 void PlayMusic(Scene scene) {
@@ -232,6 +238,8 @@ void LoadAudioResources(void) {
     sound25 = LoadSound("sound/effect/slow-whoosh-118247.mp3");
     sound26 = LoadSound("sound/effect/space-ship-bridge-loop-104525.mp3");
     sound27 = LoadSound("sound/effect/sci-fi-alarm-95054.mp3");
+
+    sound28 = LoadSound("music/Dani Stob - Victory Fanfare.wav");
 
     // Speech
 
@@ -380,6 +388,8 @@ void UnloadAudioResources(void) {
     UnloadSound(sound25);
     UnloadSound(sound26);
     UnloadSound(sound27);
+
+    UnloadSound(sound28);
 
         /*
     UnloadSound(sound3);
