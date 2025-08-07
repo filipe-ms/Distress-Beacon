@@ -18,8 +18,8 @@ static int current_wave_number;
 static bool endless_mode;
 static float next_wave_start_time;
 
-#define boss_spawn_num_x_columns 3;
-#define boss_spawn_num_y_rows 3;
+#define BOSS_SPAWN_NUM_X_COLUMNS 3
+#define BOSS_SPAWN_NUM_Y_ROWS 3
 
 #pragma region HP_FUNCTIONS
 
@@ -206,9 +206,6 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
 }
 
 #pragma endregion
-static void CreateSingle(int id, EnemyType type, float start_time, Vector2 initial_position) {
-    CreateSingleBoss(id, type, start_time, initial_position, -1, -1);
-}
 
 static void CreateSingleBoss(int id, EnemyType type, float start_time, Vector2 initial_position, int boss_spawn_x, int boss_spawn_y) {
     EnemyWave wave;
@@ -218,10 +215,16 @@ static void CreateSingleBoss(int id, EnemyType type, float start_time, Vector2 i
 
     Enemy enemy;
     InitEnemy(&enemy, position, type, GetEnemyHitpoints(type));
+    enemy.boss_spawn_x = boss_spawn_x;
+    enemy.boss_spawn_y = boss_spawn_y;
     enemy.position = initial_position;
 
     List_Add(wave.spawns, &enemy);
     List_AddLast(waves, &wave);
+}
+
+static void CreateSingle(int id, EnemyType type, float start_time, Vector2 initial_position) {
+    CreateSingleBoss(id, type, start_time, initial_position, -1, -1);
 }
 
 static void CreateGhostTrio(int id, float start_time) {
@@ -234,34 +237,37 @@ static void CreateStalker(int id, float start_time) {
 	CreateSingle(id, ENEMY_STALKER, start_time, (Vector2) { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START });
 }
 
-static SetIfSlotIsBeingUsed(Enemy* enemy, int[boss_spawn_num_y_rows][boss_spawn_num_x_columns]* spawn_positions) {
+static void SetIfSlotIsBeingUsed(
+    int spawn_positions[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS],
+    Enemy* enemy) {
     if (enemy->boss_spawn_y == -1 || enemy->boss_spawn_x == -1)
         return;
 
     spawn_positions[enemy->boss_spawn_y][enemy->boss_spawn_x] = 1;
 }
 
-static int[boss_spawn_num_y_rows][boss_spawn_num_x_columns] GetUsedBossSpawnPoints() {
-    int spawn_points[boss_spawn_num_y_rows][boss_spawn_num_x_columns] = { 0 };
-    List_ForEachCtx(enemies, spawn_points)
+static GetUsedBossSpawnPoints(
+    int spawn_positions[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS]
+) {
+    List_ForEachCtx(enemies, &spawn_positions, SetIfSlotIsBeingUsed);
 }
 
-static int[2] GetAvailableBossSpawnPoint() {
+static Vector2 GetAvailableBossSpawnPoint() {
+    const int spawn_positions[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS] = { 0 };
+    GetUsedBossSpawnPoints(&spawn_positions);
 
-    const int available_slots[boss_spawn_num_y_rows][boss_spawn_num_x_columns] = GetUsedBossSpawnPoints();
-
-    for(int y = 0; y < boss_spawn_num_y_rows; y++) {
-        for(int x = 0; x < boss_spawn_num_x_columns; x++) {
-            if (boss_spawn_position[y][x] == 0) {
-                return [y, x];
+    for(int y = 0; y < BOSS_SPAWN_NUM_Y_ROWS; y++) {
+        for(int x = 0; x < BOSS_SPAWN_NUM_X_COLUMNS; x++) {
+            if (spawn_positions[y][x] == 0) {
+                return (Vector2) { y, x };
             }
         }
     }
 
-    return [-1, -1];
+    return (Vector2){ -1, -1 };
 }
 
-static int[2] GetRandomAvailableBossSpawnPoint() {
+static Vector2 GetRandomAvailableBossSpawnPoint() {
     int start_pos_x = 0;
     int start_pos_y = 0;
 
@@ -272,11 +278,12 @@ static int[2] GetRandomAvailableBossSpawnPoint() {
     int spawn_x = -1;
     int spawn_y = -1;
 
-    const int boss_spawn_position[boss_spawn_num_y_rows][boss_spawn_num_x_columns] = GetUsedBossSpawnPoints();
+    const int boss_spawn_position[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS] = { 0 };
+    GetUsedBossSpawnPoints(&boss_spawn_position);
 
     do {
-        spawn_x = GetRandomValue(0, num_x_columns - 1);
-        spawn_y = GetRandomValue(0, num_y_rows - 1);
+        spawn_x = GetRandomValue(0, BOSS_SPAWN_NUM_X_COLUMNS - 1);
+        spawn_y = GetRandomValue(0, BOSS_SPAWN_NUM_Y_ROWS - 1);
 
         is_spawn_point_busy = boss_spawn_position[spawn_y][spawn_x] > 0;
     } while (is_spawn_point_busy > 0 && max_retries++ < 5);
@@ -285,20 +292,21 @@ static int[2] GetRandomAvailableBossSpawnPoint() {
         return GetAvailableBossSpawnPoint();
     }
 
-    return [spawn_y, spawn_x];
+    return (Vector2) { spawn_y, spawn_x };
 }
 
 static bool CreatePidgeonOfPrey(int id, float start_time) {
-    int[2] spawn_points = GetRandomAvailableBossSpawnPoint();
+    Vector2 spawn_points = GetRandomAvailableBossSpawnPoint();
 
-    if (spawn_points[0] == -1 || spawn_points[1] == -1)
+    if (spawn_points.x == -1 || spawn_points.y == -1)
         return false;
 
-    boss_spawn_position[spawn_points[1]][spawn_points[0]] = 1;
-    int start_x_coord = GAME_SCREEN_CENTER - 150 * (spawn_points[1] + boss_spawn_num_x_columns / 2);
-    int start_y_coord = -500 - 150 * (spawn_points[0] + boss_spawn_num_y_rows / 2);
+    TraceLog(LOG_WARNING, "X: %f Y: %f", spawn_points.x, spawn_points.y);
 
-    CreateSingleBoss(id, ENEMY_BOSS_PIDGEON_OF_PREY, start_time, (Vector2) { GAME_SCREEN_CENTER, -500 }, spawn_points[1], spawn_points[0]);
+    int start_x_coord = GAME_SCREEN_CENTER - 150 * (spawn_points.x + BOSS_SPAWN_NUM_X_COLUMNS / 2);
+    int start_y_coord = -500 - 150 * (spawn_points.y + BOSS_SPAWN_NUM_Y_ROWS / 2);
+
+    CreateSingleBoss(id, ENEMY_BOSS_PIDGEON_OF_PREY, start_time, (Vector2) { GAME_SCREEN_CENTER, -500 }, spawn_points.x, spawn_points.y);
 }
 
 static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
@@ -319,6 +327,9 @@ static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
 #pragma endregion
 
 int GetWaveEnemies(int wave_no) {
+// 
+    return 10;
+
     // Wave table
     if (wave_no == 0) return 0;
 	if (wave_no == 1) return 4;
@@ -330,60 +341,59 @@ int GetWaveEnemies(int wave_no) {
 	return GetRandomValue(0, 10); // + Pidgeon of Prey
 }
 
-void GenerateWaves(bool is_endless_mode) {
-    int waves_to_create = is_endless_mode ? 10 : MAX_WAVES;
+void GenerateWaves() {
+    if (!endless_mode && current_wave_number >= MAX_WAVES)
+        return;
 
-    for(int i = 0; i < waves_to_create + 1; i++) {
-		int wave_type = GetWaveEnemies(i);
-        int modifier = GetRandomValue(0, 1);
+    int wave_type = GetWaveEnemies(current_wave_number);
+    int modifier = GetRandomValue(0, 1);
 
-        switch(wave_type) {
-            // BASIC
-            case 0:
-                CreateVFormation(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
-                break;
-            case 1:
-                CreateLineAtBorders(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
-                break;
-            // SPINNER
-            case 2:
-                CreateVFormation(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
-                break;
-            case 3:
-                CreateCentralLine(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
-                break;
-            // ZIG-ZAG
-            case 4:
-                CreateCentralLine(wave_id++, ENEMY_ZIGZAG, next_wave_start_time, modifier);
-                break;
-            case 5:
-                CreateVFormation(wave_id++, ENEMY_ZIGZAG, next_wave_start_time, modifier);
-                break;
-            // BOOSTER
-            case 6:
-                CreateVFormation(wave_id++, ENEMY_BOOSTER, next_wave_start_time, modifier);
-                break;
-            case 7:
-                CreateCentralLine(wave_id++, ENEMY_BOOSTER, next_wave_start_time, modifier);
-                break;
-            // GHOST
-            case 8:
-                CreateGhostTrio(wave_id++, next_wave_start_time);
-                break;
-            case 9:
-				CreateStalker(wave_id++, next_wave_start_time);
-            // PIDGEON OF PREY
-            case 10:
-                CreatePidgeonOfPrey(wave_id++, next_wave_start_time);
-                break;
-            default:
-                CreateVFormation(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
-                //CreateSingleForDebug(ENEMY_GHOST, next_wave_start_time);
-                break;
-        }
-
-        next_wave_start_time += TIME_BETWEEN_WAVES - density;
+    switch(wave_type) {
+        // BASIC
+        case 0:
+            CreateVFormation(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
+            break;
+        case 1:
+            CreateLineAtBorders(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
+            break;
+        // SPINNER
+        case 2:
+            CreateVFormation(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
+            break;
+        case 3:
+            CreateCentralLine(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
+            break;
+        // ZIG-ZAG
+        case 4:
+            CreateCentralLine(wave_id++, ENEMY_ZIGZAG, next_wave_start_time, modifier);
+            break;
+        case 5:
+            CreateVFormation(wave_id++, ENEMY_ZIGZAG, next_wave_start_time, modifier);
+            break;
+        // BOOSTER
+        case 6:
+            CreateVFormation(wave_id++, ENEMY_BOOSTER, next_wave_start_time, modifier);
+            break;
+        case 7:
+            CreateCentralLine(wave_id++, ENEMY_BOOSTER, next_wave_start_time, modifier);
+            break;
+        // GHOST
+        case 8:
+            CreateGhostTrio(wave_id++, next_wave_start_time);
+            break;
+        case 9:
+            CreateStalker(wave_id++, next_wave_start_time);
+        // PIDGEON OF PREY
+        case 10:
+            CreatePidgeonOfPrey(wave_id++, next_wave_start_time);
+            break;
+        default:
+            CreateVFormation(wave_id++, ENEMY_BASIC, next_wave_start_time, modifier);
+            //CreateSingleForDebug(ENEMY_GHOST, next_wave_start_time);
+            break;
     }
+
+    next_wave_start_time += TIME_BETWEEN_WAVES - density;
 }
 
 void InitWaves(bool is_endless_mode) {
@@ -395,33 +405,36 @@ void InitWaves(bool is_endless_mode) {
 	density = 0.0f;
 
     current_wave_number = 0;
+
     endless_mode = is_endless_mode;
     next_wave_start_time = FIRST_WAVE_SPAWN_TIMER;
 
     waves = List_Create(sizeof(EnemyWave));
 
-    GenerateWaves(is_endless_mode);
+    GenerateWaves();
 }
 
 void UpdateWaves(void) {
     total_elapsed_time += GetFrameTime();
 
-    if (waves != NULL && waves->size > 0) {
-        EnemyWave wave = *(EnemyWave*)List_GetByIndex(waves, 0);
+    if (waves == NULL)
+        return;
+    
+    EnemyWave wave = *(EnemyWave*)List_GetByIndex(waves, 0);
 
-        if (wave.start_time < total_elapsed_time) {
-            SpawnEnemies(wave.spawns);
-            List_Destroy(wave.spawns);
-            List_RemoveFirst(waves);
+    if (wave.start_time < total_elapsed_time) {
+        SpawnEnemies(wave.spawns);
+        List_Destroy(wave.spawns);
+        List_RemoveFirst(waves);
 
-			current_wave_number++;
+        if (!endless_mode)
+            current_wave_number++;
+        
+        INTENSITY_UPDATE_EQUATION;
+        DENSITY_UPDATE_EQUATION;
 
-            INTENSITY_UPDATE_EQUATION;
-            DENSITY_UPDATE_EQUATION;
-        }
+        GenerateWaves();
     }
-
-    if (endless_mode && waves != NULL && waves->size < 5) GenerateWaves(true);
 }
 
 bool AreAllWavesCompleted(void) {
