@@ -337,6 +337,7 @@ static void InitShipSpecifics(Ship* ship, int id) {
 
 		puddle_jumper.wormhole_puddle_jumper = CreateUnmanagedEffect(WORMHOLE_PUDDLE_JUMPER_SHIP, Vector2Zero(), 0);
 		puddle_jumper.wormhole_puddle_jumper->size = (Vector2){ 0 };
+		puddle_jumper.wormhole_puddle_jumper->color.a = 0;
 
 		puddle_jumper.wormhole_tether = CreateUnmanagedEffect(WORMHOLE_TETHER, Vector2Zero(), 0);
 		puddle_jumper.wormhole_tether->size = (Vector2){ 0 };
@@ -821,6 +822,7 @@ static void UpdatePuddleJumper(Ship* ship) {
 
 				// Prepare fake ship to fly (flying animation)
 				puddle_jumper.wormhole_puddle_jumper->size = puddle_jumper.wormhole_puddle_jumper->original_size;
+				puddle_jumper.wormhole_puddle_jumper->color.a = 255;
 				puddle_jumper.wormhole_puddle_jumper->rotation = CalculateFacingAngle(
 					puddle_jumper.wormhole_in_effect->position,
 					puddle_jumper.wormhole_out_effect->position) * RAD2DEG - 90;
@@ -871,10 +873,13 @@ static void UpdatePuddleJumper(Ship* ship) {
 			puddle_jumper.wormhole_in_active = false;
 			puddle_jumper.wormhole_out_active = false;
 			ship->position = puddle_jumper.wormhole_out_effect->position;
+
 			CreateManagedEffectDuration(WORMHOLE_TELEPORT_ANIMATION, ship->position, 0.5f);
-			ship->color = WHITE;
+
 			puddle_jumper.wormhole_state = WORMHOLE_INACTIVE;
 			puddle_jumper.wormhole_puddle_jumper->size = (Vector2) {0, 0};
+			puddle_jumper.wormhole_puddle_jumper->color.a = 0;
+
 			WormholeClearList();
 
 			puddle_jumper.wormhole_enter_is_in_use = false;
