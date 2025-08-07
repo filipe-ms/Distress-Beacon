@@ -339,7 +339,7 @@ static void BehaviorPidgeonOfPrey(Enemy* enemy, Ship* ship) {
             EnemyProjectile_SpawnPosition(enemy, PROJECTILE_PIDGEON_OF_PREY_1, left_proj);
             EnemyProjectile_SpawnPosition(enemy, PROJECTILE_PIDGEON_OF_PREY_1, right_proj);
 
-            PlaySoundFxWithVolumeAndRandomPitch(&sound7, 1, 2.0, 2.0);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound7, BASE_WEAPON_SFX_VOLUME, 2.0, 2.0);
         }
     }
 }

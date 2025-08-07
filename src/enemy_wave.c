@@ -429,6 +429,7 @@ void InitWaves(bool is_endless_mode) {
 
     endless_mode = is_endless_mode;
     next_wave_start_time = FIRST_WAVE_SPAWN_TIMER;
+    last_pidgeon_spawn = 25;
 
     waves = List_Create(sizeof(EnemyWave));
 }

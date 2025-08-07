@@ -50,6 +50,7 @@ void ChangeSceneArgs(Scene scene, int id) {
 
     case CREDITS:
         InitCredits();
+        break;
 
     case GAME:
         InitGame();

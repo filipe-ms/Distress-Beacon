@@ -8,6 +8,7 @@
 #include "ship.h"
 #include "bars.h"
 #include "raymath.h"
+#include "enemy_wave.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -118,12 +119,12 @@ static void DrawActiveBonuses() {
     DrawCenteredRectangle(UI_RIGHT_CENTER, frame_center, border_width - 10, 190, UI_HIGHLIGHT_COLOR);
     DrawCenteredPixelBorder(UI_RIGHT_CENTER, frame_center, border_width, 190, 5, WHITE);
 
-    DrawCenteredOutlinedText("UPGRADES", UI_RIGHT_CENTER, base_height, font_size, WHITE, Fade(RAYWHITE, 0.5f));
+    DrawCenteredOutlinedText("UPGRADES DE ARMAS", UI_RIGHT_CENTER, base_height, font_size, WHITE, Fade(RAYWHITE, 0.5f));
 
-    DrawAlignedStat("Damage", GetDamageModifier(), start_x, base_height + font_size * 1, width, font_size, WHITE);
-    DrawAlignedStat("Fire rate", GetCooldownModifier(), start_x, base_height + font_size * 2, width, font_size, WHITE);
-    DrawAlignedStat("Projectile size", GetSizeModifier(), start_x, base_height + font_size * 3, width, font_size, WHITE);
-    DrawAlignedStat("Bullet speed", GetSpeedModifier(), start_x, base_height + font_size * 4, width, font_size, WHITE);
+    DrawAlignedStat("Dano", GetDamageModifier(), start_x, base_height + font_size * 1, width, font_size, WHITE);
+    DrawAlignedStat("Cadência", GetCooldownModifier(), start_x, base_height + font_size * 2, width, font_size, WHITE);
+    DrawAlignedStat("Tamanho", GetSizeModifier(), start_x, base_height + font_size * 3, width, font_size, WHITE);
+    DrawAlignedStat("Velocidade", GetSpeedModifier(), start_x, base_height + font_size * 4, width, font_size, WHITE);
 }
 
 static void DrawExpBar(void) {
@@ -144,7 +145,7 @@ static void DrawLevel(void) {
     int to_level = GetPlayerExpToLevel();
 	int font_size = 30;
 
-    DrawCenteredText(TextFormat("Level %-6i Exp %i/%i", GetPlayerLevel(), exp, to_level), pos_x, pos_y, font_size, WHITE);
+    DrawCenteredText(TextFormat("Nível %-6i Exp %i/%i", GetPlayerLevel(), exp, to_level), pos_x, pos_y, font_size, WHITE);
 }
 
 static void DrawScore() {
@@ -184,7 +185,6 @@ static float GetSpecialBarAlpha(int bar_pos_x, int bar_pos_y, int bar_width) {
     return result;
 }
 
-
 static void DrawShipSpecialCooldown(void) {
     int player_ship = GetPlayerShip();
 
@@ -216,6 +216,25 @@ static void DrawShipSpecialCooldown(void) {
     }
 }
 
+static void DrawWaveProgress(void) {
+    Rectangle progress_bar = (Rectangle){ 0, SCREEN_HEIGHT * 0.9, 400, 25 };
+    progress_bar.x = UI_LEFT_CENTER - progress_bar.width / 2;
+
+    int wave = GetCurrentWaveNumber();
+    float progress = (float)wave / MAX_WAVES;
+
+    float scale = 10;
+    DrawProgressBarRec(PROGRESS_BAR_ROUNDED_EMPTY_WIDE, progress_bar, 1, 1);
+    DrawProgressBarRec(PROGRESS_BAR_ROUNDED_BLUE_WIDE, progress_bar, progress, 1);
+
+    int pos_x = UI_LEFT_CENTER;
+    int pos_y = SCREEN_HEIGHT * 0.93;
+    
+    int font_size = 30;
+
+    DrawCenteredText(TextFormat("Progresso %3i%%", (int)(progress*100.0f)), pos_x, pos_y, font_size, WHITE);
+}
+
 void DrawUserInterface(void) {
 
     { // Left
@@ -227,6 +246,7 @@ void DrawUserInterface(void) {
         DrawScore();
         DrawActiveWeapons();
         DrawActiveBonuses();
+        DrawWaveProgress();
         DrawExpBar();
         DrawLevel();
     }
