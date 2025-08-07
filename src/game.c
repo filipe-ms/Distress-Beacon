@@ -12,10 +12,12 @@
 #include "enemy_wave.h"
 #include "raymath.h"
 #include "special_effects.h"
+#include "audio_manager.h"
 #include "background.h"
 #include "enemy_projectile.h"
 #include "timer.h"
 #include "input.h"
+#include "scene_draw_effects.h"
 
 
 // Waves
@@ -129,13 +131,17 @@ void UpdateGame(void)
         }
 
 	    if (AreAllWavesCompleted() && !victory) {
+            const float sound_time = 9.0f;
 		    victory = true;
-		    ChangeSceneArgs(WINNER, GetPlayerScore());
-            InitTimer(10.0f);
+
+            InitTimer(sound_time);
+            StopMusic();
+            PlaySoundFxWithVolumeAndRandomPitch(&sound28, 0.8, 1, 1);
+            InitFadeOutEffect(sound_time, BLACK, 0);
 	    }
 
         if (victory && UpdateTimer()) {
-            ChangeScene(WINNER);
+            ChangeSceneArgs(ENDING_1, GetPlayerScore());
         }
     }
 }
@@ -165,6 +171,8 @@ void DrawGame(void)
     if (IsShieldActive()) {
         DrawCircleV(ship.position, (DRAW_WH / 2.0f) + 10.0f, Fade(SKYBLUE, 0.5f));
     }
+
+    UpdateAndDrawScreenEffects();
 
     if (victory) DrawText("VOCÊ VENCEU!",   (int)GAME_SCREEN_CENTER - MeasureText("VOCÊ VENCEU!", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, WHITE);
     if (pause) DrawText("JOGO PAUSADO", (int)GAME_SCREEN_CENTER - MeasureText("JOGO PAUSADO", 40) / 2, SCREEN_HEIGHT / 2 - 40, 40, GRAY);

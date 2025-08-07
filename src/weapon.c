@@ -144,10 +144,7 @@ static void PulseShootPositionUpdate(PulseShoot* pulse_shoot) {
 }
 
 static int CheckIfOutOfBonds(void* context, PulseShoot* pulse_shoot) {
-	if (pulse_shoot->shoot.position.y < -80) {
-        return true;
-	}
-    return false;
+	return IsWithinScreenBounds(pulse_shoot->shoot.position, pulse_shoot->shoot.size);
 }
 
 static void UpdatePulse(Ship* ship) {
@@ -438,18 +435,19 @@ static void DrawHomingShoot(HomingShoot* homing_shoot) {
 		homing_shoot->shoot.size.y
     };
     Vector2 origin = { homing_shoot->shoot.size.x / 2.0f, homing_shoot->shoot.size.y / 2.0f };
+
     if (DEBUG_FLAG) {
         Vector2 center = { homing_shoot->shoot.position.x, homing_shoot->shoot.position.y };
         DrawCircleV(center, homing_shoot->shoot.size.x / 2.0f, Fade(RED, 0.5f));
-    }
-	
-    if (homing_shoot->target != NULL && homing_shoot->target->is_on_screen) {
-        DrawLine(
-            homing_shoot->shoot.position.x,
-            homing_shoot->shoot.position.y,
-            homing_shoot->target->position.x,
-            homing_shoot->target->position.y,
-            RED);
+        
+        if (homing_shoot->target != NULL && homing_shoot->target->is_on_screen) {
+            DrawLine(
+                homing_shoot->shoot.position.x,
+                homing_shoot->shoot.position.y,
+                homing_shoot->target->position.x,
+                homing_shoot->target->position.y,
+                RED);
+        }
     }
 
     DrawTexturePro(texture_projectiles, homing.weapon.source, destRec, origin, homing_shoot->visual_rotation, WHITE);
@@ -899,7 +897,7 @@ static void DrawPrism(void) {
                 DrawCircleV(*end, 20, Fade(RED, 0.5f));
             }
             //DrawLineV(*start, *end, Fade(prism.weapon.color, prism.prism_shoot.alpha));
-			DrawLineEx(*start, *end, prism.weapon.level, Fade(prism.weapon.color, prism.prism_shoot.alpha));
+			  DrawLineEx(*start, *end, prism.weapon.level, Fade(prism.weapon.color, prism.prism_shoot.alpha));
         }
     }
 }

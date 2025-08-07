@@ -36,6 +36,7 @@
 		"scene_manager.h": "c",
 		"audio_manager.h": "c",
 		"bars.h": "c",
-		"intro.h": "c"
+		"intro.h": "c",
+		"timer.h": "c"
 	}
 }
