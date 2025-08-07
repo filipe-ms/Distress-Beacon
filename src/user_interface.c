@@ -92,7 +92,7 @@ static void DrawActiveWeapons() {
 		next_line += font_size;
 	}
     for (int i = GetActiveWeaponsAmount(); i < MAX_WEAPON_SLOTS; i++) {
-        DrawAlignedWeapon("Empty", 0, pos_x, next_line, width, font_size, WHITE);
+        DrawAlignedWeapon("Vazio", 0, pos_x, next_line, width, font_size, WHITE);
         next_line += font_size;
     }
 }
