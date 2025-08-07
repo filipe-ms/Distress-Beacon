@@ -18,6 +18,7 @@ static int current_wave_number;
 static bool endless_mode;
 static float next_wave_start_time;
 
+static int last_pidgeon_spawn;
 
 #pragma region HP_FUNCTIONS
 
@@ -266,7 +267,15 @@ void GenerateWaves(bool is_endless_mode) {
     int waves_to_create = is_endless_mode ? 10 : MAX_WAVES;
 
     for(int i = 0; i < waves_to_create + 1; i++) {
-		int wave_type = GetWaveEnemies(i);
+		
+        int wave_type;
+
+        if (current_wave_number - last_pidgeon_spawn < 5) {
+            wave_type = GetRandomValue(0, 9);
+        } else {
+            wave_type = GetWaveEnemies(i);
+        }
+
         int modifier = GetRandomValue(0, 1);
 
         switch(wave_type) {
@@ -306,6 +315,7 @@ void GenerateWaves(bool is_endless_mode) {
 				CreateStalker(wave_id++, next_wave_start_time);
             // PIDGEON OF PREY
             case 10:
+				last_pidgeon_spawn = wave_id;
                 CreatePidgeonOfPrey(wave_id++, next_wave_start_time);
                 break;
             default:
@@ -329,6 +339,7 @@ void InitWaves(bool is_endless_mode) {
     current_wave_number = 0;
     endless_mode = is_endless_mode;
     next_wave_start_time = FIRST_WAVE_SPAWN_TIMER;
+    last_pidgeon_spawn = 25;
 
     waves = List_Create(sizeof(EnemyWave));
 

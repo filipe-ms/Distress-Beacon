@@ -508,7 +508,7 @@ static void InitShotgunShoot(Ship* ship) {
         base_speed.y += GetRandomValue(0, -500);
         new_shotgun_shoot.speed = Vector2Rotate(base_speed, angle * DEG2RAD);
 
-        new_shotgun_shoot.lifespan = (float)(GetRandomValue(1, 3) / 10.0f);
+        new_shotgun_shoot.lifespan = (float)(GetRandomValue(shotgun.weapon.level, 2 + shotgun.weapon.level) / 10.0f);
         new_shotgun_shoot.alpha = 1.0f;
 
         if (Vector2Length(new_shotgun_shoot.speed) > 1300) {
@@ -746,7 +746,11 @@ static bool CheckEnemyCollisionWithPlayer(Vector2* ship_pos, Vector2* enemy_pos)
 Prism prism;
 
 int GetPrismLevel(void) { return prism.weapon.level; }
-void PrismLevelUp(void) { prism.weapon.level += 1; }
+void PrismLevelUp(void) { 
+    prism.weapon.level += 1;
+    prism.weapon.cooldown_time -= 0.05f;
+    prism.weapon.damage += 0.15f;
+}
 
 static void InitPrism(void) {
     prism.weapon.id = PRISM;
@@ -894,7 +898,8 @@ static void DrawPrism(void) {
                 DrawCircleV(*start, 20, Fade(RED, 0.5f));
                 DrawCircleV(*end, 20, Fade(RED, 0.5f));
             }
-            DrawLineV(*start, *end, Fade(prism.weapon.color, prism.prism_shoot.alpha));
+            //DrawLineV(*start, *end, Fade(prism.weapon.color, prism.prism_shoot.alpha));
+			DrawLineEx(*start, *end, prism.weapon.level, Fade(prism.weapon.color, prism.prism_shoot.alpha));
         }
     }
 }

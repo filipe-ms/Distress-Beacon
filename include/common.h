@@ -53,7 +53,7 @@
 //
 //--------------------------------------------------------------
 
-#define MAX_WAVES				50		// Número máximo de waves
+#define MAX_WAVES				100		// Número máximo de waves
 #define ENEMY_LINE_SPAWN_START	-80
 #define MAX_WEAPON_SLOTS		3
 

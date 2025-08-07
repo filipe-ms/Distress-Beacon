@@ -206,7 +206,6 @@ void LoadAudioResources(void) {
     // Sounds
     sound1 = LoadSound("sound/effect/laser-45816.mp3"); // Projéteis de AUREA e VOID
     sound2 = LoadSound("sound/effect/explosion-47163.mp3");
-    //sound3 = LoadSound("sound/effect/explosion-8-bit-14-314686.mp3");
     sound4 = LoadSound("sound/effect/laser-45816.mp3");
     sound5 = LoadSound("sound/effect/laser-bolt-89300.mp3");
     sound6 = LoadSound("sound/effect/lasergun-152375.mp3"); // Ainda sem uso
@@ -357,6 +356,7 @@ void UnloadAudioResources(void) {
     UnloadSound(sound1);
     UnloadSound(sound2);
     UnloadSound(sound4);
+    UnloadSound(sound5);
     UnloadSound(sound6);
     UnloadSound(sound7);
     UnloadSound(sound8);
@@ -380,13 +380,6 @@ void UnloadAudioResources(void) {
     UnloadSound(sound25);
     UnloadSound(sound26);
     UnloadSound(sound27);
-
-        /*
-    UnloadSound(sound3);
-    UnloadSound(sound5);
-    
-    
-    */
 }
 
 #pragma endregion LOAD/UNLOAD
@@ -493,45 +486,21 @@ static void ResetSpeech(void) {
     speech.active_ship_id = -1;
 }
 
+static Sound* GetSpeechFromPilot(PilotAudio* speech) {
+    int note_index = GetRandomValue(0, 1);
+    int pool_idx = speech->sound_pool_index[note_index];
+    speech->sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
+    return &speech->sound_pool[note_index][pool_idx];
+}
+
 static Sound* GetPilotSound(int ship) {
     switch (ship) {
-    // Avan�a o �ndice do pool e retorna o ponteiro para o som
-    case ORION: {
-		int note_index = GetRandomValue(0, 1);
-		int pool_idx = orion_speech.sound_pool_index[note_index];
-		orion_speech.sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
-		return &orion_speech.sound_pool[note_index][pool_idx];
-    }
-	case PUDDLE_JUMPER: {
-		int note_index = GetRandomValue(0, 1);
-		int pool_idx = puddle_speech.sound_pool_index[note_index];
-		puddle_speech.sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
-		return &puddle_speech.sound_pool[note_index][pool_idx];
-	}
-	case NEBULA: {
-        int note_index = GetRandomValue(0, 1);
-        int pool_idx = nebula_speech.sound_pool_index[note_index];
-        nebula_speech.sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
-        return &nebula_speech.sound_pool[note_index][pool_idx];
-	}
-	case VOID: {
-		int note_index = GetRandomValue(0, 1);
-		int pool_idx = void_speech.sound_pool_index[note_index];
-		void_speech.sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
-		return &void_speech.sound_pool[note_index][pool_idx];
-	}
-    case AUREA: {
-		int note_index = GetRandomValue(0, 1);
-		int pool_idx = aurea_speech.sound_pool_index[note_index];
-		aurea_speech.sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
-		return &aurea_speech.sound_pool[note_index][pool_idx];
-    }
-    default: {
-        int note_index = GetRandomValue(0, 1);
-        int pool_idx = orion_speech.sound_pool_index[note_index];
-        orion_speech.sound_pool_index[note_index] = (pool_idx + 1) % SPEECH_POOL_SIZE;
-        return &orion_speech.sound_pool[note_index][pool_idx];
-    }
+    case ORION:         return GetSpeechFromPilot(&orion_speech);
+    case PUDDLE_JUMPER: return GetSpeechFromPilot(&puddle_speech);
+    case NEBULA:        return GetSpeechFromPilot(&nebula_speech);
+    case VOID:          return GetSpeechFromPilot(&void_speech);
+    case AUREA:         return GetSpeechFromPilot(&aurea_speech);
+    default:            return GetSpeechFromPilot(&orion_speech); // fallback
     }
 }
 

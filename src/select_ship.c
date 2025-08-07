@@ -122,7 +122,7 @@ void UpdateShipSelectMenu() {
         }
         else if (IsConfirmButtonPressed()) {
             PlaySoundFxWithVolumeAndRandomPitch(&sound21, MENU_SFX_VOLUME, 1, 1);
-            PlaySoundFxWithVolumeAndRandomPitch(&sound24, MENU_SFX_VOLUME, 1, 1);
+            PlaySoundFxWithVolumeAndRandomPitch(&sound24, MENU_SFX_VOLUME - 0.3, 1, 1);
             ship_menu.is_ship_selected = true;
             TriggerTopPilotAnimation(0.0f);
             InitTimer(2.0f);
