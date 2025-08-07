@@ -264,7 +264,7 @@ static void InitNebulaParticle(EffectType effect, int particle_count, NebulaPart
 static void InitShipSpecifics(Ship* ship, int id) {
 	switch (id) {
 	case AUREA:
-		aurea.drone_shots = 5;
+		aurea.drone_shots = 8;
 		aurea.drone_cooldown = 10.0f;
 		aurea.drone_current_cooldown = 0;
 		aurea.drone_firing_duration = 5.0f;

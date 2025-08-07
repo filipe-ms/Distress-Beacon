@@ -457,8 +457,6 @@ void UpdateWaves(void) {
         return;
     }
 
-    TraceLog(LOG_WARNING, "I: %f | D: %f", intensity, density);
-    
     GenerateWaves();
 }
 
