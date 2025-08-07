@@ -18,6 +18,8 @@ static int current_wave_number;
 static bool endless_mode;
 static float next_wave_start_time;
 
+#define boss_spawn_num_x_columns 3;
+#define boss_spawn_num_y_rows 3;
 
 #pragma region HP_FUNCTIONS
 
@@ -204,8 +206,11 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
 }
 
 #pragma endregion
-
 static void CreateSingle(int id, EnemyType type, float start_time, Vector2 initial_position) {
+    CreateSingleBoss(id, type, start_time, initial_position, -1, -1);
+}
+
+static void CreateSingleBoss(int id, EnemyType type, float start_time, Vector2 initial_position, int boss_spawn_x, int boss_spawn_y) {
     EnemyWave wave;
     CreateWave(&wave, id, type, start_time, 0);
 
@@ -229,8 +234,71 @@ static void CreateStalker(int id, float start_time) {
 	CreateSingle(id, ENEMY_STALKER, start_time, (Vector2) { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START });
 }
 
-static void CreatePidgeonOfPrey(int id, float start_time) {
-    CreateSingle(id, ENEMY_BOSS_PIDGEON_OF_PREY, start_time, (Vector2) { GAME_SCREEN_CENTER, -500 });
+static SetIfSlotIsBeingUsed(Enemy* enemy, int[boss_spawn_num_y_rows][boss_spawn_num_x_columns]* spawn_positions) {
+    if (enemy->boss_spawn_y == -1 || enemy->boss_spawn_x == -1)
+        return;
+
+    spawn_positions[enemy->boss_spawn_y][enemy->boss_spawn_x] = 1;
+}
+
+static int[boss_spawn_num_y_rows][boss_spawn_num_x_columns] GetUsedBossSpawnPoints() {
+    int spawn_points[boss_spawn_num_y_rows][boss_spawn_num_x_columns] = { 0 };
+    List_ForEachCtx(enemies, spawn_points)
+}
+
+static int[2] GetAvailableBossSpawnPoint() {
+
+    const int available_slots[boss_spawn_num_y_rows][boss_spawn_num_x_columns] = GetUsedBossSpawnPoints();
+
+    for(int y = 0; y < boss_spawn_num_y_rows; y++) {
+        for(int x = 0; x < boss_spawn_num_x_columns; x++) {
+            if (boss_spawn_position[y][x] == 0) {
+                return [y, x];
+            }
+        }
+    }
+
+    return [-1, -1];
+}
+
+static int[2] GetRandomAvailableBossSpawnPoint() {
+    int start_pos_x = 0;
+    int start_pos_y = 0;
+
+    bool is_spawn_point_busy = false;
+
+    int max_retries = 0;
+
+    int spawn_x = -1;
+    int spawn_y = -1;
+
+    const int boss_spawn_position[boss_spawn_num_y_rows][boss_spawn_num_x_columns] = GetUsedBossSpawnPoints();
+
+    do {
+        spawn_x = GetRandomValue(0, num_x_columns - 1);
+        spawn_y = GetRandomValue(0, num_y_rows - 1);
+
+        is_spawn_point_busy = boss_spawn_position[spawn_y][spawn_x] > 0;
+    } while (is_spawn_point_busy > 0 && max_retries++ < 5);
+
+    if (is_spawn_point_busy) {
+        return GetAvailableBossSpawnPoint();
+    }
+
+    return [spawn_y, spawn_x];
+}
+
+static bool CreatePidgeonOfPrey(int id, float start_time) {
+    int[2] spawn_points = GetRandomAvailableBossSpawnPoint();
+
+    if (spawn_points[0] == -1 || spawn_points[1] == -1)
+        return false;
+
+    boss_spawn_position[spawn_points[1]][spawn_points[0]] = 1;
+    int start_x_coord = GAME_SCREEN_CENTER - 150 * (spawn_points[1] + boss_spawn_num_x_columns / 2);
+    int start_y_coord = -500 - 150 * (spawn_points[0] + boss_spawn_num_y_rows / 2);
+
+    CreateSingleBoss(id, ENEMY_BOSS_PIDGEON_OF_PREY, start_time, (Vector2) { GAME_SCREEN_CENTER, -500 }, spawn_points[1], spawn_points[0]);
 }
 
 static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {

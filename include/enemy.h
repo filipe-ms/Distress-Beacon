@@ -66,6 +66,9 @@ typedef struct {
     Vector2 vector2_aux1;
     Vector2 vector2_aux2;
     float float_aux1;
+
+    int boss_spawn_x;
+    int boss_spawn_y;
 } Enemy;
 
 typedef enum {
