@@ -238,75 +238,87 @@ static void CreateStalker(int id, float start_time) {
 }
 
 static void SetIfSlotIsBeingUsed(
-    int spawn_positions[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS],
-    Enemy* enemy) {
+    int boss_spawn_position[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS],
+    Enemy* enemy
+) {
     if (enemy->boss_spawn_y == -1 || enemy->boss_spawn_x == -1)
         return;
 
-    spawn_positions[enemy->boss_spawn_y][enemy->boss_spawn_x] = 1;
+    boss_spawn_position[enemy->boss_spawn_y][enemy->boss_spawn_x] = 1;
 }
 
 static GetUsedBossSpawnPoints(
-    int spawn_positions[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS]
+    int boss_spawn_position[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS]
 ) {
-    List_ForEachCtx(enemies, &spawn_positions, SetIfSlotIsBeingUsed);
-}
-
-static Vector2 GetAvailableBossSpawnPoint() {
-    const int spawn_positions[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS] = { 0 };
-    GetUsedBossSpawnPoints(&spawn_positions);
-
-    for(int y = 0; y < BOSS_SPAWN_NUM_Y_ROWS; y++) {
-        for(int x = 0; x < BOSS_SPAWN_NUM_X_COLUMNS; x++) {
-            if (spawn_positions[y][x] == 0) {
-                return (Vector2) { y, x };
-            }
-        }
-    }
-
-    return (Vector2){ -1, -1 };
+    List_ForEachCtx(enemies, boss_spawn_position, SetIfSlotIsBeingUsed);
 }
 
 static Vector2 GetRandomAvailableBossSpawnPoint() {
     int start_pos_x = 0;
     int start_pos_y = 0;
 
-    bool is_spawn_point_busy = false;
-
-    int max_retries = 0;
+    bool is_spawn_point_busy = true;
 
     int spawn_x = -1;
     int spawn_y = -1;
 
-    const int boss_spawn_position[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS] = { 0 };
-    GetUsedBossSpawnPoints(&boss_spawn_position);
+    int boss_spawn_position[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS] = { 0 };
+    GetUsedBossSpawnPoints(boss_spawn_position);
 
-    do {
-        spawn_x = GetRandomValue(0, BOSS_SPAWN_NUM_X_COLUMNS - 1);
-        spawn_y = GetRandomValue(0, BOSS_SPAWN_NUM_Y_ROWS - 1);
+    List* available_slots = List_Create(sizeof(Vector2));
 
-        is_spawn_point_busy = boss_spawn_position[spawn_y][spawn_x] > 0;
-    } while (is_spawn_point_busy > 0 && max_retries++ < 5);
-
-    if (is_spawn_point_busy) {
-        return GetAvailableBossSpawnPoint();
+    for(int y = 0; y < BOSS_SPAWN_NUM_Y_ROWS; y++) {
+        for(int x = 0; x < BOSS_SPAWN_NUM_X_COLUMNS; x++) {
+            if (boss_spawn_position[y][x] == 0) {
+                Vector2 pos = { x, y };
+                List_Add(available_slots, &pos);
+            }
+        }
     }
 
-    return (Vector2) { spawn_y, spawn_x };
+    if (available_slots->size == 0) {
+        return (Vector2){ -1, -1 };
+    }
+
+    return *(Vector2*)List_GetByIndex(available_slots, GetRandomValue(0, available_slots->size - 1));
 }
 
-static bool CreatePidgeonOfPrey(int id, float start_time) {
+static void CreatePidgeonOfPrey(int id, float start_time) {
     Vector2 spawn_points = GetRandomAvailableBossSpawnPoint();
 
     if (spawn_points.x == -1 || spawn_points.y == -1)
-        return false;
+        return;
 
-    TraceLog(LOG_WARNING, "X: %f Y: %f", spawn_points.x, spawn_points.y);
+    int boss_spawn_position[BOSS_SPAWN_NUM_Y_ROWS][BOSS_SPAWN_NUM_X_COLUMNS] = { 0 };
+    GetUsedBossSpawnPoints(boss_spawn_position);
 
-    int start_x_coord = GAME_SCREEN_CENTER - 150 * (spawn_points.x + BOSS_SPAWN_NUM_X_COLUMNS / 2);
-    int start_y_coord = -500 - 150 * (spawn_points.y + BOSS_SPAWN_NUM_Y_ROWS / 2);
+    TraceLog(LOG_WARNING,
+        "[[%d, %d, %d], [%d, %d, %d], [%d, %d, %d]]",
+        boss_spawn_position[0][0],
+        boss_spawn_position[0][1],
+        boss_spawn_position[0][2],
+        boss_spawn_position[1][0],
+        boss_spawn_position[1][1],
+        boss_spawn_position[1][2],
+        boss_spawn_position[2][0],
+        boss_spawn_position[2][1],
+        boss_spawn_position[2][2]);
 
-    CreateSingleBoss(id, ENEMY_BOSS_PIDGEON_OF_PREY, start_time, (Vector2) { GAME_SCREEN_CENTER, -500 }, spawn_points.x, spawn_points.y);
+    const int offset_x = 350;
+    const int offset_y = 350;
+    const int initial_x = GAME_SCREEN_CENTER - offset_x / 2.0f;
+    const int initial_y = - 500 - offset_y / 2.0f;
+
+    int start_x_coord = initial_x + Lerp(0, 1, spawn_points.x / (BOSS_SPAWN_NUM_X_COLUMNS - 1)) * offset_x;
+    int start_y_coord = initial_y + Lerp(0, 1, spawn_points.y / (BOSS_SPAWN_NUM_Y_ROWS - 1)) * offset_y;
+
+    CreateSingleBoss(
+        id,
+        ENEMY_BOSS_PIDGEON_OF_PREY,
+        start_time,
+        (Vector2) { start_x_coord, start_y_coord },
+        spawn_points.x,
+        spawn_points.y);
 }
 
 static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
@@ -327,9 +339,6 @@ static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
 #pragma endregion
 
 int GetWaveEnemies(int wave_no) {
-// 
-    return 10;
-
     // Wave table
     if (wave_no == 0) return 0;
 	if (wave_no == 1) return 4;
@@ -383,6 +392,7 @@ void GenerateWaves() {
             break;
         case 9:
             CreateStalker(wave_id++, next_wave_start_time);
+            break;
         // PIDGEON OF PREY
         case 10:
             CreatePidgeonOfPrey(wave_id++, next_wave_start_time);
@@ -410,8 +420,6 @@ void InitWaves(bool is_endless_mode) {
     next_wave_start_time = FIRST_WAVE_SPAWN_TIMER;
 
     waves = List_Create(sizeof(EnemyWave));
-
-    GenerateWaves();
 }
 
 void UpdateWaves(void) {
@@ -419,22 +427,26 @@ void UpdateWaves(void) {
 
     if (waves == NULL)
         return;
-    
-    EnemyWave wave = *(EnemyWave*)List_GetByIndex(waves, 0);
 
-    if (wave.start_time < total_elapsed_time) {
-        SpawnEnemies(wave.spawns);
-        List_Destroy(wave.spawns);
-        List_RemoveFirst(waves);
+    if (waves->size > 0) {
+        EnemyWave wave = *(EnemyWave*)List_GetByIndex(waves, 0);
 
-        if (!endless_mode)
-            current_wave_number++;
-        
-        INTENSITY_UPDATE_EQUATION;
-        DENSITY_UPDATE_EQUATION;
+        if (wave.start_time < total_elapsed_time) {
+            SpawnEnemies(wave.spawns);
+            List_Destroy(wave.spawns);
+            List_RemoveFirst(waves);
 
-        GenerateWaves();
+            if (!endless_mode)
+                current_wave_number++;
+            
+            INTENSITY_UPDATE_EQUATION;
+            DENSITY_UPDATE_EQUATION;
+        }
+
+        return;
     }
+    
+    GenerateWaves();
 }
 
 bool AreAllWavesCompleted(void) {

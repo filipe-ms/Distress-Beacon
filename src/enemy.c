@@ -279,7 +279,6 @@ static void BehaviorGhost(Enemy* enemy, Ship* ship) {
 }
 
 static void BehaviorPidgeonOfPrey(Enemy* enemy, Ship* ship) {
-    static float total_spawning_time = 2.0f;
     static float pi_over_two = PI / 2.0f;
     static float time_per_shoot = 1.5f;
     static Vector2 projectile_offset = { 0, 50 };
@@ -289,16 +288,17 @@ static void BehaviorPidgeonOfPrey(Enemy* enemy, Ship* ship) {
     if (enemy->state == ENEMY_STATE_BOSS_PIDGEON_OF_PREY_PRE_SPAWN) {
         enemy->elapsed_time = 0;
         enemy->float_aux1 = 0;
+        enemy->spawn_time_aux = 5.0f + (float)GetRandomValue(0, 5) / 10.0f;
         enemy->vector2_aux1 = enemy->position;
-        enemy->vector2_aux2 = (Vector2) { enemy->position.x, GAME_SCREEN_HEIGHT / 2.0f };
+        enemy->vector2_aux2 = (Vector2) { enemy->position.x, enemy->position.y + GAME_SCREEN_HEIGHT };
         enemy->state = ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SPAWNING;
 
         return;
     }
 
     if (enemy->state == ENEMY_STATE_BOSS_PIDGEON_OF_PREY_SPAWNING) {
-        enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, total_spawning_time, NULL, &has_reached_max);
-        enemy->float_aux1 = enemy->elapsed_time / total_spawning_time;
+        enemy->elapsed_time = ClampWithFlagsF(enemy->elapsed_time + GetFrameTime(), 0, enemy->spawn_time_aux, NULL, &has_reached_max);
+        enemy->float_aux1 = enemy->elapsed_time / enemy->spawn_time_aux;
         enemy->position.y = enemy->vector2_aux1.y + (enemy->vector2_aux2.y - enemy->vector2_aux1.y) * sinf(enemy->float_aux1 * pi_over_two);
 
         if (has_reached_max) {
@@ -439,6 +439,11 @@ void InitEnemy(Enemy* enemy, Vector2 position, EnemyType type, int hp) {
     enemy->vector2_aux1 = (Vector2){ 0 };
 
     enemy->elapsed_time = 0;
+
+    enemy->spawn_time_aux = 0;
+
+    enemy->boss_spawn_x = -1;
+    enemy->boss_spawn_y = -1;
 
     InitEnemySpecifics(enemy);
 }
