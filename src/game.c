@@ -128,14 +128,14 @@ void UpdateGame(void)
             }
         }
 
-	    if (AreAllWavesCompleted() && !victory) {
+	    if (AreAllWavesCompleted() && !victory && enemies->size == 0) {
 		    victory = true;
-		    ChangeSceneArgs(WINNER, GetPlayerScore());
+		    ChangeSceneArgs(ENDING_1, GetPlayerScore());
             InitTimer(10.0f);
 	    }
 
         if (victory && UpdateTimer()) {
-            ChangeScene(WINNER);
+            ChangeScene(ENDING_1);
         }
     }
 }
