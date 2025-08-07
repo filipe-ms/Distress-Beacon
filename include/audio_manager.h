@@ -50,7 +50,10 @@ extern Sound sound25;
 extern Sound sound26;
 extern Sound sound27;
 
+extern Sound sound28;
+
 // Update
+void StopMusic();
 void PlayMusic(Scene scene);
 
 void UpdateAudio(void);

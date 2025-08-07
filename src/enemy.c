@@ -541,14 +541,15 @@ static void UpdateEnemy(Ship* ship, Enemy* enemy) {
 	EnemyPositionChecks(enemy);
 }
 
-static bool IsEnemyOutOfBounds(Enemy* enemy) {
+static bool IsEnemyOutOfBounds(void* context, Enemy* enemy) {
     if (!enemy) return false;
     float bottom = enemy->position.y + enemy->size.y / 2.0f;
-    return bottom > SCREEN_HEIGHT + 10.0f;
+
+    bool is_out_of_bounds = bottom > SCREEN_HEIGHT + 10.0f;
+    return is_out_of_bounds;
 }
 
-static bool CheckForDeadEnemies(void* context, void* data) {
-	Enemy* enemy = (Enemy*)data;
+static bool CheckForDeadEnemies(void* context, Enemy* enemy) {
 	bool expression = enemy->hp <= 0;
 
 	if (expression) {

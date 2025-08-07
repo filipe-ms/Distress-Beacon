@@ -47,17 +47,17 @@ static float GetEnemyBaseHp(EnemyType type) {
 static float GetEnemyHpGrowthFactor(EnemyType type) {
     switch (type) {
 
-    case ENEMY_BASIC:   return 1.0f;
-    case ENEMY_ZIGZAG:  return 1.5f;
-    case ENEMY_BOOSTER: return 1.5f;
-    case ENEMY_WALLER:  return 2.0f;
-    case ENEMY_GHOST:   return 3.0f;
-    case ENEMY_STALKER: return 10.0f;
+    case ENEMY_BASIC:   return 0.75f;
+    case ENEMY_ZIGZAG:  return 1.00f;
+    case ENEMY_BOOSTER: return 1.15f;
+    //case ENEMY_WALLER:  return 1.25f;
+    case ENEMY_GHOST:   return 1.25f;
+    case ENEMY_STALKER: return 3.00f;
 
-    case ENEMY_BOSS_PIDGEON_OF_PREY: return 20.0f;
+    case ENEMY_BOSS_PIDGEON_OF_PREY: return 12.0f;
 
     case ENEMY_SPINNER:
-    case ENEMY_REVERSE_SPINNER: return 1.5f;
+    case ENEMY_REVERSE_SPINNER: return 0.85f;
 
     default: return 1.0f;
 
@@ -65,7 +65,7 @@ static float GetEnemyHpGrowthFactor(EnemyType type) {
 }
 
 float GetEnemyHitpoints(EnemyType type) {
-	return GetEnemyBaseHp(type) * GetEnemyHpGrowthFactor(type) * intensity;
+	return GetEnemyBaseHp(type) + GetEnemyHpGrowthFactor(type) * intensity;
 }
 
 #pragma endregion
@@ -108,7 +108,7 @@ static void CreateLineAtBorders(int id, EnemyType type, float start_time, int mo
     }
 
     if (current_wave_number < 10) {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             Vector2 position = { starting_x + i * step, ENEMY_LINE_SPAWN_START };
 
             Enemy enemy;
@@ -117,7 +117,7 @@ static void CreateLineAtBorders(int id, EnemyType type, float start_time, int mo
         }
     }
     else {
-        for (int i = 0; i < 5 + intensity * INTENSITY_SPAWN_FACTOR; i++) {
+        for (int i = 0; i < 3 + intensity * INTENSITY_SPAWN_FACTOR; i++) {
             Vector2 position = { starting_x + i * step, ENEMY_LINE_SPAWN_START };
 
             Enemy enemy;
@@ -133,7 +133,7 @@ static int CreateVFormation(int id, EnemyType type, float start_time, int modifi
     EnemyWave wave;
     CreateWave(&wave, id, type, start_time, modifier);
 
-    int enemy_count = 5 + (int)(intensity);
+    int enemy_count = 3 + (int)(intensity * INTENSITY_SPAWN_FACTOR);
     int rows = (int)(enemy_count / 2.0f);
     
     float center_x = GAME_SCREEN_CENTER;
@@ -183,19 +183,24 @@ static void CreateCentralLine(int id, EnemyType type, float start_time, int modi
     int starting_x;
     int step;
 
-    int screen_area = GAME_SCREEN_END - GAME_SCREEN_START;
-    
-    for(int i = 0; i < 3 + intensity * INTENSITY_SPAWN_FACTOR; i++) {
-        Vector2 position = (modifier == 0) ?
-            (Vector2) {
-                GAME_SCREEN_CENTER,
+
+    const int screen_area = GAME_SCREEN_END - GAME_SCREEN_START;
+    const int enemy_count = 3 + intensity * INTENSITY_SPAWN_FACTOR;
+    static const int enemy_spacing = 50;
+
+    for(int i = 0; i < enemy_count; i++) {
+        Vector2 position; 
+
+        if (modifier == 0) {
+            position = (Vector2) { GAME_SCREEN_CENTER, ENEMY_LINE_SPAWN_START * i };
+        } else {
+            const int half_left = (enemy_count / 2) * enemy_spacing;
+
+            position = (Vector2) {
+                GAME_SCREEN_CENTER - half_left + i * enemy_spacing,
                 ENEMY_LINE_SPAWN_START * i
-            } 
-            :
-            (Vector2) {
-                GAME_SCREEN_START + screen_area * (float)GetRandomValue(0, RAND_MAX) / (float)RAND_MAX,
-                ENEMY_LINE_SPAWN_START
             };
+        }
 
         Enemy enemy;
         InitEnemy(&enemy, position, type, GetEnemyHitpoints(type));
@@ -367,10 +372,16 @@ void GenerateWaves() {
             break;
         // SPINNER
         case 2:
-            CreateVFormation(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
+            if (GetRandomValue(0, 1))
+                CreateVFormation(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
+            else
+                CreateVFormation(wave_id++, ENEMY_REVERSE_SPINNER, next_wave_start_time, modifier);
             break;
         case 3:
-            CreateCentralLine(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
+            if (GetRandomValue(0, 1))
+                CreateCentralLine(wave_id++, ENEMY_SPINNER, next_wave_start_time, modifier);
+            else 
+                CreateCentralLine(wave_id++, ENEMY_REVERSE_SPINNER, next_wave_start_time, modifier);
             break;
         // ZIG-ZAG
         case 4:
@@ -445,6 +456,8 @@ void UpdateWaves(void) {
 
         return;
     }
+
+    TraceLog(LOG_WARNING, "I: %f | D: %f", intensity, density);
     
     GenerateWaves();
 }
@@ -453,5 +466,5 @@ bool AreAllWavesCompleted(void) {
     if (endless_mode) {
         return false;
     }
-    return waves != NULL && waves->size == 0;
+    return waves != NULL && waves->size == 0 && current_wave_number >= MAX_WAVES && enemies->size == 0;
 }
