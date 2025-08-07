@@ -252,12 +252,12 @@ static Enemy* CreateSingleForDebug(EnemyType type, float start_time) {
 
 int GetWaveEnemies(int wave_no) {
     // Wave table
-    if (wave_no == 1) return 0;
-	if (wave_no == 2) return 4;
-	if (wave_no == 3) return 1;
-	if (wave_no > 3 && wave_no < 10) return GetRandomValue(0, 7);   // Basic, spinners, zig-zag, booster
-	if (wave_no > 10 && wave_no < 15) return GetRandomValue(0, 8);  // + Ghost
-	if (wave_no > 15 && wave_no < 24) return GetRandomValue(0, 9);  // + Stalker
+    if (wave_no == 0) return 0;
+	if (wave_no == 1) return 4;
+	if (wave_no == 2) return 1;
+	if (wave_no > 2 && wave_no <= 9) return GetRandomValue(0, 7);   // Basic, spinners, zig-zag, booster
+	if (wave_no > 9 && wave_no <= 14) return GetRandomValue(0, 8);  // + Ghost
+	if (wave_no > 14 && wave_no <= 24) return GetRandomValue(0, 9);  // + Stalker
     if (wave_no == 25) return 10;
 	return GetRandomValue(0, 10); // + Pidgeon of Prey
 }
@@ -323,7 +323,7 @@ void InitWaves(bool is_endless_mode) {
     time_per_event = 0.0f;
     wave_id = 0;
 
-    intensity = 0.0f;
+    intensity = 1.0f;
 	density = 0.0f;
 
     current_wave_number = 0;

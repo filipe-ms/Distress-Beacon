@@ -348,16 +348,13 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		puddle_jumper.wormhole_current_out_scale_time = 0.0f;
 
 		puddle_jumper.wormhole_enter_cooldown = 15.0f;
-		puddle_jumper.wormhole_enter_current_cooldown = 0.0f;
 
 		puddle_jumper.wormhole_moving_time = 0.25f;
 
 		puddle_jumper.wormhole_state = WORMHOLE_INACTIVE;
 
-		// x
-
-		puddle_jumper.wormhole_spawn_current_cooldown = 15.0f;
-		puddle_jumper.wormhole_enter_current_cooldown = 15.0f;
+		puddle_jumper.wormhole_spawn_current_cooldown = 0.0f;
+		puddle_jumper.wormhole_enter_current_cooldown = 0.0f;
 		break;
 	}
 
