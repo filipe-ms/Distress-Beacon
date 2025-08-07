@@ -181,7 +181,7 @@ void PlayMusic(Scene scene) {
 
     if (!IsMusicStreamPlaying(*playing_music)) {
         PlayMusicStream(*playing_music);
-        SetMusicVolume(*playing_music, 0.1);
+        SetMusicVolume(*playing_music, BASE_MUSIC_VOLUME);
         SeekMusicStream(*playing_music, 0);
         
         (*playing_music).looping = true;

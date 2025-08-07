@@ -44,7 +44,7 @@
 #define BASE_WEAPON_SFX_VOLUME 0.25f
 #define MENU_SFX_VOLUME 0.5f
 
-#define BASE_MUSIC_VOLUME 0.75f // Utilizar esse valor
+#define BASE_MUSIC_VOLUME 0.03f
 
 
 //--------------------------------------------------------------
