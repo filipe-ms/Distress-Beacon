@@ -100,10 +100,10 @@ static void CreateLineAtBorders(int id, EnemyType type, float start_time, int mo
     int step;
     
     if (wave.modifier == 0) {
-        starting_x = GAME_SCREEN_START + 20;
+        starting_x = GAME_SCREEN_LEFT_QUARTER;
         step = 40;
     } else {
-        starting_x = GAME_SCREEN_END - 20;
+        starting_x = GAME_SCREEN_RIGHT_QUARTER;
         step = -40;
     }
 
@@ -429,7 +429,6 @@ void InitWaves(bool is_endless_mode) {
 
     endless_mode = is_endless_mode;
     next_wave_start_time = FIRST_WAVE_SPAWN_TIMER;
-    last_pidgeon_spawn = 25;
 
     waves = List_Create(sizeof(EnemyWave));
 }
