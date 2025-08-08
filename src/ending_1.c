@@ -239,7 +239,7 @@ static void Ending1Scene_UpdatePlanetAnimation() {
 
                 if (has_reached_max) {
                     UI_SetBottomPilot(ALIEN);
-                    UI_BottomPilotSpeechAct("Aqui é o General Altros.\nAcredito que a missão,\num sucesso, capitão!", audio_speech_time);
+                    UI_BottomPilotSpeechAct("Aqui é o General Altros.\nA missão foi um\nsucesso, capitão!", audio_speech_time);
                     animation_state = STEP_1_GALAXY_ZOOMING_DIALOG_4;
                     elapsed_time = 0;
                 }
