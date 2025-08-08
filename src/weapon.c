@@ -341,7 +341,7 @@ static void InitHomingShoot(Ship* ship) {
     new_homing_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, homing_shoot_speed_base.x), ApplyMultiplier(speed_modifier, homing_shoot_speed_base.y) };
     List_AddLast(homing.homing_shoots, &new_homing_shoot);
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound14, BASE_WEAPON_SFX_VOLUME, 1.6f, 2.0f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound14, BASE_WEAPON_SFX_VOLUME - 0.10f, 2.6f, 3.0f);
 }
 
 static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
