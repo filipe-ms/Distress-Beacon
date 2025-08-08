@@ -291,6 +291,7 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		orion.dash_disruption_field = NULL;
 		orion.dash_disruption_field_base_damage = 0.5f;
 		orion.dash_disruption_field_area = (Vector2) { 450, 450 };
+
 		orion.dash_disruption_field_damage_tick = 0.25f;
 		break;
 	case NEBULA:
@@ -324,7 +325,6 @@ static void InitShipSpecifics(Ship* ship, int id) {
 		puddle_jumper.wormhole_spawn_is_in_use = false;
 
 		puddle_jumper.wormhole_base_damage = 20.0f;
-		
 
 		puddle_jumper.wormhole_scale_time = 0.25f;
 
@@ -347,8 +347,6 @@ static void InitShipSpecifics(Ship* ship, int id) {
 
 		puddle_jumper.wormhole_current_in_scale_time = 0.0f;
 		puddle_jumper.wormhole_current_out_scale_time = 0.0f;
-
-		
 
 		puddle_jumper.wormhole_moving_time = 0.25f;
 

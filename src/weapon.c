@@ -88,6 +88,7 @@ static void InitPulse(void) {
     pulse.weapon.color = WHITE;
 
     pulse.weapon.damage = 1.5f;
+
     pulse.weapon.shoot_speed = (Vector2){ 0, -500 };
 
     pulse.weapon.cooldown_time = 0.5f;
@@ -320,6 +321,7 @@ static void InitHoming(void) {
     homing.weapon.level = 0;
     homing.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
     homing.weapon.offset = (Vector2){ 0, 0 };
+
     homing.weapon.damage = 0.75f;
     homing.weapon.shoot_speed = homing_shoot_speed_base;
     homing.weapon.cooldown_time = 0.75f;
@@ -391,6 +393,7 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
     float desired_angle = atan2f(normalized_direction.y, normalized_direction.x);
     float current_angle = homing_shoot->calc_rotation;
     float angle_diff = WrapAngle(desired_angle - current_angle);
+
 
     float max_adjustment = 3.0f * GetFrameTime(); // Radians per frame
     float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
@@ -747,6 +750,7 @@ int GetPrismLevel(void) { return prism.weapon.level; }
 void PrismLevelUp(void) { 
     prism.weapon.level += 1;
     prism.weapon.cooldown_time -= 0.05f;
+
     prism.weapon.damage += 0.1f;
 }
 
