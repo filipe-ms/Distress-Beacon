@@ -378,10 +378,10 @@ FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
 *.code-workspace
 
 # Local History for Visual Studio Code
@@ -395,8 +395,19 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
-*.sln.iml
-build_files
-raylib-master
+build_files/obj
+raylib-master/examples
 Makefile
-/*.sln
+
+build/external/raylib-master/examples
+build/external/raylib-master/projects
+build/external/raylib-master/.github
+build/external/raylib-master/*.md
+
+bin/Debug
+build/build_files/obj
+
+build/build_files/spaceinvaders.make
+build/premake5
+
+**/resources/ranking.txt
