@@ -285,7 +285,11 @@ static Vector2 GetRandomAvailableBossSpawnPoint() {
         return (Vector2){ -1, -1 };
     }
 
-    return *(Vector2*)List_GetByIndex(available_slots, GetRandomValue(0, available_slots->size - 1));
+    Vector2 slot = *(Vector2*)List_GetByIndex(available_slots, GetRandomValue(0, available_slots->size - 1);
+
+    List_Destroy(available_slots);
+
+    return slot;
 }
 
 static void CreatePidgeonOfPrey(int id, float start_time) {
