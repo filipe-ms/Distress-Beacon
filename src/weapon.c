@@ -87,7 +87,7 @@ static void InitPulse(void) {
 	pulse.weapon.offset = (Vector2){ 0, 0 };
     pulse.weapon.color = WHITE;
 
-    pulse.weapon.damage = 1.25f;
+    pulse.weapon.damage = 1.5f;
     pulse.weapon.shoot_speed = (Vector2){ 0, -500 };
 
     pulse.weapon.cooldown_time = 0.5f;
@@ -392,7 +392,7 @@ static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
     float current_angle = homing_shoot->calc_rotation;
     float angle_diff = WrapAngle(desired_angle - current_angle);
 
-    float max_adjustment = 2.0f * GetFrameTime(); // Radians per frame
+    float max_adjustment = 3.0f * GetFrameTime(); // Radians per frame
     float adjustment = Clamp(angle_diff, -max_adjustment, max_adjustment);
     float new_angle = current_angle + adjustment;
 
