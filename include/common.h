@@ -114,7 +114,7 @@
 
 // Levels e EXP
 #define BASE_EXP_TO_LEVEL		50		// EXP base necessária para o primeiro level
-#define EXP_TO_LEVEL_INCREMENT	15		// Incremento de EXP necessário por level subsequente
+#define EXP_TO_LEVEL_INCREMENT	10		// Incremento de EXP necessário por level subsequente
 #define EXP_MULTIPLIER			1.0f	// Multiplicador de EXP ganho por inimigo abatido
 
 // Spawns e waves

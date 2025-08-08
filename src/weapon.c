@@ -87,7 +87,7 @@ static void InitPulse(void) {
 	pulse.weapon.offset = (Vector2){ 0, 0 };
     pulse.weapon.color = WHITE;
 
-    pulse.weapon.damage = 1.0f;
+    pulse.weapon.damage = 1.25f;
     pulse.weapon.shoot_speed = (Vector2){ 0, -500 };
 
     pulse.weapon.cooldown_time = 0.5f;
@@ -320,9 +320,9 @@ static void InitHoming(void) {
     homing.weapon.level = 0;
     homing.weapon.source = (Rectangle){ 8 * 5, 8 * 1, 8, 8 };
     homing.weapon.offset = (Vector2){ 0, 0 };
-    homing.weapon.damage = 0.5f;
+    homing.weapon.damage = 0.75f;
     homing.weapon.shoot_speed = homing_shoot_speed_base;
-    homing.weapon.cooldown_time = 0.4f;
+    homing.weapon.cooldown_time = 0.75f;
     homing.weapon.cooldown_charge = 0.0f;
     homing.weapon.color = YELLOW;
 
@@ -341,7 +341,7 @@ static void InitHomingShoot(Ship* ship) {
     new_homing_shoot.current_velocity = (Vector2) { ApplyMultiplier(speed_modifier, homing_shoot_speed_base.x), ApplyMultiplier(speed_modifier, homing_shoot_speed_base.y) };
     List_AddLast(homing.homing_shoots, &new_homing_shoot);
 
-    PlaySoundFxWithVolumeAndRandomPitch(&sound14, BASE_WEAPON_SFX_VOLUME - 0.10f, 2.6f, 3.0f);
+    PlaySoundFxWithVolumeAndRandomPitch(&sound14, BASE_WEAPON_SFX_VOLUME - 0.15f, 2.6f, 3.0f);
 }
 
 static void HomingShootPositionUpdate(HomingShoot* homing_shoot) {
@@ -747,7 +747,7 @@ int GetPrismLevel(void) { return prism.weapon.level; }
 void PrismLevelUp(void) { 
     prism.weapon.level += 1;
     prism.weapon.cooldown_time -= 0.05f;
-    prism.weapon.damage += 0.15f;
+    prism.weapon.damage += 0.1f;
 }
 
 static void InitPrism(void) {
@@ -758,7 +758,7 @@ static void InitPrism(void) {
     prism.weapon.offset = (Vector2){ 0, 0 };
     prism.weapon.color = BLUE;
 
-    prism.weapon.damage = 0.25f;
+    prism.weapon.damage = 0.4f;
     prism.weapon.shoot_speed = (Vector2){ 0, 0 };
 
     prism.weapon.cooldown_time = 0.75f;

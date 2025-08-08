@@ -114,5 +114,3 @@ void CleanupEnemies(void);
 void DrawEnemies(void);
 void InitEnemySourceRects(void);
 void UnloadEnemyList(void);
-
-bool IsPlayerAlive(void);
