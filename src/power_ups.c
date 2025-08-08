@@ -110,7 +110,7 @@ void InitPowerUps(void) {
         .type = WEAPON_HOMING, 
         .name = "Homing",
 		.type_string = "ARMA",
-        .description = "Bumerangue\ne teleguiado\nNível: %d",
+        .description = "Bumerangue\nteleguiado\nNível: %d",
         .value = HOMING,
 		.texture = &weapon_homing
     };
@@ -367,4 +367,5 @@ void DrawLevelUpSelectMenu(bool should_draw) {
             DrawPowerUpCard(&active_cards[i], cardRect, is_selected, power_up_alpha);
         }
     }
+
 }
