@@ -39,7 +39,7 @@ static void DrawRightUIBGandBorder(void) {
 #pragma region Draw_Active_Weapons
 
 void DrawAlignedWeaponLevel(const char* label, int value, int pos_x, int pos_y, int level_width, int font_size, Color color) {
-    DrawText("Level", pos_x, pos_y, font_size, color);
+    DrawText("Nível", pos_x, pos_y, font_size, color);
     char number_text[8];
     sprintf(number_text, "%d", value);
 
@@ -52,8 +52,8 @@ void DrawAlignedWeaponLevel(const char* label, int value, int pos_x, int pos_y, 
 void DrawAlignedWeapon(const char* label, int value, int pos_x, int pos_y, int col_width, int font_size, Color color) {
     DrawText(label, pos_x, pos_y, font_size, color);
     int label_width = MeasureText(label, font_size);
-    int level_x = pos_x + col_width - MeasureText("Level 0", font_size);
-    DrawAlignedWeaponLevel("Level", value, level_x, pos_y, MeasureText("Level 0", font_size), font_size, color);
+    int level_x = pos_x + col_width - MeasureText("Nível 0", font_size);
+    DrawAlignedWeaponLevel("Nível", value, level_x, pos_y, MeasureText("Nível 0", font_size), font_size, color);
 }
 
 static void DrawActiveWeapons() {
