@@ -38,3 +38,63 @@ Para mais informações sobre como configurar o MinGW64, consultar documentaçã
 Pronto! Agora você tem um ambiente de desenvolvimento isolado, persistente e pronto para compilar e depurar o **Distress Call** no Windows. 🚀
 
 ---
+
+# Créditos
+
+## Equipe
+- Luís Santos  
+- Anderson Gabriel  
+- Débora Souza  
+
+## Orientadores
+- Pamela Bezerra  
+- Tiago Barros  
+
+## Collaboradores
+- Carlos Santos  
+
+## Recursos
+- **ansdor**  
+  [ Botões ]  
+- **Gustavo Vituri**  
+  [ Naves, inimigos, pilotos, projéteis e efeitos especiais ]  
+- **Quintino Pixels**  
+  [ Ícones ]  
+- **BDragon1727**  
+  [ Barras de Progresso e efeitos especiais ]  
+- **Deep-Fold**  
+  [ Planetas e background ]  
+
+## Efeitos Sonoros
+- Kronos1001  
+- R0T0R  
+- peepholecircus  
+- mikst656  
+- Leszek_Szary  
+- Trading_Nation  
+- outroelison  
+- u_wzgyzo3pae  
+- RescopicSound  
+- StereogenicStudio  
+- CharlieWD100  
+- floraphonic  
+- ecfike  
+- studiomandragore  
+- qubodup  
+- miraclei  
+- plasterbrain  
+
+## Música
+- Dani Stob  
+
+> *Alguns assets foram criados por nós*  
+
+---
+
+### Development
+Game developed with **Raylib 5.5**  
+[www.raylib.com](https://www.raylib.com)  
+
+### Asset Sources
+- Assets and music found on [itch.io](https://itch.io)  
+- Sound effects found on [pixabay.com](https://pixabay.com)  
