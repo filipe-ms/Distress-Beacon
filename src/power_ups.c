@@ -128,7 +128,7 @@ void InitPowerUps(void) {
         .name = "Escudo",
         .type = SHIELD,
         .type_string = "ESCUDO",
-        .description = "Garante proteção\ncontra 3 hits.",
+        .description = "Garante proteção\ncontra 3 ataques.",
         .value = SHIELD,
         .texture = &util_shield
     };
