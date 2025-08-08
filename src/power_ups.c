@@ -110,7 +110,7 @@ void InitPowerUps(void) {
         .type = WEAPON_HOMING, 
         .name = "Homing",
 		.type_string = "ARMA",
-        .description = "Bumerangue energético\ne teleguiado\nNível: %d",
+        .description = "Bumerangue\ne teleguiado\nNível: %d",
         .value = HOMING,
 		.texture = &weapon_homing
     };
