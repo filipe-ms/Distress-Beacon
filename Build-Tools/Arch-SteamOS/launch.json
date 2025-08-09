@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug (SteamOS)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": false
+        }
+      ],
+      "linux": {
+        "program": "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}",
+        "miDebuggerPath": "/usr/bin/gdb"
+      },
+      "preLaunchTask": "Build Debug (SteamOS)"
+    },
+    {
+      "name": "Run (SteamOS)",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
+      "MIMode": "gdb",
+      "linux": {
+        "program": "${workspaceFolder}/bin/Release/${workspaceFolderBasename}",
+        "miDebuggerPath": "/usr/bin/gdb",
+        "pipeTransport": {
+          "pipeCwd": "${workspaceFolder}",
+          "pipeProgram": "SteamOS",
+          "pipeArgs": [
+            "enter",
+            "Dev-Ubuntu-24.04",
+            "--",
+            "bash",
+            "-c"
+          ],
+          "debuggerPath": "/usr/bin/gdb"
+        },
+        "sourceFileMap": {
+          "/": "${workspaceFolder}"
+        }
+      },
+      "preLaunchTask": "Build Release (SteamOS)"
+    },
+  ]
+}

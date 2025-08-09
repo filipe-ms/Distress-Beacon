@@ -1,106 +1,100 @@
-# Raylib-Quickstart
-A simple cross platform template for setting up a project with the bleeding edge raylib code.
-Works with C or C++.
+# Space Invaders - Roguelike Edition
 
-## Supported Platforms
-Quickstart supports the main 3 desktop platforms
-* Windows
-* Linux
-* MacOS
+Este é um clássico desenvolvido por nossa equipe usando a biblioteca **raylib** (v1.3). O jogo é uma recriação moderna do clássico, com a adição de funcionalidades como waves progressivas de inimigos e disparos automáticos. O jogador controla uma nave espacial e deve derrotar os inimigos que aparecem em ondas, enquanto tenta evitar colisões.
 
-# VSCode Users (all platforms)
-* Download the quickstart
-* Rename the folder to your game name
-* Open the folder in VSCode.
-* Press F5 to build
-* You are good to go.
+## Instruções para build/run em outros sistemas operacionais
 
-# Windows Users
-There are two compiler toolchains avialble for windows, MinGW-W64 (a free compiler using GCC), and Microsoft Visual Studio
-## Using MinGW-W64
-* Double click the build-MinGW-W64.bat file.
-* cd into the folder in your terminal
-* run make
-* You are good to go
+- [Ubuntu 24.04](Build-Tools/Ubuntu-24.04/README.md)
+- [ArchLinux (SteamOS)](Build-Tools/Arch-SteamOS/README.md)
 
-### Note on MinGW-64 versions
-Make sure you have a modern version of MinGW-W64 (not mingw).
-The best place to get it is from the W64devkit from
-https://github.com/skeeto/w64devkit/releases
-or the version installed with the raylib installer
-#### If you have installed rayib from the installer
-Make sure you have added the path
+# Instruções para Configuração do Builder para (Windows MSVC)
 
- C:\raylib\w64devkit\bin 
+Abra o arquivo de solução (.sln) no Visual Studio.
 
-To your path environment varialbe so that the compiler that came with raylib can be found..
+Aperte Iniciar para iniciar a depuração.
 
-DO NOT INSALL ANOTHER MinGW-W64 from another source such as msys2, you don't need it.
+### 📌 Pré-requisitos
 
-## Microsoft Visual Studio
-* Run the build-VisualStudio2022.bat
-* double click the .sln file that is geneated.
-* develop your game
-* you are good to go.
+- **Conexão com a Internet**: Necessária para baixar pacotes e imagens de contêiner.
+- **Máquina Windows**: Necessária para instalar a IDE exclusiva para windows.
 
-# Linux Users
-* CD into the build folder
-* run ./premake5 gmake2
-* CD back to the root
-* run make
-* you are good to go
+### Instalação
 
-# MacOS Users
-* CD into the build folder
-* run ./premake5.osx gmake2
-* CD back to the root
-* run make
-* you are good to go
+1. Visual Studio 2022 Community no seu Ambiente Atual. Lembrar de incluir "Desenvolvimento em C/C++" durante o setup.
+2. (Opcional) Após a instalação, associe os arquivos ".sln" com o Visual Studio
+3. Iniciar o Desenvolvimento - Inicie o Visual Studio ao clicar no arquivo .sln:
+4. Compilar e Depurar seu Projeto
 
-# Output files
-The built code will be in the bin dir
+### 🔧 Compilar (Debug/Release)
 
-# Working directories and the resources folder
-The example uses a utility function from path_utils.h that will find the resources dir and set it as the current working directory. This is very useful when starting out. If you wish to manage your own working directory you can simply remove the call to the function and the header.
+- No canto superior da tela, podemos ver uma dropdown que dá opções para gerar versões de Debug e Release
+  - **Build Debug**
+  - **Build Release**
 
-# Changing to C++
-Simply rename src/main.c to src/main.cpp and re-run the steps above and do a clean build.
+---
 
-# Using your own code
-Simply remove src/main.c and replace it with your code, and re-run the steps above and do a clean build.
+Para mais informações sobre como configurar o MinGW64, consultar documentação da raylib: https://github.com/raysan5/raylib/wiki/Working-on-Windows
 
-# Building for other OpenGL targets
-If you need to build for a different OpenGL version than the default (OpenGL 3.3) you can specify an openGL version in your premake command line. Just modify the bat file or add the following to your command line
+Pronto! Agora você tem um ambiente de desenvolvimento isolado, persistente e pronto para compilar e depurar o **Distress Call** no Windows. 🚀
 
-## For OpenGL 1.1
---graphics=opengl11
+---
 
-## For OpenGL 2.1
---graphics=opengl21
+# Créditos
 
-## For OpenGL 4.3
---graphics=opengl43
+## Equipe
+- Luís Santos  
+- Anderson Gabriel  
+- Débora Souza  
 
-## For OpenGLES 2.0
---graphics=opengles2
+## Orientadores
+- Pamela Bezerra  
+- Tiago Barros  
 
-## For OpenGLES 3.0
---graphics=opengles3
+## Collaboradores
+- Carlos Santos  
 
-# License
-Copyright (c) 2020-2024 Jeffery Myers
+## Recursos
+- **ansdor**  
+  [ Botões ]  
+- **Gustavo Vituri**  
+  [ Naves, inimigos, pilotos, projéteis e efeitos especiais ]  
+- **Quintino Pixels**  
+  [ Ícones ]  
+- **BDragon1727**  
+  [ Barras de Progresso e efeitos especiais ]  
+- **Deep-Fold**  
+  [ Planetas e background ]  
 
-This software is provided "as-is", without any express or implied warranty. In no event 
-will the authors be held liable for any damages arising from the use of this software.
+## Efeitos Sonoros
+- Kronos1001  
+- R0T0R  
+- peepholecircus  
+- mikst656  
+- Leszek_Szary  
+- Trading_Nation  
+- outroelison  
+- u_wzgyzo3pae  
+- RescopicSound  
+- StereogenicStudio  
+- CharlieWD100  
+- floraphonic  
+- ecfike  
+- studiomandragore  
+- qubodup  
+- miraclei  
+- plasterbrain  
 
-Permission is granted to anyone to use this software for any purpose, including commercial 
-applications, and to alter it and redistribute it freely, subject to the following restrictions:
+## Música
+- Dani Stob  
 
-  1. The origin of this software must not be misrepresented; you must not claim that you 
-  wrote the original software. If you use this software in a product, an acknowledgment 
-  in the product documentation would be appreciated but is not required.
+> *Alguns assets foram criados por nós*  
 
-  2. Altered source versions must be plainly marked as such, and must not be misrepresented
-  as being the original software.
+---
 
-  3. This notice may not be removed or altered from any source distribution.
+### Development
+Game developed with **Raylib 5.5**  
+[www.raylib.com](https://www.raylib.com)  
+
+### Asset Sources
+- Assets and music found on [itch.io](https://itch.io)  
+- Sound effects found on [pixabay.com](https://pixabay.com)  
